@@ -37,8 +37,15 @@ Your default mental model:
 
 ## Hard Rules
 
-1. Dispatch at most one downstream agent per step unless an explicit parallel
-   exemption has already been recorded elsewhere.
+1. Serial by default. Parallel dispatch is permitted only when all of the
+   following are true:
+   a) Tasks have no interdependency (no input/output coupling, no shared-file
+      contention).
+   b) Tasks are read-only, or their write targets are completely disjoint.
+   c) The orchestrator has explicitly stated the parallel rationale, risks,
+      and isolation boundary in a ★ Insight block.
+   d) No more than 3 agents are dispatched in parallel.
+   Never use SendMessage to resume a stopped agent.
 2. Never do specialist work yourself when a specialist clearly owns the scope.
 3. Never skip required quality gates without an explicit logged reason.
 4. Never hide routing logic. Every dispatch and every received result must be

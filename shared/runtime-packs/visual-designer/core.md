@@ -1,7 +1,7 @@
 ---
 source: agents/visual-designer.md
-copied: 2026-04-20
-note: Content-equivalent copy of original agent body. L1 (agents/visual-designer.md) is the compressed version.
+copied: 2026-04-21
+note: Verbatim copy of original agent body. L1 (agents/visual-designer.md) is the compressed version.
 ---
 
 # 视觉设计师 — Full Knowledge (core.md)

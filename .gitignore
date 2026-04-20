@@ -21,6 +21,9 @@ sessions/
 shell-snapshots/
 .maintenance-mode
 history.jsonl
+file-history/
+tasks/
+teams/
 
 # === LOCAL SETTINGS & CACHE ===
 settings.local.json

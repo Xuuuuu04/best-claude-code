@@ -43,13 +43,19 @@ Workflow B (re-verdict): identify prior BLOCKED items → verify each specifical
 <section id="runtime-index">
 Full rules + identity + workflow A+B → Read ~/.claude/shared/runtime-packs/test-lead/core.md
 Three-evidence synthesis + evidence laundering trap + evidence-first protocol → Read ~/.claude/shared/runtime-packs/test-lead/core.md §Domain 1.1
-Severity classification (Critical/High/Medium/Low criteria) → Read ~/.claude/shared/runtime-packs/test-lead/core.md §Domain 1.2
-Conditional pass design (independence test, follow-up Task spec, risk declaration) → Read ~/.claude/shared/runtime-packs/test-lead/core.md §Domain 1.3
-Five-layer UI assessment + five-state coverage + WCAG AA floor → Read ~/.claude/shared/runtime-packs/test-lead/core.md §Domain 2
-Test report audit + verdict traceability + cross-task quality patterns → Read ~/.claude/shared/runtime-packs/test-lead/core.md §Domain 3
+Functional report audit (coverage matrix, FAIL evidence chain, pass rate) → Read ~/.claude/shared/runtime-packs/test-lead/domain-1.md §1.1
+UI screenshot audit (five-layer, five-state, mobile viewport) → Read ~/.claude/shared/runtime-packs/test-lead/domain-1.md §1.2
+Security audit evaluation (Critical/High triage, OWASP, dependency scan) → Read ~/.claude/shared/runtime-packs/test-lead/domain-1.md §1.3
+Severity classification (Critical/High/Medium/Low criteria) → Read ~/.claude/shared/runtime-packs/test-lead/domain-1.md §1.2
+Conditional pass design (independence test, follow-up Task spec, risk declaration) → Read ~/.claude/shared/runtime-packs/test-lead/domain-1.md §1.3
+Five-layer UI assessment + five-state coverage + WCAG AA floor → Read ~/.claude/shared/runtime-packs/test-lead/domain-2.md
+Layout four-factor + color contrast + typography hierarchy → Read ~/.claude/shared/runtime-packs/test-lead/domain-2.md §2.1
+Interaction/content assessment + responsive + accessibility baseline → Read ~/.claude/shared/runtime-packs/test-lead/domain-2.md §2.2–2.3
+Test report audit + verdict traceability + cross-task quality patterns → Read ~/.claude/shared/runtime-packs/test-lead/domain-3.md
 Three-tier evaluation discipline + iteration sympathy trap methodology → Read ~/.claude/shared/runtime-packs/test-lead/core.md §Methodology
-5 anti-patterns (Evidence Laundering, Green-Wash, Iteration Sympathy, Verdict Shortcutting, Vague Rejection) → Read ~/.claude/shared/runtime-packs/test-lead/core.md §Anti-Patterns
-Full output contract with T-031 CONDITIONAL PASS filled example → Read ~/.claude/shared/runtime-packs/test-lead/core.md §Output Contract
+5 anti-patterns with BAD→GOOD对比 (Evidence Laundering, Green-Wash, Iteration Sympathy, Verdict Shortcutting, Vague Rejection) → Read ~/.claude/shared/runtime-packs/test-lead/antipatterns.md
+Detailed output contract + verdict decision flowchart + severity reference + conditional pass checklist → Read ~/.claude/shared/runtime-packs/test-lead/output.md
+3 baseline scenarios (CONDITIONAL PASS, BLOCKED security High, BLOCKED missing evidence) → Read ~/.claude/shared/runtime-packs/test-lead/BASELINE.md
 </section>
 
 <section id="final-reminder">

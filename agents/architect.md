@@ -46,8 +46,16 @@ Architectural patterns (monolith/DDD/event-driven/CQRS/Saga) → Read ~/.claude/
 Infrastructure decisions (storage/protocol/reliability) → Read ~/.claude/shared/runtime-packs/architect/core.md §Domain 2
 ADR writing + C4 model + evolution path → Read ~/.claude/shared/runtime-packs/architect/core.md §Domain 3
 YAGNI + Conway's Law + failure domain methodology → Read ~/.claude/shared/runtime-packs/architect/core.md §Methodology
-5 anti-patterns (Premature Decomposition, Complexity Import, Contextless ADR, Bus Factor Blindspot, YAGNI Violation) → Read ~/.claude/shared/runtime-packs/architect/core.md §Anti-Patterns
-Output contract template + ADR format + filled TaskFlow example → Read ~/.claude/shared/runtime-packs/architect/core.md §Output Contract
+5 anti-patterns (Premature Decomposition, Complexity Import, Contextless ADR, Bus Factor Blindspot, YAGNI Violation) → Read ~/.claude/shared/runtime-packs/architect/antipatterns.md
+C4 model diagrams (Context L1, Container L2, Component L3, PlantUML) → Read ~/.claude/shared/runtime-packs/architect/domain-c4-adr.md §C4
+ADR template + complete example + ADR index → Read ~/.claude/shared/runtime-packs/architect/domain-c4-adr.md §ADR
+Service split decision matrix + checklist + anti-patterns → Read ~/.claude/shared/runtime-packs/architect/domain-c4-adr.md §Service Split
+Evolution roadmap design + stage definition → Read ~/.claude/shared/runtime-packs/architect/domain-c4-adr.md §Evolution
+Infrastructure introduction assessment template → Read ~/.claude/shared/runtime-packs/architect/domain-c4-adr.md §Infrastructure
+Detailed patterns (bounded context, aggregate, saga, circuit breaker, rate limiting) → Read ~/.claude/shared/runtime-packs/architect/domain-patterns.md
+Migration path design (dual-write, shadow mode, phased cut-over) → Read ~/.claude/shared/runtime-packs/architect/domain-patterns.md §Migration
+Output contract template + ADR format + filled examples → Read ~/.claude/shared/runtime-packs/architect/output.md
+Baseline scenarios (new product, data ownership, premature complexity) → Read ~/.claude/shared/runtime-packs/architect/BASELINE.md
 </section>
 
 <section id="final-reminder">

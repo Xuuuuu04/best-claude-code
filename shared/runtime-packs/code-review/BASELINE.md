@@ -65,3 +65,67 @@
   2. @dev-lead scheme with In-scope file list and interface contracts
   3. Definition of Done
   4. Self-test output (happy path + error path)
+
+---
+
+## Scenario 4: LLM Hallucination Detection (Specialized)
+
+**Input**:
+- Task: T-055 — Implement user search with fuzzy matching
+- Changed files: `services/search_service.py`, `repositories/user_repo.py`
+- Code contains: `results = await prisma.user.fuzzySearch({ name: query })`
+
+**Expected Output Structure**:
+- Status: CHANGES REQUESTED
+- HALLUCINATION-RISK #1: `repositories/user_repo.py:L42` — `prisma.user.fuzzySearch({ name: query })`
+  - Cannot verify `fuzzySearch` exists in Prisma ORM
+  - Grep codebase: no other usage of `fuzzySearch`
+  - Grep package.json: `@prisma/client@5.7.0`
+  - Prisma 5.7.0 docs: no `fuzzySearch` method on model delegate
+  - Existing search patterns in codebase: `prisma.user.findMany({ where: { name: { contains: query } } })`
+  - Recommendation: Replace with `findMany` with `contains` filter, or verify if `fuzzySearch` is a custom extension
+
+- Finding MEDIUM #1: `search_service.py:L28` — no input sanitization on `query` parameter
+  - `query` passed directly to Prisma `contains` without length limit
+  - Risk: extremely long query strings cause database performance degradation
+  - Fix direction: add `maxLength=100` validation on query parameter
+
+**Key Decision Points**:
+- Hallucination finding is NOT a CRITICAL — it's a risk flag, not a confirmed bug
+- Provided evidence chain: code search → lock file → documentation → existing patterns
+- Did not assert "this method doesn't exist" — stated "cannot verify" and recommended verification path
+- Separate finding for missing validation (real issue) from hallucination risk (potential issue)
+
+---
+
+## Scenario 5: Scheme Drift Detection (Round 3 Review)
+
+**Input**:
+- Task: T-031 — User profile update endpoint
+- Round 1: Implemented exactly per scheme — PUT /users/{id}, fields: display_name, bio, avatar_url
+- Round 2: Bug fix — added `phone_number` field ("PM requested")
+- Round 3: Bug fix — changed `avatar_url` to `avatar` ("frontend asked")
+- Current review: Round 3, code shows `PUT /users/{id}` with fields `display_name`, `bio`, `avatar`, `phone_number`
+- Original scheme (T-031): fields `display_name`, `bio`, `avatar_url` — no `phone_number`
+
+**Expected Output Structure**:
+- Status: CHANGES REQUESTED
+- Scheme Drift finding:
+  - "CRITICAL [scheme-layer]: Implementation has diverged from scheme T-031 across multiple rounds without scheme updates."
+  - "Round 2 deviation: `phone_number` field added — not in scheme."
+  - "Round 3 deviation: `avatar_url` renamed to `avatar` — scheme specifies `avatar_url`."
+  - "Current implementation fields: [display_name, bio, avatar, phone_number]. Scheme fields: [display_name, bio, avatar_url]."
+  - "This is scheme drift — the implementation and scheme no longer describe the same interface."
+
+- Fix direction:
+  1. Route to @dev-lead: "Scheme T-031 requires update to match intended interface."
+  2. Options:
+     - A: Update scheme to include `phone_number` and rename `avatar_url` → `avatar`, then verify implementation matches updated scheme
+     - B: Revert implementation to match original scheme, create T-XXX for field additions
+
+**Key Decision Points**:
+- Identified drift by re-reading original scheme (not relying on memory)
+- Documented each round's deviation separately
+- Did not blame implementing agent for following PM/frontend requests
+- Correct routing: @dev-lead owns scheme, not the implementing agent
+- Option B (revert + separate task) preserves audit trail integrity

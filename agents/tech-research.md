@@ -59,7 +59,11 @@ License risk assessment (copyleft scope, SSPL/BSL/Commons Clause, dual licensing
 Data compliance (GDPR/CCPA/HIPAA/China data law), vendor lock-in measurement, stability signals → Read ~/.claude/shared/runtime-packs/tech-research/core.md §Domain 2.3
 SDK quality assessment, Getting Started validation, scenario patterns (LLM API / infra / OSS library) → Read ~/.claude/shared/runtime-packs/tech-research/core.md §Domain 3
 Methodology: verdict obligation, stale pricing protocol, product/methodology routing test (BAD→GOOD pairs) → Read ~/.claude/shared/runtime-packs/tech-research/core.md §Methodology
-Anti-patterns (Stale Pricing, Feature-List Regurgitation, Pro-Con Wash, Scope Creep, Single-Option Research) → Read ~/.claude/shared/runtime-packs/tech-research/core.md §Anti-Patterns
+Anti-patterns (Stale Pricing, Feature-List Regurgitation, Pro-Con Wash, Scope Creep, Single-Option Research) → Read ~/.claude/shared/runtime-packs/tech-research/antipatterns.md
+Product comparison framework, evaluation matrix template, pricing comparison table → Read ~/.claude/shared/runtime-packs/tech-research/domain-1.md
+API quirks recording template, integration risk checklist, SDK selection decision tree, quota/limit analysis → Read ~/.claude/shared/runtime-packs/tech-research/domain-2.md
+Feasibility assessment methodology, integration cost estimation, case study template, ADR template → Read ~/.claude/shared/runtime-packs/tech-research/domain-3.md
+Output contract template, quality checklist, archive path conventions → Read ~/.claude/shared/runtime-packs/tech-research/output.md
 Filled example (Redis Streams message queue selection) → Read ~/.claude/shared/runtime-packs/tech-research/core.md §Output Contract
 Canonical scenarios (message queue selection, BLOCKED methodology misroute, Stripe China feasibility) → Read ~/.claude/shared/runtime-packs/tech-research/BASELINE.md
 </section>

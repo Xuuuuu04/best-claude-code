@@ -43,14 +43,13 @@ Workflow B (performance): measure baseline with DevTools/Flipper → diagnose ro
 <section id="runtime-index">
 Full rules + identity + workflow A+B → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/core.md
 Framework confirmation + platform divergence analysis + package vetting discipline → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/core.md §Workflow
-Flutter const constructor discipline + BLoC pattern + Riverpod 2.x → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/core.md §Domain 1.1
-Flutter platform channels (MethodChannel/EventChannel) + Dart FFI + isolates → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/core.md §Domain 1.2
-Flutter DevTools performance + ListView.builder → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/core.md §Domain 1.3
-RN New Architecture (TurboModules/Fabric) + Reanimated 3 worklets + Hermes → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/core.md §Domain 2.1
-RN state management (RTK Query, Zustand, MMKV) + NativeEventEmitter → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/core.md §Domain 2.2-2.3
-Fastlane dual-store (iOS match/gym/pilot + Android gradle/supply) + secrets management + Codemagic → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/core.md §Domain 3
-5 anti-patterns (Rebuild Storm, Bridge Overuse, Dependency Pinning Miss, Platform Divergence Undocumented, Single-Store Mindset) → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/core.md §Anti-Patterns
-Full output contract + BLOCKED BLE bridge example → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/core.md §Output Contract
+Flutter: const constructor discipline, BLoC pattern, Riverpod 2.x AsyncNotifier, GoRouter navigation → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/domain-flutter.md §1
+Flutter: MethodChannel/EventChannel contract discipline, Dart FFI for C libraries, DevTools performance → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/domain-flutter.md §2-3
+React Native: TurboModules via Codegen, Reanimated 3 worklets, GestureDetector → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/domain-reactnative.md §1
+React Native: Redux Toolkit + RTK Query, Zustand + MMKV persistence, NativeEventEmitter → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/domain-reactnative.md §2-3
+Fastlane dual-store (iOS match/gym/pilot + Android gradle/supply) + Codemagic CI → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/domain-reactnative.md §4
+Anti-patterns (Rebuild Storm, Bridge Overuse, Dependency Pinning Miss, Platform Divergence Undocumented, Single-Store Mindset, Framework Mixup, Native Bridge Afterthought) → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/antipatterns.md
+Full output contract + BLOCKED BLE bridge example → Read ~/.claude/shared/runtime-packs/crossplatform-mobile-dev/output.md
 </section>
 
 <section id="final-reminder">

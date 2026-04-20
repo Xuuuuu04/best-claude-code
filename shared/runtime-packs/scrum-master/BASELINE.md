@@ -168,8 +168,8 @@ Pass all three → accepted as action item.
 **Action Items**:
 | # | Action | Owner | Deadline | Verification |
 |---|--------|-------|----------|-------------|
-| 1 | Add 'cross-team dependencies' section to every scheme document listing interfaces and contracts | @dev-lead | Before Sprint 5 planning | At Sprint 5 planning, each scheme has the section |
-| 2 | @scrum-master reviews blockers.md at Sprint planning to surface recurring patterns | @scrum-master | Before Sprint 5 planning | Sprint 5 planning includes blocker pattern review |
+| 1 | Add 'cross-team dependencies' section to every scheme document | @dev-lead | Before Sprint 5 planning | At Sprint 5 planning, each scheme has the section |
+| 2 | Review blockers.md at Sprint planning to surface recurring patterns | @scrum-master | Before Sprint 5 planning | Sprint 5 planning includes blocker pattern review |
 
 **Velocity Trend**: Sprint 2: 31pts, Sprint 3: 29pts, Sprint 4: 22pts
 **Recommendation for Sprint 5**: 24 points (3-Sprint average 27 × 0.9 buffer). Sprint 4 velocity decline (-25%) warrants conservative planning.
@@ -181,3 +181,71 @@ Pass all three → accepted as action item.
 - Velocity trend shows decline (31→29→22) → recommendation is conservative: 3-Sprint average × 0.9
 - Action items have specific owners and observable verification criteria — not themes, not intentions
 - Partially achieved Sprint goal documented with specific descoped item and Sprint it moved to
+
+---
+
+## Scenario 4: Sprint Planning with Capacity Calculation
+
+**Input**:
+- Sprint 5 planning. Team: @backend, @frontend, @database. Sprint duration: 10 days.
+- Prior retrospective: velocity declining (31→29→22), recommendation: plan conservatively.
+- Backlog: 8 tasks pending, total 35 points.
+
+**Expected Output Structure**:
+
+1. Read TASK.md and Sprint 4 retrospective
+2. Confirm Sprint goal with @pm: "Users can reset their password end-to-end"
+3. Calculate capacity:
+   - Available working days: 8 days per agent (2 days for meetings/reviews/unexpected)
+   - Capacity: 8 × 0.70 × 3 = 16.8 agent-days
+   - Planned load: 16.8 × 0.80 = 13.4 → 13 points maximum
+4. Select tasks (≤ 13 points):
+   - T-025: Password reset token table (3 pts, @database)
+   - T-026: Request reset endpoint (5 pts, @backend)
+   - T-027: Confirm reset endpoint (3 pts, @backend)
+   - T-028: Password reset UI (2 pts, @frontend)
+   - Total: 13 points
+   - Descoped: T-029 (email template design, 3 pts) → Sprint 6
+5. Produce sprint-5-plan.md
+6. Establish ideal burndown: 13 points / 10 days = 1.3 points/day
+7. Sync with @pm
+
+**Key Decision Points**:
+- Capacity calculated at 70% (not 100%) with 20% buffer on top
+- Tasks selected to fit capacity, not to clear the backlog
+- Declining velocity trend triggers conservative planning
+- Sprint goal is outcome-focused, not task-list-focused
+
+---
+
+## Scenario 5: Velocity Compass — Systemic Capacity Problem Detection
+
+**Input**:
+- Sprint 6 ended. Velocity: 18 points / 28 planned = 64%.
+- Velocity trend: Sprint 4: 22pts, Sprint 5: 20pts, Sprint 6: 18pts.
+- Ratio: Sprint 5/Sprint 4 = 0.91, Sprint 6/Sprint 5 = 0.90.
+
+**Expected Output Structure**:
+
+Velocity Compass analysis:
+- Sprint 6/Sprint 5 = 0.90 (stable, within 0.85-1.10 range)
+- BUT 3-Sprint trend is declining: 22 → 20 → 18
+- Sprint 6 velocity (18) / Sprint 4 velocity (22) = 0.82 (declining)
+- Not yet < 0.70 for 2 consecutive Sprints, but trend is concerning
+
+Action:
+1. Produce velocity trend report for @pm
+2. Investigate root causes:
+   - Blocker analysis: Sprint 6 had 4 blockers (vs 3 in Sprint 5, 3 in Sprint 4)
+   - Average blocker resolution: 36 hours (vs 31 in Sprint 5, 28 in Sprint 4)
+   - Root cause: scheme gaps discovered late, causing implementation delays
+3. Recommendation for Sprint 7:
+   - Capacity: 12 points (conservative, 3-Sprint average 20 × 0.6 buffer)
+   - Focus: reduce blocker count by requiring scheme dependency sections
+   - Process change: @dev-lead reviews schemes for completeness before Sprint start
+
+**Key Decision Points**:
+- Velocity Compass looks at trend, not just single-Sprint performance
+- Declining trend triggers investigation before it becomes a crisis
+- Recommendation includes both capacity adjustment AND process improvement
+- Data-driven: blocker statistics support the velocity decline explanation

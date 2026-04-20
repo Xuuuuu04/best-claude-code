@@ -28,7 +28,7 @@ def send_notification(user_id: int) -> None:
 // TypeScript / Node.js
 async function createInvitation(dto: CreateInvitationDto): Promise<Invitation> {
     // TODO: implement
-    return {} as Invitation;  // FORBIDDEN
+    return {} as Invitation;  # FORBIDDEN
 }
 ```
 
@@ -39,9 +39,16 @@ func (s *UserService) Create(ctx context.Context, req CreateUserRequest) (*User,
 }
 ```
 
+```rust
+// Rust
+async fn create_user(Json(req): Json<CreateUserRequest>) -> Result<Json<User>, AppError> {
+    todo!()  // FORBIDDEN in production paths
+}
+```
+
 **Why it's dangerous**: Skeleton commits pass static analysis, pass linting, may even pass tests that mock the function. The defect is invisible until the function is called in production with real data. The function body looks legitimate in a diff.
 
-**Correction**: Every function submitted to @code-review must either have complete implementation, or be explicitly marked as `raise NotImplementedError("Not yet implemented: create_user")`. Never `pass`. Never a stub return without the NotImplementedError.
+**Correction**: Every function submitted to @code-review must either have complete implementation, or be explicitly marked as `raise NotImplementedError("Not yet implemented: create_user")` / `todo!("reason")`. Never `pass`. Never a stub return without the NotImplementedError.
 
 ---
 
@@ -85,6 +92,12 @@ try {
 // Go — ignoring errors is the Go equivalent
 result, _ := repo.GetUser(ctx, id)  // discarding error — GHOST FAILURE
 // Every error return must be handled
+```
+
+```rust
+// Rust — ignoring Result with let _ =
+let _ = email_service.send(user_id).await;  // GHOST FAILURE
+// Correction: use ? or match
 ```
 
 **Why it's dangerous**: Ghost failures produce misleading logs, misleading metrics, and misleading health checks. The service appears healthy. The feature is silently broken. Incident response becomes: "why is the count zero? the logs show no errors."
@@ -169,4 +182,186 @@ Routing to @dev-lead for spec clarification before implementation.
 ## Discovered Issues (Out-of-Scope — Future Tasks)
 - `user_service.py:L89`: password reset endpoint has same N+1 issue as T-042. Recommend creating T-043 for separate fix.
 - `config.py:L12`: deprecated `LEGACY_AUTH_MODE` setting present. Recommend cleanup in separate maintenance task.
+```
+
+---
+
+### Connection Pool Exhaustion
+
+**Definition**: Opening database connections without proper lifecycle management, leading to pool exhaustion under load.
+
+**Manifestations**:
+```python
+# BAD — connection not closed
+conn = db_pool.getconn()
+cursor = conn.cursor()
+cursor.execute("SELECT * FROM users")
+# Missing: conn.close() or pool.putconn(conn)
+
+# BAD — opening connection per row in a loop
+for user_id in user_ids:
+    conn = db_pool.getconn()  # 1000 users = 1000 connections
+    ...
+```
+
+```go
+// BAD — not returning connections to pool
+func (r *Repo) Query(ctx context.Context) {
+    db.WithContext(ctx).Raw("SELECT ...").Scan(&results)
+    // GORM handles this, but raw sql.DB requires Close()
+}
+```
+
+**Why it's dangerous**: Under production load, connection pool exhaustion causes cascading failures — all requests block waiting for connections, response times spike, health checks fail, service restarts. The root cause is invisible in application logs.
+
+**Correction**: Always use connection context managers. In Python: `with pool.getconn() as conn:`. In Go: GORM handles pooling automatically; raw `sql.DB` uses `defer rows.Close()`. Monitor pool metrics: active connections, idle connections, wait queue depth.
+
+```python
+# GOOD — context manager ensures return to pool
+with db_pool.connection() as conn:
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+        return cursor.fetchone()
+```
+
+---
+
+### N+1 Cascade
+
+**Definition**: A single API request triggers an unbounded number of database queries due to lazy loading in loops, often compounding across multiple nested relationships.
+
+**Manifestations**:
+```python
+# BAD — N+1 in a loop, each item triggers another query
+orders = session.query(Order).filter(Order.user_id == user_id).all()
+return [
+    {
+        "id": order.id,
+        "items": [item.to_dict() for item in order.items],  # 1 query per order
+        "customer": order.customer.to_dict(),  # 1 query per order
+    }
+    for order in orders
+]
+# For 50 orders: 1 + 50 + 50 = 101 queries
+```
+
+**Why it's dangerous**: N+1 cascades turn O(1) API calls into O(n) database load. With nested relationships, complexity becomes O(n²). A single request that should take 50ms takes 5 seconds. Under concurrent load, the database CPU saturates.
+
+**Correction**: Eager load all required relationships before the loop. Use `joinedload` for one-to-one, `selectinload` for one-to-many. Measure query count with SQL logging enabled.
+
+```python
+# GOOD — eager load with selectinload (2 queries total)
+orders = (
+    session.query(Order)
+    .options(
+        selectinload(Order.items),
+        joinedload(Order.customer),
+    )
+    .filter(Order.user_id == user_id)
+    .all()
+)
+```
+
+---
+
+### Transaction Boundary Leak
+
+**Definition**: Holding a database transaction open during external service calls, network I/O, or other slow operations.
+
+**Manifestations**:
+```python
+# BAD — transaction holds lock during email send
+async with db.begin() as txn:
+    invitation = await invitation_repo.create(txn, req)
+    await email_service.send(invitation.email, ...)  # 2-5 seconds, lock held
+    await audit_repo.create(txn, {...})
+```
+
+```go
+// BAD — same pattern in Go
+db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+    tx.Create(&order)
+    paymentClient.Charge(ctx, order.Amount)  // external call inside transaction
+    tx.Create(&auditLog)
+    return nil
+})
+```
+
+**Why it's dangerous**: Database locks are held for the duration of the external call. Under load, this causes lock contention, connection pool exhaustion, and cascading timeouts. The email service's slowness becomes the database's slowness.
+
+**Correction**: External calls happen AFTER transaction commit. Use outbox pattern or background tasks for operations that need transactional guarantees alongside external calls.
+
+```python
+# GOOD — commit first, then send email
+async with db.begin() as txn:
+    invitation = await invitation_repo.create(txn, req)
+    await audit_repo.create(txn, {...})
+# Transaction committed here
+
+# Email sent outside transaction
+await email_service.send(invitation.email, ...)
+# Or use background task:
+background_tasks.add_task(email_service.send_invitation_email, invitation.id)
+```
+
+---
+
+### Magic String Configuration
+
+**Definition**: Hardcoding environment-specific values (URLs, timeouts, feature flags) in source code instead of external configuration.
+
+**Manifestations**:
+```python
+# BAD — hardcoded in source
+API_TIMEOUT = 30  # seconds
+STRIPE_WEBHOOK_SECRET = "whsec_test_xxx"  # committed to git
+REDIS_URL = "redis://localhost:6379/0"
+```
+
+```go
+// BAD — hardcoded in source
+const (
+    MaxRetries = 3
+    RetryDelay = 2 * time.Second
+    PaymentGatewayURL = "https://api.stripe.com/v1"
+)
+```
+
+**Why it's dangerous**: Environment-specific values in source code require code changes to adjust behavior. Secrets in source code are exposed in git history forever. Different environments (dev/staging/prod) need different values — hardcoding forces conditional logic or branch divergence.
+
+**Correction**: All environment-specific values load from environment variables or secrets manager at startup. Fail fast if required config is missing.
+
+```python
+# GOOD — pydantic-settings with validation
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    api_timeout: int = 30
+    stripe_webhook_secret: str  # required — missing = startup failure
+    redis_url: str = "redis://localhost:6379/0"
+    max_retries: int = 3
+
+    class Config:
+        env_file = ".env"
+
+settings = Settings()  # Fails at startup if stripe_webhook_secret missing
+```
+
+```rust
+// GOOD — envy + serde
+use serde::Deserialize;
+
+#[derive(Deserialize, Debug)]
+struct Config {
+    #[serde(default = "default_timeout")]
+    api_timeout: u64,
+    stripe_webhook_secret: String,  // required
+    #[serde(default = "default_redis_url")]
+    redis_url: String,
+}
+
+fn default_timeout() -> u64 { 30 }
+fn default_redis_url() -> String { "redis://localhost:6379/0".to_string() }
+
+let config: Config = envy::from_env().expect("Missing required environment variables");
 ```

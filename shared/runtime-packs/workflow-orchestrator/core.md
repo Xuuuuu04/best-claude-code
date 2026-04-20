@@ -1,6 +1,6 @@
 ---
 source: agents/workflow-orchestrator.md
-copied: 2026-04-20
+copied: 2026-04-21
 note: L1 at agents/workflow-orchestrator.md is a compressed startup prompt; this file is the full knowledge base.
 ---
 

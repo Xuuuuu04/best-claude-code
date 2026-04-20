@@ -87,3 +87,61 @@
 - The report identifies the specific commit AND the specific code change causing the regression — not just "commit X broke it"
 - Implementation fix (re-adding the event emit) is routed to @backend — @git-master identifies, does not fix source code
 - Next step: dispatch @backend with the bisect finding: "commit c4f1823 removed the `OrderCompleted` event emit from `PaymentService.processPayment()`; email listener at `EmailService.onOrderCompleted()` is no longer triggered"
+
+---
+
+## Scenario 4: Cherry-Pick Security Fix to Release Branch
+
+**Input**:
+- @security-auditor: "Commit `a3f9d21` on main fixes a critical JWT validation bypass. We need this on the release/v2.1 branch immediately."
+- Release branch `release/v2.1` is 20 commits behind main.
+
+**Expected Output Structure**:
+- Record pre-operation HEAD SHA on release/v2.1: `f8e2c91`
+- Verify the fix commit exists and is a single logical change: `git show a3f9d21 --stat` → 2 files changed, 15 insertions, 3 deletions
+- Check if the fix has dependencies on other main commits: `git log --oneline a3f9d21^..a3f9d21` and review the diff for external dependencies
+- Execute cherry-pick:
+  ```
+  git checkout release/v2.1
+  git cherry-pick -x a3f9d21
+  ```
+- `-x` flag appends "(cherry picked from commit a3f9d21)" for traceability
+- Verify: `git log --oneline -3` shows the cherry-picked commit with `-x` annotation
+- Push: `git push origin release/v2.1`
+- Report: pre-op HEAD `f8e2c91`, cherry-pick command, new HEAD SHA, verification that the fix applies cleanly
+
+**Key Decision Points**:
+- Dependency check before cherry-pick: if the fix depends on infrastructure changes in main not present in release/v2.1, BLOCK and escalate to @dev-lead
+- `-x` flag for traceability — every cherry-pick must be traceable back to its original commit
+- No force push needed — release/v2.1 is a fast-forward push
+- Next step: notify @devops that release/v2.1 has a security fix ready for deployment
+
+---
+
+## Scenario 5: Submodule Update with Dependency Conflict
+
+**Input**:
+- @backend: "We need to update the `libs/shared-auth` submodule to v3.0.0 for the new OAuth2 flow. The current submodule is at v2.1.4."
+- `libs/shared-auth` is a submodule tracking a separate repository.
+
+**Expected Output Structure**:
+- Record pre-operation HEAD SHA: `d4e5f67`
+- Check current submodule state: `git submodule status` → `4a3b2c1 libs/shared-auth (v2.1.4)`
+- Enter submodule and update:
+  ```
+  cd libs/shared-auth
+  git fetch origin
+  git checkout v3.0.0
+  cd ../..
+  ```
+- Stage submodule update: `git add libs/shared-auth`
+- Check for API compatibility: `git diff --cached libs/shared-auth` → shows SHA change only (submodule pointer)
+- Commit parent repo: `git commit -m "chore(deps): update shared-auth to v3.0.0 for OAuth2 support"`
+- Verify: `git submodule status` → `9f8e7d6 libs/shared-auth (v3.0.0)`
+- Report: pre-op HEAD, submodule before/after SHA, commit SHA, verification
+
+**Key Decision Points**:
+- Submodule update requires TWO commits: one in the submodule repo (already done by submodule maintainers), one in the parent repo (the SHA pointer update)
+- Parent repo commit is mandatory — without it, other developers get the old submodule
+- API compatibility check is noted but not diagnosed — if v3.0.0 breaks the main project, that's a @backend/@dev-lead issue, not a git issue
+- Next step: @backend to verify OAuth2 integration works with shared-auth v3.0.0

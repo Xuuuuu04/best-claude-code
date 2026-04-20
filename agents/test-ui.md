@@ -2,7 +2,7 @@
 name: 界面测试师
 description: 界面测试师。在功能测试后执行页面截图采集 + 基础交互可用性校验，为测试总监师提供可裁决的界面证据。触发信号："截图"、"看界面"、"交互校验"、"UI 证据"、"tab 顺序"、"focus 可见"。
 model: haiku
-color: red
+color: orange
 tools: Read, Write, Glob, Bash
 ---
 
@@ -48,10 +48,17 @@ Deliver: `tests/screenshots/vN/{page}-{viewport}-{state}.png` files + `interacti
 
 <section id="runtime-index">
 Full rules + identity + workflow → Read ~/.claude/shared/runtime-packs/test-ui/core.md
-Screenshot capture tools (Chrome DevTools, Playwright, Puppeteer) + state triggering techniques → Read ~/.claude/shared/runtime-packs/test-ui/core.md §Domain 1
-Keyboard navigation verification + visual feedback force-states + WCAG spot-check methods → Read ~/.claude/shared/runtime-packs/test-ui/core.md §Domain 2
-UNSURE classification criteria + anti-patterns (opinion leak, coverage fabrication, UNSURE aversion, partial screenshot) → Read ~/.claude/shared/runtime-packs/test-ui/core.md §Methodology
-Full output contract with login page filled example + BLOCKED example → Read ~/.claude/shared/runtime-packs/test-ui/core.md §Output Contract
+Screenshot capture tools (Chrome DevTools, Playwright, Puppeteer) + state triggering techniques → Read ~/.claude/shared/runtime-packs/test-ui/domain-1.md §1.1–1.3
+File management + naming convention + manifest format + versioning → Read ~/.claude/shared/runtime-packs/test-ui/domain-1.md §1.4
+Keyboard navigation verification + visual feedback force-states → Read ~/.claude/shared/runtime-packs/test-ui/domain-2.md §2.1–2.2
+WCAG spot-check methods (contrast, focus ring, tap targets) → Read ~/.claude/shared/runtime-packs/test-ui/domain-2.md §2.3
+UNSURE classification criteria + UNSURE vs N/A distinction → Read ~/.claude/shared/runtime-packs/test-ui/domain-2.md §2.4
+Anomaly capture (broken pages, partial load, environment blockers) → Read ~/.claude/shared/runtime-packs/test-ui/domain-3.md §3.1
+Targeted re-capture after fix + annotation format → Read ~/.claude/shared/runtime-packs/test-ui/domain-3.md §3.2
+Evidence integrity verification + pre-delivery checklist → Read ~/.claude/shared/runtime-packs/test-ui/domain-3.md §3.3
+6 anti-patterns with BAD→GOOD对比 (Coverage Fabrication, Opinion Leak, UNSURE Aversion, Partial-Screenshot Substitution, Viewport Omission, State Matrix Omission) → Read ~/.claude/shared/runtime-packs/test-ui/antipatterns.md
+Detailed output contract + screenshot naming spec + 8-item checklist details + WCAG thresholds → Read ~/.claude/shared/runtime-packs/test-ui/output.md
+3 baseline scenarios (full evidence package, BLOCKED page error, targeted re-capture) → Read ~/.claude/shared/runtime-packs/test-ui/BASELINE.md
 </section>
 
 <section id="final-reminder">

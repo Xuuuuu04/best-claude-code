@@ -93,3 +93,174 @@
 - Issue 2 uses semantic `<button>` not `<div>` with ARIA patches — correct fix, not a workaround
 - `aria-label` added to Remove button: the button content "Remove" alone is not sufficient without context — "Remove invitation for user@example.com" is the accessible name
 - Self-check specifically verifies keyboard navigation after the fix
+
+---
+
+## Scenario 4: BLOCKED — Hydration Mismatch in Next.js 15
+
+**Input**:
+- @dev-lead scheme: "Implement a dashboard header showing current time and user's local timezone. Stack: Next.js 15 App Router + React 19 + Tailwind."
+- Developer implementation:
+  ```tsx
+  // app/dashboard/header.tsx
+  export default function DashboardHeader() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString();
+    return <header>Current time: {timeString}</header>;
+  }
+  ```
+
+**Expected Output Structure**:
+- Status: BLOCKED — hydration mismatch detected
+- Issue: `new Date()` produces different values on server (render time) and client (hydration time). Next.js 15 App Router with React 19 will throw a hydration mismatch error.
+- Response: "The current time implementation causes a hydration mismatch because server-rendered HTML contains one timestamp and client hydration expects another. Two safe approaches:"
+
+**Option A — Client-only rendering:**
+```tsx
+'use client';
+import { useState, useEffect } from 'react';
+
+export default function DashboardHeader() {
+  const [time, setTime] = useState<string | null>(null);
+  useEffect(() => {
+    setTime(new Date().toLocaleTimeString());
+    const interval = setInterval(() => {
+      setTime(new Date().toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return <header>Current time: {time ?? '--:--:--'}</header>;
+}
+```
+
+**Option B — Server-rendered static + client update:**
+```tsx
+import { Suspense } from 'react';
+
+export default function DashboardHeader() {
+  return (
+    <header>
+      Current time: <Suspense fallback="--:--:--"><ClientTime /></Suspense>
+    </header>
+  );
+}
+
+'use client';
+function ClientTime() {
+  const [time, setTime] = useState(() => new Date().toLocaleTimeString());
+  useEffect(() => {
+    const interval = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+  return <span>{time}</span>;
+}
+```
+
+**Key Decision Points**:
+- Hydration mismatch is a BLOCK condition, not a warning
+- Server and client initial HTML must match exactly
+- Time-dependent values must be wrapped in `useEffect` (client-only) or use `suppressHydrationWarning`
+- React 19's improved hydration errors make this more visible — do not suppress the warning, fix the root cause
+
+---
+
+## Scenario 5: Performance Regression — Unnecessary Re-renders
+
+**Input**:
+- @test-ui: "The invitation list becomes sluggish when there are more than 20 invitations. Scrolling is jerky and clicking 'Resend' takes 500ms to respond."
+- Source code inspection reveals:
+  ```tsx
+  function InvitationList() {
+    const [selectedId, setSelectedId] = useState<number | null>(null);
+    const { data: invitations } = useQuery({ queryKey: ['invitations'], queryFn: api.getInvitations });
+
+    return (
+      <div>
+        {invitations?.map(inv => (
+          <InvitationCard
+            key={inv.id}
+            invitation={inv}
+            isSelected={selectedId === inv.id}
+            onSelect={setSelectedId}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  function InvitationCard({ invitation, isSelected, onSelect }) {
+    // No memoization — every card re-renders when any state changes
+    return (
+      <div className={isSelected ? 'selected' : ''} onClick={() => onSelect(invitation.id)}>
+        <img src={invitation.avatar} />
+        <span>{invitation.email}</span>
+        <button onClick={() => api.resend(invitation.id)}>Resend</button>
+      </div>
+    );
+  }
+  ```
+
+**Expected Output Structure**:
+- DIAGNOSIS: Every `InvitationCard` re-renders when `selectedId` changes (because `onSelect` reference changes and no memoization). With 50 invitations, clicking one card causes 50 re-renders.
+- FIX — three optimizations:
+
+1. **Memoize InvitationCard** (after profiler confirmation):
+```tsx
+const InvitationCard = React.memo(({ invitation, isSelected, onSelect }: InvitationCardProps) => {
+  return (
+    <div className={isSelected ? 'selected' : ''} onClick={() => onSelect(invitation.id)}>
+      <img src={invitation.avatar} />
+      <span>{invitation.email}</span>
+      <ResendButton invitationId={invitation.id} />
+    </div>
+  );
+});
+```
+
+2. **Stabilize onSelect callback**:
+```tsx
+function InvitationList() {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const { data: invitations } = useQuery({ queryKey: ['invitations'], queryFn: api.getInvitations });
+
+  // Stable callback reference — doesn't change between renders
+  const handleSelect = useCallback((id: number) => {
+    setSelectedId(id);
+  }, []);
+
+  return (
+    <div>
+      {invitations?.map(inv => (
+        <InvitationCard
+          key={inv.id}
+          invitation={inv}
+          isSelected={selectedId === inv.id}
+          onSelect={handleSelect}
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+3. **Extract ResendButton to prevent re-render on parent state change**:
+```tsx
+const ResendButton = React.memo(({ invitationId }: { invitationId: number }) => {
+  const { mutate: resend, isPending } = useResendInvitation();
+  return (
+    <button onClick={() => resend(invitationId)} disabled={isPending}>
+      {isPending ? 'Sending...' : 'Resend'}
+    </button>
+  );
+});
+```
+
+- Self-test: React Profiler records interaction before/after. Confirm re-render count drops from 50 to 1 on selection change.
+- Next step: @code-review → verify memoization correctness (no stale closures), @test-ui → re-measure interaction responsiveness
+
+**Key Decision Points**:
+- Profiler measurement before optimization — do not memoize speculatively
+- `useCallback` only when the callback is passed to memoized children
+- `React.memo` only after profiler confirms unnecessary re-renders
+- Extracting components is often better than adding memoization — smaller components naturally re-render less

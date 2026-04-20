@@ -10,19 +10,20 @@
 **Expected Output Structure**:
 - Status: READY-FOR-NEXT
 - Scheme document at `projects/auth/tasks/T019-scheme.md`
-- In-scope: 4 file-level actions (CREATE invitation.py model, CREATE invitation_service.py, CREATE invitation_repository.py, MODIFY routes/invitations.py)
+- In-scope: 5 file-level actions (CREATE invitation.py model, CREATE invitation_repository.py, CREATE invitation_service.py, CREATE invitation routes, MODIFY email_service.py)
 - Out-scope: 4 explicit exclusions (invitation revocation, bulk invitation, reminder emails, non-email methods)
-- Interface contract: POST /workspaces/{id}/invitations + POST /invitations/{token}/accept — full request/response schemas with all error cases
-- Validation rules table: email (max 254, RFC 5322), workspace_id (path param), token (UUID v4)
-- Error handling matrix: 8 rows covering all failure conditions with HTTP status + error code + log level + user-facing message
+- Interface contract: POST /workspaces/{id}/invitations + POST /invitations/{token}/accept + GET /workspaces/{id}/invitations — full request/response schemas with all error cases
+- Validation rules table: email (max 254, RFC 5322), workspace_id (path param), token (UUID v4), role (enum: admin/member)
+- Error handling matrix: 9 rows covering all failure conditions with HTTP status + error code + log level + user-facing message
 - Concurrency: duplicate invitation returns 200 with existing token; concurrent acceptance uses SELECT FOR UPDATE
-- Dependency: @database for T-018 migration (invitations table) must be applied first
-- DoD: 6 items, all with specific curl commands and expected outcomes
+- Dependency: @database for T-018 migration (invitations table) must be applied first; @visual-designer for email template
+- DoD: 8 items, all with specific curl commands and expected outcomes, at least 2 error-path
+- Minimum change rationale documented
 
 **Key Decision Points**:
 - All interface decisions made in the spec — @backend never needs to decide error codes or message text
 - Out-scope minimum 4 items (well above the 2-item minimum) to prevent scope inflation
-- Minimum change rationale documented (no new infrastructure needed)
+- Minimum change rationale documented (token-based over OAuth for MVP)
 - @database dependency explicitly called out as a blocking pre-condition
 
 ---

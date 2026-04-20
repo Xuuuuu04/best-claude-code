@@ -47,14 +47,11 @@ Workflow D (atomic service): create atomicservice module → monitor size contin
 
 <section id="runtime-index">
 Full rules + identity + workflows A+B+C+D + tooling etiquette → Read ~/.claude/shared/runtime-packs/harmonyos-dev/core.md
-ArkTS decorators (@State/@Prop/@Link/@Provide/@Consume/@Observed/@ObjectLink/@ObservedV2/@Trace) + state ownership hierarchy → Read ~/.claude/shared/runtime-packs/harmonyos-dev/core.md §Domain 1.1
-Concurrency (taskpool vs Worker vs NAPI) → Read ~/.claude/shared/runtime-packs/harmonyos-dev/core.md §Domain 1.2
-HAP vs HSP vs HAR + OHPM module system → Read ~/.claude/shared/runtime-packs/harmonyos-dev/core.md §Domain 1.3
-ArkUI (LazyForEach/LazyForEach/animateTo/sharedTransition/@Reusable), immersive status bar, safe area insets → Read ~/.claude/shared/runtime-packs/harmonyos-dev/core.md §Domain 2
-Stage Model (UIAbility launch modes, AbilityStage init funnel, ExtensionAbility types, background tasks) → Read ~/.claude/shared/runtime-packs/harmonyos-dev/core.md §Domain 3.1
-Distributed (KVStore sync, continuation flow, deviceManager pairing states) → Read ~/.claude/shared/runtime-packs/harmonyos-dev/core.md §Domain 3.2
-HMS Core deep integration (Push token lifecycle, Account Kit silent sign-in, Pay Kit purchase flow) → Read ~/.claude/shared/runtime-packs/harmonyos-dev/core.md §Domain 3.3
-Anti-patterns (Android Mental Model Drift, Direct Object Mutation, Distributed Without Trust Gate, GMS Dependency, Atomic Service Size Creep) + BAD→GOOD examples → Read ~/.claude/shared/runtime-packs/harmonyos-dev/core.md §Anti-Patterns
+ArkTS decorators (@State/@Prop/@Link/@Provide/@Consume/@Observed/@ObjectLink/@ObservedV2/@Trace) + state ownership hierarchy, strict mode compliance, module system → Read ~/.claude/shared/runtime-packs/harmonyos-dev/domain-arkts.md
+ArkUI component lifecycle, @Reusable pool, LazyForEach DataSource, animation system, Stage Model architecture, HMS Core integration, system UI → Read ~/.claude/shared/runtime-packs/harmonyos-dev/domain-arkui.md
+Distributed capabilities: KVStore sync strategy, task continuation, device management, atomic service development, AppGallery release → Read ~/.claude/shared/runtime-packs/harmonyos-dev/domain-distributed.md
+Anti-patterns (Android Mental Model Drift, Direct Object Mutation Breaking Reactivity, Distributed Without Trust Gate Check, GMS Dependency, Atomic Service Size Creep, FA Model Feature Addition, AbilityStage Init Missing) + BAD→GOOD examples → Read ~/.claude/shared/runtime-packs/harmonyos-dev/antipatterns.md
+Output contract template, filled examples, BLOCKED scenarios → Read ~/.claude/shared/runtime-packs/harmonyos-dev/output.md
 Canonical scenarios (Push+Account Kit integration, BLOCKED Android port + GMS dependency, Atomic Service over budget + distributed sync) → Read ~/.claude/shared/runtime-packs/harmonyos-dev/BASELINE.md
 </section>
 

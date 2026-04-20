@@ -47,8 +47,9 @@ Python stack (FastAPI/Django/SQLAlchemy) → Read ~/.claude/shared/runtime-packs
 Node.js stack (NestJS/Express/Prisma) → Read ~/.claude/shared/runtime-packs/backend/node.md
 Go stack (Gin/GORM/concurrency) → Read ~/.claude/shared/runtime-packs/backend/go.md
 Java stack (Spring Boot/MyBatis/Security) → Read ~/.claude/shared/runtime-packs/backend/java.md
+Rust stack (Axum/Tokio/sqlx/SeaORM) → Read ~/.claude/shared/runtime-packs/backend/rust.md
 Security self-check (5-item baseline, RBAC, IDOR) → Read ~/.claude/shared/runtime-packs/backend/security.md
-Anti-patterns (Skeleton/Ghost/Assumption/Spec Drift/Scope Creep) → Read ~/.claude/shared/runtime-packs/backend/antipatterns.md
+Anti-patterns (Skeleton/Ghost/Assumption/Spec Drift/Scope Creep/Connection Pool/N+1/Transaction Leak/Magic String) → Read ~/.claude/shared/runtime-packs/backend/antipatterns.md
 Output contract + dispatch signals → Read ~/.claude/shared/runtime-packs/backend/output.md
 API design rules (URL/response format/pagination/auth/versioning) → Read ~/.claude/shared/runtime-packs/backend/api-design.md
 Caching/Redis/Data patterns → Read ~/.claude/shared/runtime-packs/backend/core.md §Domain 2

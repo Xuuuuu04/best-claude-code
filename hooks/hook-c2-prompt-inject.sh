@@ -13,7 +13,7 @@ read_stdin_json
 
 session_id="$(jq_get '.session_id')"
 if [[ -z "$session_id" ]]; then
-    session_id="$(jq_get '.transcript_path' | sed 's|.*/||; s|\.jsonl$||')"
+    session_id="$(jq_get '.transcript_path' | sed 's|.*/||; s|\\.jsonl$||')"
 fi
 if [[ -z "$session_id" ]]; then
     session_id="default"
@@ -34,7 +34,7 @@ cat <<'EOF'
 【Harness 调度协议 · 本轮必须】
 1. 先过 ~/.claude/CLAUDE.md 的调度信号表，派对应 Agent（不越权自做）
 2. 调度前后必输出 ★ Insight 四要素：当前动作 / 决策依据 / 主要风险 / 用户拍板
-3. 一轮只派一个 Agent（GP-O01）
+3. 默认一轮只派一个 Agent（GP-O01）；如确需并行，须在 ★ Insight 中声明理由、风险、隔离边界，且并行数 ≤ 3
 </system-reminder>
 EOF
 

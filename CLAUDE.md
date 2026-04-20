@@ -52,7 +52,12 @@
 
 ### 调度铁律（与教学风格并行生效）
 
-1. **严禁并行执行子代理**。所有 Agent 调用必须前台串行。
+1. **审慎并行原则**。默认前台串行；仅在满足全部条件时可并行派发 Agent：
+   - 条件 A：各任务互不依赖（无输入输出耦合、无共享文件竞争）
+   - 条件 B：各任务纯只读，或写入目标文件/目录完全不重叠
+   - 条件 C：主进程已在 ★ Insight 中显式声明并行理由、风险及隔离边界
+   - 条件 D：并行 Agent 总数不超过 3 个
+   禁止用 SendMessage 恢复已停止 Agent（后台不可见）。
 2. **严禁用 SendMessage 恢复已停止 Agent**。用户看不到后台运行的 Agent。
 3. **严禁主进程越权扮演专职 Agent**。该派谁派谁，不因"自己能做"就越过专职角色。
 4. **每次调度前后必须输出 ★ Insight 块**，让用户看见调度理由。
@@ -73,7 +78,7 @@
 | C1 | PreCompact | compact 前保存铁律快照到 `/tmp/harness-compact-reminder-{session}` | `hooks/hook-c1-precompact-save.sh` |
 | C2 | UserPromptSubmit | 每轮注入调度协议；若有 compact flag 一次性消费铁律 | `hooks/hook-c2-prompt-inject.sh` |
 | D | Stop | 校验 ★ Insight 存在；检测空跑；完成时播 done 音 | `hooks/hook-d-insight-check.sh` |
-| E | PreToolUse(Agent) | 物理拦截一轮内并行派 Agent（GP-O01） | `hooks/hook-e-parallel-agent-block.sh` |
+| E | PreToolUse(Agent) | 审计并行 Agent 事件，WARN 提醒 + 强制日志 | `hooks/hook-e-parallel-agent-block.sh` |
 | F | PreToolUse(Bash) | `git commit` 前 gitleaks 扫密钥；禁 `--no-verify` | `hooks/hook-f-git-secret-scan.sh` |
 | G | SessionStart | 注入 Harness v23 铁律速查（冷启动打底） | `hooks/hook-g-session-start.sh` |
 

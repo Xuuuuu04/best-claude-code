@@ -43,13 +43,16 @@ Workflow C (ambiguous): READ dispatch table → one match: dispatch; zero matche
 
 <section id="runtime-index">
 Full rules + identity + workflow A+B+C → Read ~/.claude/shared/runtime-packs/pm/core.md
-INVEST test + critical path + DoD three-element rule → Read ~/.claude/shared/runtime-packs/pm/core.md §Domain 1
-Dispatch table fluency + fast-path recognition + quality gate enforcement → Read ~/.claude/shared/runtime-packs/pm/core.md §Domain 2
-Three-rework escalation protocol details → Read ~/.claude/shared/runtime-packs/pm/core.md §Domain 2.3
-Progress tracking + risk management + cross-agent conflict resolution → Read ~/.claude/shared/runtime-packs/pm/core.md §Domain 3
-Methodology (single-step, rationale-driven, user decisions, fast-path test) → Read ~/.claude/shared/runtime-packs/pm/core.md §Methodology
-5 anti-patterns (Phantom Blocker, Decision Ping-Pong, Multi-Hop Plan, Scope Drift, Stale Task) → Read ~/.claude/shared/runtime-packs/pm/core.md §Anti-Patterns
-Full output contract + filled-in T-009 example → Read ~/.claude/shared/runtime-packs/pm/core.md §Output Contract
+INVEST test + critical path + DoD three-element rule + state machine + dependency graph construction → Read ~/.claude/shared/runtime-packs/pm/domain-1.md
+Dispatch table fluency + fast-path recognition + quality gate enforcement + blocker taxonomy + three-rework escalation + escalation decision tree → Read ~/.claude/shared/runtime-packs/pm/domain-2.md
+Progress tracking + risk management + cross-agent conflict resolution + handoff contracts + milestone health checks → Read ~/.claude/shared/runtime-packs/pm/domain-3.md
+Escalation protocol depth: trigger conditions, target mapping, escalation templates, post-escalation tracking → Read ~/.claude/shared/runtime-packs/pm/domain-escalation.md
+Decision explicitization: ownership matrix, decision record format, decision tree templates, decision anti-patterns → Read ~/.claude/shared/runtime-packs/pm/domain-decision.md
+Progress tracking depth: task dependency graphs, blocker chain analysis, milestone health checks, cross-sprint risk accumulation → Read ~/.claude/shared/runtime-packs/pm/domain-tracking.md
+Methodology (single-step, rationale-driven, user decisions, fast-path test, multi-step orchestration) → Read ~/.claude/shared/runtime-packs/pm/core.md §Methodology
+9 anti-patterns (Phantom Blocker, Decision Ping-Pong, Multi-Hop Plan, Scope Drift, Stale Task, Dispatch Carpet Bomb, Ghost Task, Scope Vacuum, Priority Inflation) + BAD→GOOD examples → Read ~/.claude/shared/runtime-packs/pm/antipatterns.md
+Full output contract + READY/BLOCKED/ESCALATION/SCOPE-CHANGE/BLOCKER-REGISTER/RISK-SIGNAL/MILESTONE-CHECK/DECISION-RECORD templates + state machine reference + progress log format → Read ~/.claude/shared/runtime-packs/pm/output.md
+Canonical scenarios (new requirement, 3-rework escalation, user decision, fast-path, scope drift, multi-step orchestration, cross-agent conflict, milestone no-go) → Read ~/.claude/shared/runtime-packs/pm/BASELINE.md
 </section>
 
 <section id="final-reminder">

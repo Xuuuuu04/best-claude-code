@@ -218,3 +218,179 @@ function DeleteButton({ invitation }: { invitation: Invitation }) {
     );
 }
 ```
+
+---
+
+### Hydration Mismatch
+
+**Definition**: Server-rendered HTML and client-side React/Vue hydration produce different DOM trees, causing hydration errors or silent UI inconsistencies.
+
+**Manifestation**:
+```tsx
+// BAD — time-dependent value differs between server and client
+function Clock() {
+    const [time, setTime] = useState(new Date().toLocaleTimeString());
+    // Server renders "14:30:00", client hydrates with "14:30:05" → mismatch
+    return <span>{time}</span>;
+}
+
+// BAD — random value differs
+function RandomId() {
+    const id = Math.random().toString(36); // Server and client generate different values
+    return <div id={id}>Content</div>;
+}
+
+// BAD — window object accessed during SSR
+function WindowSize() {
+    const [width, setWidth] = useState(window.innerWidth); // window is undefined on server
+    return <span>{width}px</span>;
+}
+```
+
+**Why it's dangerous**: Hydration mismatches cause React to discard server-rendered HTML and re-render from scratch, defeating the performance benefit of SSR. Worse, they can cause interactive elements to become unresponsive or produce incorrect UI states that are hard to debug.
+
+**Correction**: Ensure server and client render identical initial HTML. Use `useEffect` for client-only values, or suppress hydration warnings for intentionally different content.
+
+```tsx
+// GOOD — client-only value in useEffect
+function Clock() {
+    const [time, setTime] = useState<string | null>(null);
+    useEffect(() => {
+        setTime(new Date().toLocaleTimeString());
+        const interval = setInterval(() => {
+            setTime(new Date().toLocaleTimeString());
+        }, 1000);
+        return () => clearInterval(interval);
+    }, []);
+    return <span>{time ?? '--:--:--'}</span>; // Server renders placeholder
+}
+
+// GOOD — suppress hydration for intentionally different content (Next.js)
+function RandomId() {
+    const id = useId(); // React 18+ stable ID across server/client
+    return <div id={id}>Content</div>;
+}
+
+// GOOD — window access guarded
+function WindowSize() {
+    const [width, setWidth] = useState(1024); // Default for SSR
+    useEffect(() => {
+        setWidth(window.innerWidth);
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return <span>{width}px</span>;
+}
+```
+
+---
+
+### Premature Memoization
+
+**Definition**: Wrapping components and values in `React.memo`, `useMemo`, and `useCallback` without profiler evidence that re-renders are actually causing performance problems.
+
+**Manifestation**:
+```tsx
+// BAD — memoization without measurement
+const UserCard = React.memo(({ user }: { user: User }) => {
+    return (
+        <div>
+            <img src={user.avatar} />
+            <span>{user.name}</span>
+        </div>
+    );
+});
+
+// BAD — useMemo for trivial computation
+const fullName = useMemo(() => `${user.firstName} ${user.lastName}`, [user.firstName, user.lastName]);
+// String concatenation is cheaper than useMemo overhead
+
+// BAD — useCallback for every function
+const handleClick = useCallback(() => onSelect(user.id), [user.id, onSelect]);
+// If onSelect is not memoized, this provides no benefit
+```
+
+**Why it's dangerous**: Memoization has overhead — comparison of dependencies, cache management. For trivial computations, the overhead exceeds the savings. Excessive memoization makes code harder to read and maintain, and creates subtle bugs when dependency arrays are incomplete.
+
+**Correction**: Profiler first, memoize second.
+
+1. Open React DevTools Profiler
+2. Record the interaction that feels slow
+3. Identify components with unnecessary re-renders (gray bars)
+4. Apply memoization ONLY to confirmed culprits
+
+```tsx
+// GOOD — memoize only after profiler confirmation
+// Profiler shows HeavyChart re-renders unnecessarily when parent state changes
+const HeavyChart = React.memo(({ data }: { data: ChartData }) => {
+    // Complex D3 rendering
+    return <svg ref={svgRef} />;
+});
+
+// GOOD — useMemo for genuinely expensive computation
+const sortedData = useMemo(() => {
+    return data
+        .filter(item => item.active)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 100);
+}, [data]); // Only recompute when data changes
+```
+
+---
+
+### Memory Leak in Effects
+
+**Definition**: Creating subscriptions, timers, or event listeners in `useEffect` without cleanup, causing memory leaks and stale closures.
+
+**Manifestation**:
+```tsx
+// BAD — no cleanup
+useEffect(() => {
+    const interval = setInterval(() => {
+        fetchNotifications();
+    }, 5000);
+    // Missing: return () => clearInterval(interval);
+}, []);
+
+// BAD — event listener not removed
+useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    // Missing: return () => window.removeEventListener('scroll', handleScroll);
+}, []);
+
+// BAD — AbortController not used
+useEffect(() => {
+    fetchUser(userId).then(setUser);
+    // If userId changes before fetch completes, stale result overwrites new request
+}, [userId]);
+```
+
+**Why it's dangerous**: Memory leaks accumulate over time, especially in SPAs that stay open for hours. Stale closures cause race conditions where old data overwrites new data. In React StrictMode (development), effects run twice — leaks are doubled.
+
+**Correction**: Every effect that creates a resource must clean it up.
+
+```tsx
+// GOOD — cleanup interval
+useEffect(() => {
+    const interval = setInterval(fetchNotifications, 5000);
+    return () => clearInterval(interval);
+}, []);
+
+// GOOD — cleanup event listener
+useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+}, [handleScroll]);
+
+// GOOD — AbortController for fetch
+useEffect(() => {
+    const controller = new AbortController();
+    fetchUser(userId, { signal: controller.signal })
+        .then(setUser)
+        .catch(err => {
+            if (err.name !== 'AbortError') setError(err);
+        });
+    return () => controller.abort();
+}, [userId]);
+```

@@ -63,7 +63,7 @@
 "The scheme references 'the invitations table' but I cannot verify whether this migration has been applied without running alembic current. I will not write data access code until I have confirmed the migration is applied. If it is pending → BLOCK on @database."
 
 **Block 4 — Email sending mechanism:**
-"'Send an invitation' implies an email. The scheme does not define: which email service (SMTP/SendGrid/AWS SES), what happens if email delivery fails (rollback the invitation record? still create and mark as 'email_pending'?), whether this is synchronous or async via a task queue. BLOCK: @dev-lead needs to define the email mechanism and failure handling."
+"'Send an invitation' implies an email. The scheme does not define: which email service (SMTP/SendGrid/AWS SES), what happens if email delivery fails (rollback the invitation record? still create and mark as 'email_pending'?), whether this is synchronous or async via a task queue. BLOCK: @dev-lead needs to define the email mechanism and failure behavior."
 
 **Status**: BLOCKED on four items
 **Unblock conditions**:
@@ -141,3 +141,107 @@
 - MINIMUM fix: only N+1 fix is in scope — discovered unrelated code quality issues are logged as future tasks
 - No scheme change required: N+1 is an implementation defect, not a design defect
 - Measure before/after: "it should be faster" is not a self-test; response time delta is
+
+---
+
+## Scenario 4: BLOCKED — Transaction Boundary Leak + External Call
+
+**Input**:
+- @dev-lead scheme: "Implement payment processing endpoint. POST /payments. Create payment record, charge via Stripe, create audit log. All three must succeed or fail together. Stack: FastAPI + SQLAlchemy + PostgreSQL."
+
+**Expected Output Structure**:
+
+**BLOCKED — scheme contains an unsafe transaction boundary design:**
+
+"The scheme states 'all three must succeed or fail together' referring to: (1) create payment record, (2) charge via Stripe, (3) create audit log. This design holds a database transaction open during an external HTTP call to Stripe (typically 500ms–3s). Under concurrent load, this causes:
+- Database connection pool exhaustion (connections held for Stripe latency)
+- Lock contention on payment-related rows
+- Cascading timeouts when Stripe is slow
+
+**BLOCK**: The 'all together' requirement cannot be implemented as a single database transaction that includes the Stripe call. Two safe alternatives:
+
+**Option A — Outbox Pattern (recommended):**
+1. DB transaction: create payment record (status='pending') + audit log
+2. Commit transaction
+3. Call Stripe API
+4. If Stripe succeeds: update payment status='completed' in new transaction
+5. If Stripe fails: update payment status='failed', trigger refund/retry workflow
+
+**Option B — Saga Pattern:**
+1. Create payment record (status='pending')
+2. Call Stripe API
+3. If Stripe succeeds: create audit log, update status='completed'
+4. If Stripe fails after step 1: compensation transaction updates status='failed'
+
+Routing to @dev-lead for scheme revision before implementation."
+
+**Key Decision Points**:
+- Identified the architectural flaw (transaction boundary leak) before writing any code
+- Provided two concrete alternatives with tradeoffs
+- Did not implement the unsafe pattern "because the scheme said so" — the scheme is not a suicide pact
+- Escalated to @dev-lead because this is a design-level decision, not an implementation detail
+
+---
+
+## Scenario 5: Rust Axum Endpoint — Async + Error Handling
+
+**Input**:
+- @dev-lead scheme: "Implement POST /api/v1/users in Rust Axum. Accepts JSON { email, password, display_name }. Returns 201 with user object. Validates: email format, password 8-128 chars. Uses sqlx with PostgreSQL. Hash password with argon2. Stack: Axum + Tokio + sqlx + PostgreSQL."
+
+**Expected Output Structure**:
+- READ scheme fully — all required fields answered
+- CHECK: `sqlx migrate status` confirms migrations applied
+- IMPLEMENT bottom-up:
+  1. DTO: `CreateUserRequest` struct with validation
+  2. Repository: `create_user()` with sqlx query!
+  3. Service: `create_user()` with argon2 hashing
+  4. Handler: Axum route with Json extractor, State, custom error response
+
+```rust
+// handler.rs
+async fn create_user(
+    State(state): State<AppState>,
+    Json(req): Json<CreateUserRequest>,
+) -> Result<(StatusCode, Json<UserResponse>), AppError> {
+    let user = user_service::create(&state.db, req).await?;
+    Ok((StatusCode::CREATED, Json(UserResponse::from(user))))
+}
+
+// service.rs
+pub async fn create(pool: &PgPool, req: CreateUserRequest) -> Result<User, AppError> {
+    let password_hash = hash_password(&req.password)?;
+    let user = user_repo::create(pool, &req.email, &password_hash, &req.display_name).await?;
+    Ok(user)
+}
+
+// repository.rs
+pub async fn create(pool: &PgPool, email: &str, password_hash: &str, display_name: &str) -> Result<User, sqlx::Error> {
+    query_as!(User,
+        r#"INSERT INTO users (email, password_hash, display_name) VALUES ($1, $2, $3) RETURNING id, email, display_name, created_at"#,
+        email, password_hash, display_name
+    )
+    .fetch_one(pool)
+    .await
+}
+```
+
+- Security baseline:
+  - SQL parameterization: ✓ (sqlx query! macro parameterizes automatically)
+  - Password handling: ✓ (argon2 hashing, no plaintext storage)
+  - Credential externalization: ✓ (DATABASE_URL from env)
+  - Input validation: ✓ (email format + password length in handler layer)
+  - Log hygiene: ✓ (no password in logs)
+
+- Self-test:
+  ```bash
+  curl -X POST http://localhost:3000/api/v1/users \
+    -H "Content-Type: application/json" \
+    -d '{"email":"test@example.com","password":"secure123","display_name":"Test User"}'
+  # → 201 {"id":1,"email":"test@example.com","display_name":"Test User"}
+  ```
+
+**Key Decision Points**:
+- Rust's ownership model prevents data races at compile time — no runtime surprises
+- sqlx's compile-time SQL checking catches schema mismatches before runtime
+- ? operator propagates errors with automatic From conversions
+- argon2 (not bcrypt) is the modern Rust password hashing standard

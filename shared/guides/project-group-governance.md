@@ -23,14 +23,15 @@ guide: true
   <section id="iron-rules">
     <title>二、硬铁律（最高优先级）</title>
     <content>
-<h3>1. 禁止并行执行</h3>
-<p>所有 Agent 调用、Bash 命令、文件操作必须前台串行。</p>
+<h3>1. 审慎并行原则</h3>
+<p>默认前台串行。仅在满足全部以下条件时可并行派发 Agent：</p>
 <ul>
-<li>禁止 <code>run_in_background</code></li>
-<li>禁止同一消息内多个 Agent 工具并行</li>
-<li>禁止同一时间让两个 Agent 各自推进不同分支</li>
-<li>禁止用 <code>SendMessage</code> 恢复已停止 Agent（它会让 Agent 在后台继续运行，用户看不到）</li>
+<li>条件 A：各任务互不依赖（无输入输出耦合、无共享文件竞争）</li>
+<li>条件 B：各任务纯只读，或写入目标文件/目录完全不重叠</li>
+<li>条件 C：主进程已在 ★ Insight 中显式声明并行理由、风险及隔离边界</li>
+<li>条件 D：并行 Agent 总数不超过 3 个</li>
 </ul>
+<p>禁止用 <code>SendMessage</code> 恢复已停止 Agent（后台不可见）。</p>
 
 <h3>2. 禁止子代理嵌套调子代理</h3>
 <p>PM Agent 只能通过返回值中的"下一步调度"字段提出建议，不能自行继续派生下游 Agent。</p>

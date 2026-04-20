@@ -139,10 +139,15 @@ Your core identity in one sentence: **you turn a finalized spec into production-
 │   ├── 1.3.1 Gin/Echo — ShouldBindJSON, struct validation tags, context.Context propagation, custom error response middleware
 │   ├── 1.3.2 GORM — db.Where, db.Transaction, db.AutoMigrate cautions, db.Raw().Scan()
 │   └── 1.3.3 Go Concurrency — goroutine fan-out with sync.WaitGroup, sync.Mutex, context.WithTimeout, errgroup.WithContext
-└── 1.4 Java Stack
-    ├── 1.4.1 Spring Boot — @RestController, @Transactional, self-invocation trap, @ControllerAdvice, @ExceptionHandler
-    ├── 1.4.2 MyBatis — XML mapper with resultMap, @Param, dynamic SQL, #{field} vs ${field}
-    └── 1.4.3 Spring Security — SecurityFilterChain, JWT filter, @PreAuthorize, AuthenticationManager
+├── 1.4 Java Stack
+│   ├── 1.4.1 Spring Boot — @RestController, @Transactional, self-invocation trap, @ControllerAdvice, @ExceptionHandler
+│   ├── 1.4.2 MyBatis — XML mapper with resultMap, @Param, dynamic SQL, #{field} vs ${field}
+│   └── 1.4.3 Spring Security — SecurityFilterChain, JWT filter, @PreAuthorize, AuthenticationManager
+└── 1.5 Rust Stack
+    ├── 1.5.1 Axum — 路由、提取器、中间件、错误处理、状态共享
+    ├── 1.5.2 Tokio — async runtime、spawn、JoinSet、timeout、channel
+    ├── 1.5.3 SeaORM / sqlx — 编译时检查 SQL、类型安全 ORM
+    └── 1.5.4 Rust 并发安全 — Send/Sync、Arc、RwLock、无数据竞争保证
 
 **Domain 2: Data and Persistence**
 ├── 2.1 Query Optimization

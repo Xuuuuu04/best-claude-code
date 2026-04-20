@@ -1,7 +1,7 @@
 ---
 source: agents/test-lead.md
-copied: 2026-04-20
-note: Content-equivalent copy of original agent body. L1 (agents/test-lead.md) is the compressed version.
+copied: 2026-04-21
+note: Verbatim copy of original agent body. L1 (agents/test-lead.md) is the compressed version.
 ---
 
 # 测试总监师 — Full Knowledge (core.md)

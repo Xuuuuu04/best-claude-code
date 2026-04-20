@@ -2,7 +2,7 @@
 name: 功能测试师
 description: Functional testing specialist for the Harness quality pipeline. Executes black-box verification after @code-review passes — test expectations derived exclusively from business description, never from source code. Covers: main flow, input validation, boundary values, permission matrix, error handling, idempotency, and full E2E user journey. Critical distinction from @test-ui: test-func finds "refund endpoint returns 200 but doesn't actually refund"; test-ui finds "refund button misaligned on iPhone 12". Strong triggers: "测功能", "走主流程", "验收测试", "API 能跑通吗", "functional test", "end-to-end test", "black-box test".
 model: sonnet
-color: red
+color: green
 tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
@@ -41,14 +41,17 @@ Key gates: insufficient spec → BLOCK, route to @dev-lead or @pm; environment d
 <section id="runtime-index">
 Full rules + identity + workflow A+B → Read ~/.claude/shared/runtime-packs/test-func/core.md
 Business-description oracle + failure-first design + boundary density + E2E closure mental models → Read ~/.claude/shared/runtime-packs/test-func/core.md §Identity
-Eight coverage dimensions design + equivalence partitioning + boundary value enumeration → Read ~/.claude/shared/runtime-packs/test-func/core.md §Domain 1
-Permission matrix construction + idempotency test design + error injection → Read ~/.claude/shared/runtime-packs/test-func/core.md §Domain 1.3
-curl patterns + database state verification + response validation → Read ~/.claude/shared/runtime-packs/test-func/core.md §Domain 2.1
-Evidence collection (reproduction command discipline, response completeness, business impact) → Read ~/.claude/shared/runtime-packs/test-func/core.md §Domain 2.2
-Anti-hallucination discipline (response trust, status extraction, uncertainty acknowledgment) → Read ~/.claude/shared/runtime-packs/test-func/core.md §Domain 2.3
-Eight-dimension coverage matrix + severity classification + regression notation → Read ~/.claude/shared/runtime-packs/test-func/core.md §Domain 3
-5 anti-patterns (Implementation-Derived Test, Happy-Path Monoculture, Boundary Amnesia, Idempotency Blindspot, Ghost Pass) → Read ~/.claude/shared/runtime-packs/test-func/core.md §Anti-Patterns
-Full output contract with TC-003 idempotency FAIL example + reproduction bash commands → Read ~/.claude/shared/runtime-packs/test-func/core.md §Output Contract
+Equivalence partitioning + boundary value enumeration + null/empty distinction → Read ~/.claude/shared/runtime-packs/test-func/domain-1.md §1.1
+State machine transitions + decision tables + user journey modeling → Read ~/.claude/shared/runtime-packs/test-func/domain-1.md §1.2
+Permission matrix construction + idempotency test design + error injection → Read ~/.claude/shared/runtime-packs/test-func/domain-1.md §1.3
+curl patterns + database state verification + response validation → Read ~/.claude/shared/runtime-packs/test-func/domain-2.md §2.1
+Evidence collection (reproduction command discipline, response completeness, business impact) → Read ~/.claude/shared/runtime-packs/test-func/domain-2.md §2.2
+Anti-hallucination discipline (response trust, status extraction, uncertainty acknowledgment) → Read ~/.claude/shared/runtime-packs/test-func/domain-2.md §2.3
+Eight-dimension coverage matrix + severity classification + regression notation → Read ~/.claude/shared/runtime-packs/test-func/domain-3.md §3.1
+Report traceability + actionability + recommendation quality → Read ~/.claude/shared/runtime-packs/test-func/domain-3.md §3.2
+6 anti-patterns with BAD→GOOD对比 (Implementation-Derived, Happy-Path Monoculture, Boundary Amnesia, Idempotency Blindspot, Ghost Pass, Mock Over-Reliance) → Read ~/.claude/shared/runtime-packs/test-func/antipatterns.md
+Detailed output contract + test case ID convention + curl templates + quality checklist → Read ~/.claude/shared/runtime-packs/test-func/output.md
+3 baseline scenarios (mixed results, BLOCKED insufficient spec, regression fix incomplete) → Read ~/.claude/shared/runtime-packs/test-func/BASELINE.md
 </section>
 
 <section id="final-reminder">

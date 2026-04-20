@@ -45,15 +45,21 @@ You own the integration layer whenever a web UI needs file system, tray, auto-up
 </section>
 
 <section id="runtime-index">
-Electron IPC security, contextBridge, UtilityProcess → Read ~/.claude/shared/runtime-packs/desktop-dev/core.md §Electron Architecture
-Tauri Rust commands, ACL capabilities, plugin system → Read ~/.claude/shared/runtime-packs/desktop-dev/core.md §Tauri
-Qt 6 C++/QML, signals, thread model → Read ~/.claude/shared/runtime-packs/desktop-dev/core.md §Qt
-macOS signing + notarization pipeline → Read ~/.claude/shared/runtime-packs/desktop-dev/core.md §macOS Signing
-Windows EV signing, SmartScreen, MSIX → Read ~/.claude/shared/runtime-packs/desktop-dev/core.md §Windows Signing
-Linux AppImage/Flatpak/deb/rpm → Read ~/.claude/shared/runtime-packs/desktop-dev/core.md §Linux Distribution
-Auto-update architecture (electron-updater, tauri-plugin-updater) → Read ~/.claude/shared/runtime-packs/desktop-dev/core.md §Auto-Update
-Anti-patterns (nodeIntegration Open Gate, Unsigned Build, IPC Trust Assumption) → Read ~/.claude/shared/runtime-packs/desktop-dev/core.md §Anti-Patterns
-Full knowledge → Read ~/.claude/shared/runtime-packs/desktop-dev/core.md
+Full rules + identity + workflow A+B → Read ~/.claude/shared/runtime-packs/desktop-dev/core.md
+Electron architecture (process model, security config, contextBridge, UtilityProcess) → Read ~/.claude/shared/runtime-packs/desktop-dev/domain-electron.md §Architecture
+Electron IPC security (preload script, ipcMain validation, structured clone) → Read ~/.claude/shared/runtime-packs/desktop-dev/domain-electron.md §IPC
+Electron packaging (electron-builder.yml, ASAR, entitlements) → Read ~/.claude/shared/runtime-packs/desktop-dev/domain-electron.md §Packaging
+Electron auto-update (electron-updater, signature verification, rollback) → Read ~/.claude/shared/runtime-packs/desktop-dev/domain-electron.md §Auto-Update
+Electron system APIs (tray, global shortcuts, deep links, notifications) → Read ~/.claude/shared/runtime-packs/desktop-dev/domain-electron.md §System API
+Tauri architecture (tauri.conf.json, ACL capabilities, Rust commands) → Read ~/.claude/shared/runtime-packs/desktop-dev/domain-tauri-qt.md §Tauri
+Tauri auto-update (tauri-plugin-updater, Minisign, key generation) → Read ~/.claude/shared/runtime-packs/desktop-dev/domain-tauri-qt.md §Tauri Update
+Qt architecture (CMake, widgets/QML, thread model, signals/slots) → Read ~/.claude/shared/runtime-packs/desktop-dev/domain-tauri-qt.md §Qt
+Qt system integration (tray, shortcuts, native dialogs) → Read ~/.claude/shared/runtime-packs/desktop-dev/domain-tauri-qt.md §Qt Platform
+Code signing commands (macOS codesign/notarytool, Windows SignTool, Linux GPG) → Read ~/.claude/shared/runtime-packs/desktop-dev/domain-tauri-qt.md §Signing
+Framework selection matrix (Electron vs Tauri vs Qt) → Read ~/.claude/shared/runtime-packs/desktop-dev/domain-tauri-qt.md §Selection
+5 anti-patterns (nodeIntegration Open Gate, Unsigned Build, IPC Trust Assumption, Unsigned Auto-Update, Platform-Assuming Code) → Read ~/.claude/shared/runtime-packs/desktop-dev/antipatterns.md
+Output contract template + filled examples → Read ~/.claude/shared/runtime-packs/desktop-dev/output.md
+Baseline scenarios (Electron IPC, macOS notarization, BLOCKED unsigned update) → Read ~/.claude/shared/runtime-packs/desktop-dev/BASELINE.md
 </section>
 
 <section id="final-reminder">

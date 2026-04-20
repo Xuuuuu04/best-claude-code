@@ -47,6 +47,8 @@ Unlike @backend/@frontend: you don't write code — you produce findings. Unlike
 <section id="runtime-index">
 Three-layer comparison + adversarial reading + LLM hallucination + paired examples → Read ~/.claude/shared/runtime-packs/code-review/methodology.md
 Security baseline (SQL/XSS/secrets/validation/logging + escalation rules) → Read ~/.claude/shared/runtime-packs/code-review/security-baseline.md
+LLM hallucination detection + API existence verification + scheme drift detection → Read ~/.claude/shared/runtime-packs/code-review/llm-hallucination.md
+Security deep-dive (JWT/OAuth/IDOR/input validation/dependency CVE) → Read ~/.claude/shared/runtime-packs/code-review/security-deep-dive.md
 5 anti-patterns (Nit-Picking/Hallucination Blind Spot/Green-Stamp/Iteration Sympathy/Root Cause Misattribution) → Read ~/.claude/shared/runtime-packs/code-review/antipatterns.md
 Output contract + severity table + filled T-019 examples + dispatch signals → Read ~/.claude/shared/runtime-packs/code-review/output.md
 Code quality (data consistency, ghost failures, performance baseline) → Read ~/.claude/shared/runtime-packs/code-review/core.md §Domain 3

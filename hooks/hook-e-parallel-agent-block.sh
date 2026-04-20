@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# Hook-E v3: 简化鲁棒规则——不依赖 tool_use_id
-# 规则：本轮内 (Agent tool_use 数) - (对应 tool_result 数) >= 2 → 拒绝
-# 语义：只要有多于 1 个 Agent 处于"已派未返回"状态，就是并行违规
-# 事件：PreToolUse    Matcher：Agent    铁律：GP-O01
+# Hook-E v4: 并行检测 → WARN 放行 + 强制审计日志
+# 规则：检测本轮并行 Agent 数量，≥2 时记录 WARN 日志并放行
+# 事件：PreToolUse    Matcher：Agent    原则：GP-O01（审慎并行）
+#
+# 变更历史：
+#   v3: 物理拦截 in_flight ≥ 2
+#   v4: 改为审计模式——记录并行事件，提醒主进程履行声明义务，不再拦截
 
-HOOK_NAME="E-parallel-agent-block"
+HOOK_NAME="E-parallel-agent-audit"
 source "$(dirname "$0")/lib/common.sh"
 
 read_stdin_json
@@ -35,13 +38,13 @@ fi
 post_user=$(awk -v from="$last_real_user_line" 'NR>from' "$transcript_path" 2>/dev/null)
 [[ -z "$post_user" ]] && hook_pass
 
-# 用 jq 逐行解析；避免 JSON 字段顺序问题
+# 统计本轮已派发的 Agent 数（含当前这一个）
 agent_count=$(printf '%s' "$post_user" | \
     jq -rc 'select(.message.content | type == "array") | .message.content[] | select(.type == "tool_use" and .name == "Agent") | .id' 2>/dev/null | grep -c . 2>/dev/null)
 agent_count="${agent_count//[^0-9]/}"
-hook_log "$HOOK_NAME" "INFO" "v3.1 bugfix: agent_count sanitized"
+agent_count="${agent_count:-0}"
 
-# tool_result 数：仅数 Agent 相关的 tool_result（tool_use_id 在 agent_ids 集合里）
+# tool_result 数
 agent_ids=$(printf '%s' "$post_user" | \
     jq -rc 'select(.message.content | type == "array") | .message.content[] | select(.type == "tool_use" and .name == "Agent") | .id' 2>/dev/null)
 
@@ -55,41 +58,36 @@ if [[ -n "$agent_ids" ]]; then
     done <<< "$agent_ids"
 fi
 
-agent_count="${agent_count:-0}"
 result_count="${result_count:-0}"
 in_flight=$(( agent_count - result_count ))
 
 hook_log "$HOOK_NAME" "INFO" "agent=$agent_count, result=$result_count, in_flight=$in_flight"
 
-# 规则：已有 >= 1 个在飞的 Agent，又来一个 → 并行违规
-# 注意：in_flight >= 1 时，意味着 transcript 已记录至少 1 个未完成 Agent；
-#       当前要派的这个还没写入 transcript（或已写入但无 result），算"又一个"。
-#       触发拒绝的真条件是 in_flight >= 2（已写入 + 当前），或 in_flight >= 1（当前未写入）。
-#       用宽松条件 in_flight >= 2 最稳（PreToolUse 触发时 current 几乎都已写入）
+# v4 行为：检测并行，记录审计日志，放行
 if [[ $in_flight -ge 2 ]]; then
-    if is_maintenance_mode; then
-        hook_log "$HOOK_NAME" "WARN" "MAINTENANCE_MODE pass in_flight=$in_flight"
-        hook_pass
-    fi
+    # 提取已派 Agent 类型列表
+    already_types=$(printf '%s' "$post_user" | \
+        jq -rc 'select(.message.content | type == "array") | .message.content[] | select(.type == "tool_use" and .name == "Agent") | .input.subagent_type' 2>/dev/null | paste -sd "," -)
 
-    # 取最早一个未返回的 subagent_type 供报错
-    already=$(printf '%s' "$post_user" | \
-        jq -rc 'select(.message.content | type == "array") | .message.content[] | select(.type == "tool_use" and .name == "Agent") | .input.subagent_type' 2>/dev/null | head -1)
-    [[ -z "$already" ]] && already="(未识别)"
+    hook_log "$HOOK_NAME" "WARN" "PARALLEL_DETECTED in_flight=$in_flight agents=[$already_types]"
 
-    hook_reject "$HOOK_NAME" "$(cat <<EOF
-违反 GP-O01（禁止并行派 Agent）。
+    # 播放警告音（非阻断）
+    hook_sound warn
 
-本轮已派发且未返回：$already
+    # 输出提醒到 stderr（LLM 可见，但不阻断）
+    cat >&2 <<EOF
 
-铁律：一轮只派一个 Agent，等其返回后再决定下一跳。
+⚠️ [Harness Hook E 审计提醒] 检测到本轮并行派发 $in_flight 个 Agent。
+当前在飞：[$already_types]
 
-如确需并行（GP-O12 豁免）：
-  - 条件 A：两个任务纯只读（无文件写入）+ 完全不相关
-  - 条件 B：用户明确要求并行
-满足后，请在 ★ Insight 明确标注「GP-O12 豁免理由：...」，分两轮派发。
+请确认已在 ★ Insight 中声明：
+  - 并行理由（互不依赖 + 写入不重叠）
+  - 风险识别
+  - 隔离边界
+  - Agent 总数 ≤ 3
+
+如未声明，请补输出 ★ Insight 后再继续。
 EOF
-)"
 fi
 
 hook_pass

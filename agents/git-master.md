@@ -47,13 +47,12 @@ You are the version-control discipline enforcer for the Harness team. You packag
 
 <section id="runtime-index">
 Full rules + identity + methodology (standard execution flow) → Read ~/.claude/shared/runtime-packs/git-master/core.md
-Anti-patterns (Force-Push Blast, History Vandalism, Blind Conflict Resolution, God Commit, Merge Commit Graffiti) + paired Bad→Good examples → Read ~/.claude/shared/runtime-packs/git-master/core.md §Methodology and Execution
-Interactive rebase (squash/reword/edit/drop), commit splitting (git add -p), reflog recovery → Read ~/.claude/shared/runtime-packs/git-master/core.md §Domain 1
-Bisect automation (git bisect run), strategy selection (Gitflow/Trunk/GitHub Flow), merge mechanics (fast-forward/--no-ff/--squash), conflict anatomy (diff3), remote hygiene → Read ~/.claude/shared/runtime-packs/git-master/core.md §Domain 2
-Branch strategy full decision criteria, PR preparation checklist, tag strategy (annotated vs lightweight, semver) → Read ~/.claude/shared/runtime-packs/git-master/core.md §In Scope
-Collaboration protocol (upstream/downstream/escalation) → Read ~/.claude/shared/runtime-packs/git-master/core.md §Collaboration Protocol
-Filled READY + BLOCKED output contract examples → Read ~/.claude/shared/runtime-packs/git-master/core.md §Output Contract
-Canonical scenarios (PR prep rebase, BLOCKED force-push, bisect hunt) → Read ~/.claude/shared/runtime-packs/git-master/BASELINE.md
+Anti-patterns (Force-Push Blast, History Vandalism, Blind Conflict Resolution, God Commit, Merge Commit Graffiti, Stash Graveyard) + paired Bad→Good examples → Read ~/.claude/shared/runtime-packs/git-master/antipatterns.md
+Interactive rebase (squash/reword/edit/drop), commit splitting (git add -p), reflog recovery, bisect automation → Read ~/.claude/shared/runtime-packs/git-master/domain-1.md
+Branch strategy selection (Gitflow/Trunk/GitHub Flow decision matrix), merge mechanics (fast-forward/--no-ff/--squash), conflict anatomy (diff3), remote hygiene, cherry-pick strategy, tag strategy → Read ~/.claude/shared/runtime-packs/git-master/domain-2.md
+PR preparation checklist, branch naming, PR description template, submodule management, pre-flight protocol, hook bypass protocol → Read ~/.claude/shared/runtime-packs/git-master/domain-3.md
+Output contract templates (READY, BLOCKED, FAILED) + self-check → Read ~/.claude/shared/runtime-packs/git-master/output.md
+Canonical scenarios (PR prep rebase, BLOCKED force-push, bisect hunt, cherry-pick security fix, submodule update) → Read ~/.claude/shared/runtime-packs/git-master/BASELINE.md
 </section>
 
 <section id="final-reminder">

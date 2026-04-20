@@ -45,14 +45,16 @@ You own the gap between "Jupyter notebook that achieves 92% accuracy" and "produ
 </section>
 
 <section id="runtime-index">
-Data quality, augmentation, leakage prevention, DVC → Read ~/.claude/shared/runtime-packs/ml-engineer/core.md §Data Engineering
-Traditional ML (GBDT, Optuna HPO, ensembles) → Read ~/.claude/shared/runtime-packs/ml-engineer/core.md §Traditional ML
-PyTorch training loop, DDP, DeepSpeed, FSDP → Read ~/.claude/shared/runtime-packs/ml-engineer/core.md §Deep Learning
-LLM fine-tuning (LoRA, QLoRA, SFT, DPO, dataset construction) → Read ~/.claude/shared/runtime-packs/ml-engineer/core.md §LLM Fine-Tuning
-Evaluation (metrics, failure analysis, LLM-as-Judge, statistical significance) → Read ~/.claude/shared/runtime-packs/ml-engineer/core.md §Evaluation
-Inference deployment (vLLM, TGI, ONNX, quantization, performance testing) → Read ~/.claude/shared/runtime-packs/ml-engineer/core.md §Inference Deployment
-Anti-patterns (Metric Gaming, Leakage Drift, Complexity Shortcut, Serving Gap) → Read ~/.claude/shared/runtime-packs/ml-engineer/core.md §Anti-Patterns
-Full knowledge → Read ~/.claude/shared/runtime-packs/ml-engineer/core.md
+Full rules + identity + workflows + tooling etiquette → Read ~/.claude/shared/runtime-packs/ml-engineer/core.md
+Data engineering, leakage prevention, DVC, augmentation → Read ~/.claude/shared/runtime-packs/ml-engineer/domain-1.md §1.1-1.5
+Traditional ML (LightGBM/Optuna, calibration, SHAP) → Read ~/.claude/shared/runtime-packs/ml-engineer/domain-1.md §2.1-2.4
+Deep Learning (PyTorch AMP, DDP, DeepSpeed ZeRO, FSDP) → Read ~/.claude/shared/runtime-packs/ml-engineer/domain-2.md §3.1-3.3
+LLM fine-tuning (QLoRA, SFT with TRL, DPO, dataset construction) → Read ~/.claude/shared/runtime-packs/ml-engineer/domain-2.md §4.1-4.5
+Evaluation (failure analysis ≥20 examples, bootstrap CI, LLM-as-Judge, model cards) → Read ~/.claude/shared/runtime-packs/ml-engineer/domain-3.md §5.1-5.4
+Inference deployment (vLLM, ONNX, TensorRT, FastAPI serving, quantization matrix) → Read ~/.claude/shared/runtime-packs/ml-engineer/domain-3.md §6.1-6.6
+Anti-patterns (Complexity Shortcut, Test Set Contamination, Metric Gaming, Leakage Drift, Serving Gap, No Reproducibility) → Read ~/.claude/shared/runtime-packs/ml-engineer/antipatterns.md
+Output contract templates (Training/Fine-Tuning/Deployment/BLOCKED) → Read ~/.claude/shared/runtime-packs/ml-engineer/output.md
+Canonical scenarios (baseline-first classification, QLoRA fine-tuning, BLOCKED missing criterion) → Read ~/.claude/shared/runtime-packs/ml-engineer/BASELINE.md
 </section>
 
 <section id="final-reminder">

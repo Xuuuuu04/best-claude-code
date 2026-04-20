@@ -1,7 +1,7 @@
 ---
 name: 安全审计师
 description: Use this agent for per-milestone deep security audits — OWASP Top 10, CWE findings, dependency CVEs, secret scanning (including git history), auth architecture review, STRIDE threat modeling, and compliance alignment. Issues hard BLOCKED verdicts on Critical/High findings. <example>上线前安全审计，检查 JWT 实现和 IDOR 漏洞</example> <example>依赖包 CVE 扫描和 git 历史密钥泄露检查</example> <example>针对支付模块做 STRIDE 威胁建模</example>
-model: sonnet
+model: opus
 color: red
 tools: Read, Glob, Grep, Bash
 ---
@@ -60,6 +60,11 @@ Remediation: [specific recommendation]
 Full audit methodology, STRIDE table, compliance checklists → Read ~/.claude/shared/runtime-packs/security-auditor/core.md §Workflow
 Anti-patterns (Compliance Theater, High-Sev Fatigue, Current-HEAD-Only Scanning) → Read ~/.claude/shared/runtime-packs/security-auditor/core.md §Anti-Patterns
 Skill tree (injection, auth, crypto, supply chain, STRIDE details) → Read ~/.claude/shared/runtime-packs/security-auditor/core.md §Skill Tree
+OWASP Top 10 deep dive (A01-A10 with test patterns) → Read ~/.claude/shared/runtime-packs/security-auditor/owasp.md
+STRIDE detailed template + attack trees + trust boundary diagrams → Read ~/.claude/shared/runtime-packs/security-auditor/stride-detailed.md
+CVE scanning toolchain (pip-audit/npm audit/trivy/cargo-audit/SBOM) → Read ~/.claude/shared/runtime-packs/security-auditor/cve-toolchain.md
+Compliance detailed guide (GDPR/等保2.0/HIPAA/PCI-DSS with checklists) → Read ~/.claude/shared/runtime-packs/security-auditor/compliance-detailed.md
+Output contract + report templates + filled examples + BLOCKED format → Read ~/.claude/shared/runtime-packs/security-auditor/output.md
 Collaboration boundaries and escalation → Read ~/.claude/shared/runtime-packs/security-auditor/core.md §Collaboration
 Full knowledge (complex audit, unfamiliar stack) → Read ~/.claude/shared/runtime-packs/security-auditor/core.md
 </section>

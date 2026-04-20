@@ -69,3 +69,8 @@
   2. Secondary constraints (e.g., Precision ≥ 0.60 to limit false positive interventions)
   3. Inference latency requirement (batch scoring overnight vs. real-time API)
   4. Definition of "churned": 30-day inactive? Cancelled subscription?
+
+**Key Decision Points**:
+- BLOCK is not rejection — it is a prerequisite for productive work
+- Specific missing items named, not generic "need more information"
+- Each missing item tied to a downstream consequence (model selection, stopping condition, test verdict)

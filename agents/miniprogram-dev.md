@@ -43,17 +43,18 @@ Workflow C (WeChat ecosystem): Login: wx.login → code → own backend → code
 
 <section id="runtime-index">
 Full rules + identity + workflows A+B+C + tooling etiquette → Read ~/.claude/shared/runtime-packs/miniprogram-dev/core.md
-Native miniprogram Component constructor (properties/lifetimes/behaviors), WXML template, WXS performance pattern → Read ~/.claude/shared/runtime-packs/miniprogram-dev/core.md §Domain 1.1
-Page routing (wx.navigateTo/redirectTo/switchTab), page stack limit 10 → Read ~/.claude/shared/runtime-packs/miniprogram-dev/core.md §Domain 1.2
-App lifecycle + setData performance model (IPC cost, 16ms frame budget) → Read ~/.claude/shared/runtime-packs/miniprogram-dev/core.md §Domain 1.3
-uni-app conditional compilation (#ifdef), uni API coverage, easycom → Read ~/.claude/shared/runtime-packs/miniprogram-dev/core.md §Domain 2
-Login chain (wx.login→code2session→JWT), UnionID, session key expiry → Read ~/.claude/shared/runtime-packs/miniprogram-dev/core.md §Domain 3.1
-Payment (JSAPI flow, idempotency, notify_url retry dedup) → Read ~/.claude/shared/runtime-packs/miniprogram-dev/core.md §Domain 3.2
-Cloud function architecture + database security rules → Read ~/.claude/shared/runtime-packs/miniprogram-dev/core.md §Domain 3.3
-Bundle size audit, dependency size, package budget methodology → Read ~/.claude/shared/runtime-packs/miniprogram-dev/core.md §Domain 4.1
-Privacy popup implementation + domain whitelist management → Read ~/.claude/shared/runtime-packs/miniprogram-dev/core.md §Domain 4.2
-Anti-patterns (Web-Import Hopes, Size-Limit Blindness, Subpackage Tetris, Token-Storage Naive, Payment No-Idempotency) → Read ~/.claude/shared/runtime-packs/miniprogram-dev/core.md §Anti-Patterns
+Native miniprogram: Component constructor (properties/lifetimes/behaviors), WXML template system, WXS performance pattern → Read ~/.claude/shared/runtime-packs/miniprogram-dev/domain-native.md §1
+Page routing (wx.navigateTo/redirectTo/switchTab), page stack limit 10, app.js lifecycle → Read ~/.claude/shared/runtime-packs/miniprogram-dev/domain-native.md §2-3
+setData performance model (IPC cost, 16ms frame budget), diff-only discipline, batch updates → Read ~/.claude/shared/runtime-packs/miniprogram-dev/domain-native.md §4
+uni-app: Vue 3 Composition API, conditional compilation (#ifdef), pages.json, easycom auto-registration → Read ~/.claude/shared/runtime-packs/miniprogram-dev/domain-uniapp.md
+Login chain (wx.login→code2session→JWT), UnionID, session key expiry, AuthService pattern → Read ~/.claude/shared/runtime-packs/miniprogram-dev/domain-ecosystem.md §1
+Payment: JSAPI flow, wx.requestPayment, backend callback confirmation, idempotency, polling pattern → Read ~/.claude/shared/runtime-packs/miniprogram-dev/domain-ecosystem.md §2
+Cloud functions (Node.js runtime, code2session, security rules), cloud database access control → Read ~/.claude/shared/runtime-packs/miniprogram-dev/domain-ecosystem.md §3-4
+Privacy consent popup implementation, domain whitelist management → Read ~/.claude/shared/runtime-packs/miniprogram-dev/domain-ecosystem.md §5
+Bundle size audit, dependency size, package budget methodology, subpackage architecture → Read ~/.claude/shared/runtime-packs/miniprogram-dev/core.md §Domain 4.1
+Anti-patterns (Web-Import Hopes, Size-Limit Blindness, Subpackage Tetris, Token-Storage Naive, Payment No-Idempotency, setData Avalanche, uni-app Platform Leak) → Read ~/.claude/shared/runtime-packs/miniprogram-dev/antipatterns.md
 Canonical scenarios (payment flow, BLOCKED unsafe confirmation, setData optimization + 2MB restructure) → Read ~/.claude/shared/runtime-packs/miniprogram-dev/BASELINE.md
+Full output contract with T-030 payment flow filled example → Read ~/.claude/shared/runtime-packs/miniprogram-dev/output.md
 </section>
 
 <section id="final-reminder">

@@ -46,15 +46,17 @@ Workflow C (Python simulation): 1. DEFINE model (use SymPy for symbolic derivati
 
 <section id="runtime-index">
 Full rules + identity + workflows A+B+C + tooling etiquette → Read ~/.claude/shared/runtime-packs/simulation-engineer/core.md
-Stateflow (Moore vs Mealy, junction routing, superstate hierarchy) + Simscape domain modeling → Read ~/.claude/shared/runtime-packs/simulation-engineer/core.md §Domain 1.1
-Embedded Coder configuration (hardware implementation, MISRA-C, traceability) + PIL verification → Read ~/.claude/shared/runtime-packs/simulation-engineer/core.md §Domain 1.2
-SIL vs HIL vs PIL distinction, real-time target config (Speedgoat/dSPACE/NI PXI), Simulink Test (Test Sequence, MC/DC) → Read ~/.claude/shared/runtime-packs/simulation-engineer/core.md §Domain 1.3
-Unity physics (ArticulationBody, ECS/DOTS for >1000 agents), ML-Agents (Agent subclass, reward design) → Read ~/.claude/shared/runtime-packs/simulation-engineer/core.md §Domain 2.1-2.2
-ROS2/OPC-UA data binding + Addressables performance + AR Foundation/OpenXR → Read ~/.claude/shared/runtime-packs/simulation-engineer/core.md §Domain 2.2-2.3
-Unreal C++ reflection (UCLASS/UPROPERTY/UFUNCTION), Datasmith CAD import, Pixel Streaming, Cesium, CARLA → Read ~/.claude/shared/runtime-packs/simulation-engineer/core.md §Domain 3
-scipy.integrate.solve_ivp solver selection, JAX (jit/vmap/grad), Gymnasium API, IsaacLab GPU-parallel, PINN → Read ~/.claude/shared/runtime-packs/simulation-engineer/core.md §Domain 4
+Stateflow (Moore vs Mealy, junction routing, superstate hierarchy) + Simscape domain modeling → Read ~/.claude/shared/runtime-packs/simulation-engineer/domain-1.md §1.1-1.3
+Embedded Coder configuration (hardware implementation, MISRA-C, traceability) + PIL verification → Read ~/.claude/shared/runtime-packs/simulation-engineer/domain-1.md §1.2-1.4
+SIL vs HIL vs PIL distinction, real-time target config (Speedgoat/dSPACE/NI PXI), Simulink Test (Test Sequence, MC/DC) → Read ~/.claude/shared/runtime-packs/simulation-engineer/domain-1.md §2.1-2.3
+Unity physics (ArticulationBody, ECS/DOTS for >1000 agents), ML-Agents (Agent subclass, reward design) → Read ~/.claude/shared/runtime-packs/simulation-engineer/domain-2.md §2.1
+ROS2/OPC-UA data binding + Addressables performance + AR Foundation/OpenXR → Read ~/.claude/shared/runtime-packs/simulation-engineer/domain-2.md §2.2-2.3
+Unreal C++ reflection (UCLASS/UPROPERTY/UFUNCTION), Datasmith CAD import, Pixel Streaming, Cesium, CARLA → Read ~/.claude/shared/runtime-packs/simulation-engineer/domain-2.md §3.1-3.3
+scipy.integrate.solve_ivp solver selection, JAX (jit/vmap/grad), Gymnasium API, IsaacLab GPU-parallel, PINN → Read ~/.claude/shared/runtime-packs/simulation-engineer/domain-3.md §4.1-4.4
+Digital twin architecture (three-layer model, real-time sync protocols, what-if analysis) → Read ~/.claude/shared/runtime-packs/simulation-engineer/domain-3.md §Digital Twin
 Methodology (Fidelity-Tool Fit discipline, solver decision tree, SIL→PIL→HIL chain, PhysX determinism BAD→GOOD, Python reproducibility checklist) → Read ~/.claude/shared/runtime-packs/simulation-engineer/core.md §Methodology
-Anti-patterns (Solver-Choice-by-Default, Model-Test Divergence, Unity Physics Determinism Blindspot, Python-for-Realtime, Model-Coverage Gap) → Read ~/.claude/shared/runtime-packs/simulation-engineer/core.md §Anti-Patterns
+Anti-patterns (Solver-Choice-by-Default, Model-Test Divergence, Unity Physics Determinism Blindspot, Python-for-Realtime, Model-Coverage Gap) → Read ~/.claude/shared/runtime-packs/simulation-engineer/antipatterns.md
+Output contract templates (Simulink HIL, Unity digital twin, Python Gymnasium, BLOCKED) → Read ~/.claude/shared/runtime-packs/simulation-engineer/output.md
 Canonical scenarios (Simulink motor HIL delivery, BLOCKED HIL step size, Gymnasium env + reproducibility audit) → Read ~/.claude/shared/runtime-packs/simulation-engineer/BASELINE.md
 </section>
 

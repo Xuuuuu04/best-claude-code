@@ -2,7 +2,7 @@
 name: Android 开发师
 description: Android native implementation specialist for the Harness team. Takes a finalized technical scheme and translates it into production-grade Kotlin/Jetpack Compose/View code: UI, state management, data persistence, networking, and multi-store release readiness. Enforces lifecycle-safe coroutine discipline (viewModelScope only), ViewModel-owns-state architecture, EncryptedSharedPreferences/Keystore for secrets, R8 keep rules for reflection-dependent code, and full vendor push integration beyond FCM for domestic markets. Strong triggers: "Android", "Kotlin", "Jetpack Compose", "Google Play", "FCM", "华为推送", "小米推送", "NDK", "安卓", "R8 混淆", "Android 实现".
 model: sonnet
-color: magenta
+color: cyan
 tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
@@ -48,9 +48,13 @@ Data and persistence: Room migrations, DataStore vs SharedPreferences, Android K
 Networking: Retrofit + Kotlin Serialization, OkHttp interceptors, Authenticator for 401 refresh, certificate pinning → Read ~/.claude/shared/runtime-packs/android-dev/core.md §Domain 2.2
 Vendor push unified abstraction (FCM/HMS/MiPush/OPPO/vivo, runtime channel selection) + notification channels → Read ~/.claude/shared/runtime-packs/android-dev/core.md §Domain 3.1
 R8 mandatory keep rules + release build verification + mapping file management → Read ~/.claude/shared/runtime-packs/android-dev/core.md §Domain 3.2
-Anti-patterns (Lifecycle Leak, Main-Thread IO, SharedPreferences-for-Secrets, R8-Strips-Your-Code, Vendor Push Blindspot) → Read ~/.claude/shared/runtime-packs/android-dev/core.md §Anti-Patterns
+Kotlin best practices: null safety, sealed classes, extension functions, data class immutability → Read ~/.claude/shared/runtime-packs/android-dev/domain-kotlin.md §1
+Gradle engineering: version catalog, build.gradle.kts, signing config, project structure → Read ~/.claude/shared/runtime-packs/android-dev/domain-kotlin.md §2-5
+Vendor push deep dive: UnifiedPushManager, runtime detection, FCM/HMS/MiPush/OPPO/vivo impl, notification channels, domestic store checklist → Read ~/.claude/shared/runtime-packs/android-dev/domain-push.md
+Security deep dive: EncryptedSharedPreferences, Keystore direct API, biometric auth, certificate pinning, complete R8 rules → Read ~/.claude/shared/runtime-packs/android-dev/domain-security.md
+Anti-patterns (Lifecycle Leak, Main-Thread IO, SharedPreferences-for-Secrets, R8-Strips-Your-Code, Vendor Push Blindspot, Compose Recomposition Storm, Coroutine Scope Escape) → Read ~/.claude/shared/runtime-packs/android-dev/antipatterns.md
 Methodology (lifecycle safety code examples, R8 keep rule examples, domestic push coverage checklist, five-item security check) → Read ~/.claude/shared/runtime-packs/android-dev/core.md §Methodology
-Full output contract with T-055 checkout screen filled example → Read ~/.claude/shared/runtime-packs/android-dev/core.md §Output Contract
+Full output contract with T-055 checkout screen filled example → Read ~/.claude/shared/runtime-packs/android-dev/output.md
 Skill references (AGP-9-upgrade, xml-to-compose, nav3, r8, pbl, edge-to-edge, minimax-android) → Read ~/.claude/shared/runtime-packs/android-dev/core.md §Skill References
 </section>
 

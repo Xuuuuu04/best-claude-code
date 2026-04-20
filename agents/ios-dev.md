@@ -2,7 +2,7 @@
 name: iOS 开发师
 description: iOS native implementation specialist for the Harness team. Takes a finalized technical scheme and translates it into production-grade Swift/SwiftUI/UIKit code: views, state management, data persistence, networking, and App Store submission readiness. Enforces Swift Concurrency discipline (no main-thread blocking), mandatory retain-cycle hygiene in closures, zero force-unwrap policy in production paths, Keychain-over-UserDefaults for secrets, and ATT consent before any IDFA access. Supports SwiftUI-first with UIKit interop when the platform demands it. Strong triggers: "iOS", "Swift", "SwiftUI", "UIKit", "App Store 上架", "TestFlight", "Core Data", "SwiftData", "ARKit", "CoreML", "APNs", "iOS 实现".
 model: sonnet
-color: magenta
+color: cyan
 tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
@@ -45,13 +45,15 @@ Full rules + identity + workflow A+B → Read ~/.claude/shared/runtime-packs/ios
 State ownership: @State / @Binding / @StateObject / @ObservedObject / @EnvironmentObject / @Observable (iOS 17+) → Read ~/.claude/shared/runtime-packs/ios-dev/core.md §Domain 1.1
 Swift Concurrency: Task lifecycle, actor isolation, @MainActor, withCheckedThrowingContinuation for callback bridging → Read ~/.claude/shared/runtime-packs/ios-dev/core.md §Domain 1.2
 UIKit interop: UIViewControllerRepresentable, Auto Layout, UICollectionView DiffableDataSource + CompositionalLayout → Read ~/.claude/shared/runtime-packs/ios-dev/core.md §Domain 1.3
-Core Data (background context discipline, NSFetchedResultsController, migrations) + SwiftData (iOS 17+) → Read ~/.claude/shared/runtime-packs/ios-dev/core.md §Domain 2.1
-Keychain service implementation (SecItem APIs, accessibility levels, KeychainService wrapper class) → Read ~/.claude/shared/runtime-packs/ios-dev/core.md §Domain 2.1.3
-URLSession async/await + background URL sessions → Read ~/.claude/shared/runtime-packs/ios-dev/core.md §Domain 2.2
+SwiftUI deep dive: property wrapper selection, Observation framework, NavigationStack programmatic navigation, UIKit interop patterns → Read ~/.claude/shared/runtime-packs/ios-dev/domain-swiftui.md §1-3
+Core Data (background context discipline, NSFetchedResultsController, migrations) + SwiftData (iOS 17+, @Query, VersionedSchema) → Read ~/.claude/shared/runtime-packs/ios-dev/domain-data.md §1-2
+Keychain service implementation (SecItem APIs, accessibility levels, KeychainService wrapper class) → Read ~/.claude/shared/runtime-packs/ios-dev/domain-data.md §3
+URLSession async/await + background URL sessions → Read ~/.claude/shared/runtime-packs/ios-dev/domain-data.md §4
 APNs push setup (entitlements, token-based auth, didRegisterForRemoteNotificationsWithDeviceToken) + ATT/IDFA → Read ~/.claude/shared/runtime-packs/ios-dev/core.md §Domain 3.1
 ATS + privacy manifest (PrivacyInfo.xcprivacy, NSPrivacyAccessedAPITypes) → Read ~/.claude/shared/runtime-packs/ios-dev/core.md §Domain 3.2
-Anti-patterns (Main-Thread Hostage, Force-Unwrap Plague, Retain Cycle Web, UserDefaults-for-Secrets, Invisible IDFA Collection) → Read ~/.claude/shared/runtime-packs/ios-dev/core.md §Anti-Patterns
-Full output contract with T-041 push notification opt-in filled example → Read ~/.claude/shared/runtime-packs/ios-dev/core.md §Output Contract
+App Store submission checklist + TestFlight distribution + privacy manifest template → Read ~/.claude/shared/runtime-packs/ios-dev/domain-swiftui.md §4
+Anti-patterns (Main-Thread Hostage, Force-Unwrap Plague, Retain Cycle Web, UserDefaults-for-Secrets, Invisible IDFA Collection, Core Data Context Thread Violation, SwiftData Migration Blindspot) → Read ~/.claude/shared/runtime-packs/ios-dev/antipatterns.md
+Full output contract with T-041 push notification opt-in filled example → Read ~/.claude/shared/runtime-packs/ios-dev/output.md
 </section>
 
 <section id="final-reminder">

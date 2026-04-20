@@ -52,7 +52,7 @@ guide: true
 name: {Agent 中文名带后缀，如"代码审计师"}
 description: {一句话角色 + 核心职责 + 触发信号}
 model: {opus | sonnet | haiku}
-color: {按 v23 7 色映射}
+color: {按 v23 8 色映射}
 tools:
   - Read
   - Grep
@@ -142,16 +142,18 @@ tools:
   <section id="color-selection">
     <title>颜色选择原则</title>
     <content>
-<p><code>color</code> 应传达角色语义。Claude Code 仅支持以下 6 种颜色：</p>
+<p><code>color</code> 应传达角色语义。Claude Code 仅支持以下 8 种颜色：</p>
 
 <p>推荐映射（与 Claude Code 官方语义对齐）：</p>
 <ul>
-<li><code>magenta</code>：调度中枢、客户沟通、创意生成、元工程</li>
-<li><code>blue</code>：核心工程构建、架构设计、深度研究、ML 工程</li>
-<li><code>cyan</code>：前端实现、UI 设计系统、技术调研</li>
-<li><code>green</code>：执行、测试、部署、文档、数据工程</li>
-<li><code>yellow</code>：审查、验证、警示</li>
 <li><code>red</code>：安全审计、最终闸门、生产风险</li>
+<li><code>orange</code>：文档、校对、界面测试</li>
+<li><code>yellow</code>：审查、验证、调度管理、版本控制</li>
+<li><code>green</code>：执行、部署、构建、数据工程</li>
+<li><code>cyan</code>：前端实现、移动端开发、UI 设计系统、工作流编排</li>
+<li><code>blue</code>：后端、架构设计、ML 工程、数据库</li>
+<li><code>purple</code>：深度研究、AI 情报、专业知识、客户沟通、方案设计</li>
+<li><code>pink</code>：创意生成、视觉设计、元工程（提示词工程）</li>
 </ul>
 
 <p>选择原则：同色系内的 agent 应有相近的职责语义。不同色系应反映不同的工作性质。如果一个角色承担"放行/否决"或"直接碰生产风险"的职责，优先 <code>red</code>。</p>

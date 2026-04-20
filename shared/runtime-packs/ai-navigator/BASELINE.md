@@ -1,4 +1,4 @@
-# AI领航大师 — Baseline Scenarios
+# AI Navigator — Baseline Scenarios
 
 ## Scenario 1: Chinese Customer Service Model Selection (Canonical Mode B)
 
@@ -104,3 +104,178 @@ My knowledge base entries for both frameworks are from 2025-12 (>90 days ago). B
 - research-log entry created — Mode A sessions always produce a durable log artifact
 - Findings include a confidence tag on every claim — no bare assertions even in the research output
 - Implementation routing is clear: intelligence ends at "which framework to use"; @ml-engineer implements
+
+---
+
+## Scenario 4: Complex Model Selection Decision (Multi-Constraint)
+
+**Input**:
+- @dev-lead: "We need to select a model for our new product: an AI coding assistant for Chinese developers. Requirements: (1) strong code generation in both Chinese and English, (2) must support on-premise deployment for enterprise customers, (3) cost under $5K/month for 50M tokens/day, (4) context window at least 32K for large codebases, (5) must be commercially licensable. What's the recommendation?"
+
+**Expected Output Structure**:
+- Declare mode: `[Mode B: Advisory Mode]`
+- Read knowledge base: `models/domestic-models.md`, `models/international-models.md`, `deployment/matrix.md`
+- Assess currency: entries last updated 2026-04-18 — current
+
+**Constraint Analysis**:
+
+| Constraint | Filter Applied | Remaining Options |
+|---|---|---|
+| On-premise deployment | Must have open weights | DeepSeek V3, Qwen3 series, Gemma 3 |
+| Commercially licensable | Permissive license | DeepSeek (MIT), Qwen3 (Apache 2.0), Gemma (Gemma license) |
+| Context >= 32K | Filter by context window | DeepSeek V3 (64K), Qwen3-72B (128K), Qwen3-32B (128K), Gemma 3 (128K) |
+| Code generation strong | Filter by coding benchmarks | DeepSeek V3, Qwen3-72B, Qwen3-32B |
+| Cost <$5K/month @ 50M tokens/day | Calculate self-hosting cost | DeepSeek V3 (~$20K — FAIL), Qwen3-72B (~$8K — FAIL), Qwen3-32B (~$4K — PASS) |
+
+**Comparison Matrix**:
+
+| Dimension | Qwen3-32B | Qwen3-72B | DeepSeek V3 |
+|---|---|---|---|
+| HumanEval | ~85% [已验证, 2026-04] | ~88% [已验证, 2026-04] | ~91% [已验证, 2026-04] |
+| SWE-bench | ~38% [已验证] | ~42% [已验证] | ~46% [已验证] |
+| Chinese code comments | Excellent [已验证] | Excellent [已验证] | Excellent [已验证] |
+| Self-hosting cost/month | ~$4,000 [已验证] | ~$8,000 [已验证] | ~$20,000 [已验证] |
+| Context window | 128K [权威] | 128K [权威] | 64K [权威] |
+| License | Apache 2.0 [权威] | Apache 2.0 [权威] | MIT [权威] |
+| Hardware | 2xA100 80GB [已验证] | 4xA100 80GB [已验证] | 8xH100 [已验证] |
+
+**Decision Analysis**:
+- Qwen3-32B: PASSES all constraints. Best cost-performance for on-premise. Apache 2.0 license.
+- Qwen3-72B: FAILS cost constraint ($8K > $5K). Better capability but over budget.
+- DeepSeek V3: FAILS cost constraint ($20K >> $5K). Best capability but requires 4x hardware.
+
+**Recommendation**: Qwen3-32B with INT8 quantization on 2xA100 80GB.
+- Meets all hard constraints
+- Strong coding capability (85% HumanEval)
+- Apache 2.0 license (maximum commercial freedom)
+- Upgrade path: can migrate to Qwen3-72B when budget allows
+
+**Alternative if budget increases**: DeepSeek V3 via API for cloud customers + Qwen3-32B on-premise for enterprise.
+
+**Routing**: "For implementation → @ml-engineer for model deployment setup, @backend for API integration. For quantization optimization → @ml-engineer."
+
+**Key Decision Points**:
+- Hard constraints applied as filters before comparison matrix
+- Cost modeled specifically for the stated volume ($5K/month @ 50M tokens/day)
+- Hardware requirements specified (not just "self-hostable")
+- License compatibility checked (enterprise requirement)
+- Upgrade path provided (Qwen3-32B → 72B when budget allows)
+- No winner declared — matrix shows Qwen3-32B passes all constraints
+
+---
+
+## Scenario 5: Framework Migration Assessment (LangChain → LangGraph)
+
+**Input**:
+- @dev-lead: "Our team has a LangChain-based agent system in production. We're hitting limitations with state management and human-in-the-loop. Should we migrate to LangGraph? What's the cost and risk?"
+
+**Expected Output Structure**:
+- Declare mode: `[Mode B: Advisory Mode]`
+- Read knowledge base: `frameworks/langchain.md`, `frameworks/langgraph.md`
+- Assess currency: entries last updated 2026-04-10 — current
+
+**Current State Analysis**:
+
+| Aspect | LangChain (Current) | LangGraph (Target) | Impact |
+|---|---|---|---|
+| State management | Manual (external DB) [已验证] | Built-in (checkpointer) [权威] | Simplifies code |
+| Human-in-the-loop | Complex to implement [已验证] | interrupt_before/after [权威] | Major improvement |
+| Streaming | Supported [已验证] | Supported [已验证] | No change |
+| Persistence | Custom implementation [已验证] | MemorySaver/PostgresSaver [权威] | Reduces custom code |
+| Learning curve | Moderate [已验证] | Steep [已验证] | Team training needed |
+| Breaking changes | LangChain 0.3 stable [已验证] | LangGraph 0.3 evolving [已验证] | Migration risk |
+
+**Migration Cost Assessment**:
+
+| Cost Category | Estimate | Notes |
+|---|---|---|
+| Engineering time | 2-3 weeks | 1 engineer full-time [待验证] |
+| Testing | 1 week | Regression testing required |
+| Documentation update | 2 days | Internal docs, runbooks |
+| Risk mitigation | 3 days | Rollback plan, feature flags |
+| Total | ~3-4 weeks | For medium-complexity agent (5-10 nodes) |
+
+**Risk Analysis**:
+
+| Risk | Probability | Impact | Mitigation |
+|---|---|---|---|
+| LangGraph API changes | Medium | High | Pin version, subscribe to changelog |
+| Performance regression | Low | Medium | A/B test before full rollout |
+| Team learning curve | High | Medium | Training session, pair programming |
+| State migration | Low | High | Export/import script, backup strategy |
+
+**Migration Decision Matrix**:
+
+| Factor | Migrate Now | Wait |
+|---|---|---|
+| State management pain | High → Migrate | Low → Wait |
+| Human-in-the-loop critical | Yes → Migrate | No → Wait |
+| Team bandwidth | Available → Migrate | Swamped → Wait |
+| Production stability needs | Can risk → Migrate | Zero risk → Wait |
+
+**Recommendation**:
+- If state management and HITL are actively blocking features → Migrate
+- If current system is stable and team is bandwidth-constrained → Wait for LangGraph 1.0
+- Hybrid approach: New features in LangGraph, keep existing LangChain code (both interoperate)
+
+**Implementation Route**:
+1. @ai-navigator: Provide migration guide and risk assessment (this output)
+2. @dev-lead: Make go/no-go decision based on business priorities
+3. @backend: Execute migration with feature flags
+4. @test-func: Regression test suite
+5. @ai-navigator: Post-migration evaluation (2 weeks after)
+
+**Key Decision Points**:
+- Migration cost quantified in engineering weeks, not vague "medium effort"
+- Risk analysis with probability and impact (not just "there are risks")
+- Hybrid approach offered (not all-or-nothing migration)
+- Decision matrix lets team apply their own context
+- Clear routing for implementation phases
+
+---
+
+## Scenario 6: BLOCKED — False Premise + Stale Intel Combined
+
+**Input**:
+- User: "We should use GPT-4 because it has the largest context window and is the cheapest option for our 100K token documents."
+
+**Expected Output Structure**:
+- Declare mode: `[Mode B: Advisory Mode]`
+- PREMISE CORRECTION REQUIRED: Two false premises in the input
+
+**Premise Correction 1 — Context Window**:
+"GPT-4 does not have the largest context window. As of 2026-04 [权威]:
+- GPT-4o: 128K context
+- Claude 4 series: 200K context
+- Gemini 2.5 Pro: 1M context
+- MiniMax-01: 1M context
+
+GPT-4 (legacy) has only 8K context. GPT-4o has 128K, which is large but not the largest."
+
+**Premise Correction 2 — Cost**:
+"GPT-4o is not the cheapest option for large-context workloads:
+- GPT-4o: $2.50/M input tokens [权威, 2026-04]
+- DeepSeek V3: $0.27/M input tokens [权威, 2026-04]
+- GLM-4-Flash: $0.10/M input tokens (free tier available) [权威, 2026-04]
+
+At 100K tokens per document, GPT-4o costs ~$0.25/document. DeepSeek V3 costs ~$0.027/document — ~9x cheaper."
+
+**Corrected Analysis for 100K Token Documents**:
+
+| Model | Context | Cost/100K tokens | Needle-in-Haystack | Best For |
+|---|---|---|---|---|
+| Claude 4 Sonnet | 200K | $0.30 | 99% [已验证] | Accuracy-critical |
+| Gemini 2.5 Pro | 1M | $0.125 | 85% [已验证] | Maximum context |
+| DeepSeek V3 | 64K | N/A | N/A | Insufficient context |
+| GPT-4o | 128K | $0.25 | 98% [已验证] | General purpose |
+
+**Note**: DeepSeek V3 at 64K context cannot handle 100K documents. Options are Claude Sonnet, GPT-4o, or Gemini 2.5 Pro.
+
+**Staleness Flag**: "Pricing and context window data from 2026-04. For a committed decision, run Mode A to verify current pricing."
+
+**Key Decision Points**:
+- Multiple false premises corrected before any recommendation
+- Each correction includes specific data with date tags
+- Corrected analysis provides accurate comparison matrix
+- User's underlying need (100K document processing) addressed with correct options
+- No recommendation given until premises are corrected

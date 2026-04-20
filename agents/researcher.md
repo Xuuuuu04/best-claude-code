@@ -44,15 +44,19 @@ Key gates: product selection question → BLOCK, route to @tech-research. Resear
 </section>
 
 <section id="runtime-index">
-Full rules + identity + workflow A+B → Read ~/.claude/shared/runtime-packs/researcher/core.md
-Citation laundering anti-pattern + abstract vs. paper-reading discipline → Read ~/.claude/shared/runtime-packs/researcher/core.md §Identity + §Methodology
-Confidence tier architecture (established/contested/speculative) + source credibility A–E → Read ~/.claude/shared/runtime-packs/researcher/core.md §Domain 1.3 + §Methodology
-Four-round search strategy + arXiv structured search + citation network navigation → Read ~/.claude/shared/runtime-packs/researcher/core.md §Domain 1.1
-Baseline selection auditing + reproducibility assessment (critical reading) → Read ~/.claude/shared/runtime-packs/researcher/core.md §Domain 1.2
-Method taxonomy design + evolution logic writing + comparison table design → Read ~/.claude/shared/runtime-packs/researcher/core.md §Domain 2
-Competitive methodology: technical artifact analysis + moat analysis + business signals → Read ~/.claude/shared/runtime-packs/researcher/core.md §Domain 3
-5 anti-patterns (Citation Laundering, Recency Bias, False Depth, Scope Creep into Product Territory, Staleness Without Disclosure) → Read ~/.claude/shared/runtime-packs/researcher/core.md §Anti-Patterns
-Full output contract with RAG vs. fine-tuning filled example → Read ~/.claude/shared/runtime-packs/researcher/core.md §Output Contract
+Full rules + identity + workflow A+B+C + field/product boundary test → Read ~/.claude/shared/runtime-packs/researcher/core.md
+Four-round search protocol + arXiv structured search + citation network navigation + venue assessment → Read ~/.claude/shared/runtime-packs/researcher/domain-1.md §1.1
+Critical reading discipline (baseline auditing, dataset scope, reproducibility assessment) → Read ~/.claude/shared/runtime-packs/researcher/domain-1.md §1.2
+Source credibility A–E system + labeling examples → Read ~/.claude/shared/runtime-packs/researcher/domain-1.md §1.3
+Method taxonomy design + evolution logic writing + comparison table design (5+ dimensions) → Read ~/.claude/shared/runtime-packs/researcher/domain-2.md §2.1
+Structured comparison output + open problems identification (4-element framework) + industrial/academic reconciliation → Read ~/.claude/shared/runtime-packs/researcher/domain-2.md §2.2
+Domain-specific knowledge (AI/ML field structure, industry ecosystem, regulatory research) → Read ~/.claude/shared/runtime-packs/researcher/domain-2.md §2.3
+Competitive research methodology (technical artifact analysis, moat analysis, business signals, failure case research) → Read ~/.claude/shared/runtime-packs/researcher/domain-3.md §3.1
+Citation graph analysis (influence mapping, citation context, intellectual debt tracing) → Read ~/.claude/shared/runtime-packs/researcher/domain-3.md §3.2
+Research gap identification (methodological/evaluation/theoretical gaps + prioritization framework) → Read ~/.claude/shared/runtime-packs/researcher/domain-3.md §3.3
+6 anti-patterns (Citation Laundering, Recency Bias, False Depth, Scope Creep into Product Territory, Staleness Without Disclosure, Methodology Misattribution) + BAD→GOOD examples → Read ~/.claude/shared/runtime-packs/researcher/antipatterns.md
+Output contract templates (READY, BLOCKED/UNSURE, competitive deep-dive) + self-check → Read ~/.claude/shared/runtime-packs/researcher/output.md
+Canonical scenarios (RAG vs. fine-tuning, scope clarification, regulatory research, methodology comparison, citation graph analysis) → Read ~/.claude/shared/runtime-packs/researcher/BASELINE.md
 </section>
 
 <section id="final-reminder">

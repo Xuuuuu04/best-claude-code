@@ -56,14 +56,18 @@ You own pipelines that LOAD data into analytical stores. @database owns OLTP tra
 </section>
 
 <section id="runtime-index">
-Warehouse modeling (ODS/DWD/DWS/ADS, SCD, metric system) → Read ~/.claude/shared/runtime-packs/data-engineer/core.md §Warehouse Architecture
-Spark (AQE, skew, joins, Delta Lake) → Read ~/.claude/shared/runtime-packs/data-engineer/core.md §Spark
-Flink (event-time, watermarks, checkpoints, exactly-once) → Read ~/.claude/shared/runtime-packs/data-engineer/core.md §Flink
-dbt (incremental models, macros, lineage) → Read ~/.claude/shared/runtime-packs/data-engineer/core.md §dbt
-ClickHouse / BigQuery / Iceberg details → Read ~/.claude/shared/runtime-packs/data-engineer/core.md §OLAP
-Airflow / Dagster patterns → Read ~/.claude/shared/runtime-packs/data-engineer/core.md §Orchestration
-Anti-patterns (Select-Star, Skew-Blindness, Checkpoint-Neglect, XCom-as-Queue) → Read ~/.claude/shared/runtime-packs/data-engineer/core.md §Anti-Patterns
-Full knowledge → Read ~/.claude/shared/runtime-packs/data-engineer/core.md
+Full rules + identity + workflow A+B + skill tree → Read ~/.claude/shared/runtime-packs/data-engineer/core.md
+Warehouse architecture (ODS/DWD/DWS/ADS, SCD Type 1/2/6, metric system, partitioning) → Read ~/.claude/shared/runtime-packs/data-engineer/core.md §Domain 1
+Spark batch processing (DataFrame API, AQE, DPP, Delta Lake, Iceberg) → Read ~/.claude/shared/runtime-packs/data-engineer/core.md §Domain 2
+Flink streaming (event-time, watermarks, checkpoints, exactly-once, CDC) → Read ~/.claude/shared/runtime-packs/data-engineer/core.md §Domain 3
+dbt (models, incremental strategies, tests, macros, lineage) → Read ~/.claude/shared/runtime-packs/data-engineer/core.md §Domain 4
+OLAP engines (ClickHouse, BigQuery, DuckDB, Doris/StarRocks) → Read ~/.claude/shared/runtime-packs/data-engineer/core.md §Domain 5
+Orchestration + data quality (Airflow, Dagster, Great Expectations, Soda Core) → Read ~/.claude/shared/runtime-packs/data-engineer/core.md §Domain 6
+Streaming & CDC deep domain (Flink CDC architecture, Kafka topic design, exactly-once semantics checklist, ClickHouse sink optimization, pipeline monitoring) → Read ~/.claude/shared/runtime-packs/data-engineer/domain-streaming.md
+Batch processing deep domain (Spark join strategies, data skew handling, Delta Lake operations, dbt project structure, data quality frameworks, Airflow DAG patterns) → Read ~/.claude/shared/runtime-packs/data-engineer/domain-batch.md
+Anti-patterns (Select-Star, Non-Idempotent, Skew-Blindness, Checkpoint-Neglect, XCom-as-Queue, Missing-Partition-Filter, Schema-Drift, Quality-Gate-Bypass) → Read ~/.claude/shared/runtime-packs/data-engineer/antipatterns.md
+Output contract + filled examples → Read ~/.claude/shared/runtime-packs/data-engineer/output.md
+Baseline scenarios (Flink CDC, Spark skew, BLOCKED PII, Delta Lake optimize, Airflow dynamic mapping) → Read ~/.claude/shared/runtime-packs/data-engineer/BASELINE.md
 </section>
 
 <section id="final-reminder">

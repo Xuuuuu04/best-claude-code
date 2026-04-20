@@ -52,17 +52,18 @@ Down script: [complete reversal of every up step]
 </section>
 
 <section id="runtime-index">
-Full rules + identity + workflow A+B + tooling etiquette → Read ~/.claude/shared/runtime-packs/database/core.md
-Normalization levels, primary key strategy (BIGSERIAL/UUID/ULID/snowflake), relationship design (ON DELETE RESTRICT/CASCADE/SET NULL), soft-delete partial index pattern → Read ~/.claude/shared/runtime-packs/database/core.md §Domain 1.1
-Monetary types (DECIMAL vs BIGINT), temporal types (TIMESTAMPTZ vs DATETIME policy), document types (JSONB/JSON/MongoDB $jsonSchema) → Read ~/.claude/shared/runtime-packs/database/core.md §Domain 1.2
-Multi-tenant patterns (shared-table+RLS / schema-per-tenant / database-per-tenant) → Read ~/.claude/shared/runtime-packs/database/core.md §Domain 1.3
-B-tree/composite/GIN/BRIN/partial index selection, selectivity measurement, redundant index detection, online index creation (CONCURRENTLY) → Read ~/.claude/shared/runtime-packs/database/core.md §Domain 2
-Alembic / Prisma Migrate / Flyway mastery, two-phase NOT NULL addition, two-phase column rename, large-table online DDL (pt-osc/gh-ost/pg_repack) → Read ~/.claude/shared/runtime-packs/database/core.md §Domain 3
-PII L1/L2/L3 tier system (encryption/masking/audit log), retention lifecycle, test data policy, audit trail design → Read ~/.claude/shared/runtime-packs/database/core.md §Domain 4
-Methodology (down-less migration trap, schema evolution vs replacement, float-for-money, index justification discipline) with paired BAD→GOOD examples → Read ~/.claude/shared/runtime-packs/database/core.md §Methodology
-Anti-patterns (Down-less Migration, Float for Money, Index Everything, ORM-Schema Drift, PII Without Tiering) → Read ~/.claude/shared/runtime-packs/database/core.md §Anti-Patterns
-Filled invitations table output example → Read ~/.claude/shared/runtime-packs/database/core.md §Output Contract
-Canonical scenarios (new table design, BLOCKED PII+topology, two-phase NOT NULL migration on 4.2M row table) → Read ~/.claude/shared/runtime-packs/database/BASELINE.md
+Full rules + identity + workflow A+B + skill tree → Read ~/.claude/shared/runtime-packs/database/core.md
+Data modeling (normalization, PK strategy, relationships, soft-delete) → Read ~/.claude/shared/runtime-packs/database/core.md §Domain 1.1
+Precision types (DECIMAL/BIGINT for money, TIMESTAMPTZ, JSONB) → Read ~/.claude/shared/runtime-packs/database/core.md §Domain 1.2
+Multi-tenant + partitioning (shared-table+RLS, schema-per-tenant, range/list/hash partitions) → Read ~/.claude/shared/runtime-packs/database/core.md §Domain 1.3
+Index strategy (B-tree/composite/GIN/BRIN/partial, selectivity, online creation) → Read ~/.claude/shared/runtime-packs/database/core.md §Domain 2
+Migration engineering (Alembic/Prisma/Flyway, two-phase evolution, online DDL) → Read ~/.claude/shared/runtime-packs/database/core.md §Domain 3
+PII classification (L1/L2/L3 tiers, encryption, masking, retention, audit) → Read ~/.claude/shared/runtime-packs/database/core.md §Domain 4
+PostgreSQL deep domain (index type selection, composite ordering, partition strategies, pg_partman, online DDL, RLS, connection pool tuning, backup/recovery) → Read ~/.claude/shared/runtime-packs/database/domain-postgres.md
+Migration engineering deep domain (Alembic/Prisma/Flyway/Atlas/pgroll patterns, idempotent templates, two-phase NOT NULL, backfill scripts, schema drift detection) → Read ~/.claude/shared/runtime-packs/database/domain-migration.md
+Anti-patterns (Down-less Migration, Float for Money, Index Everything, ORM-Schema Drift, PII Without Tiering, Partition Blindness, Two-Phase Neglect) → Read ~/.claude/shared/runtime-packs/database/antipatterns.md
+Output contract + filled examples → Read ~/.claude/shared/runtime-packs/database/output.md
+Baseline scenarios (new table design, BLOCKED PII+topology, two-phase NOT NULL, partition strategy) → Read ~/.claude/shared/runtime-packs/database/BASELINE.md
 </section>
 
 <section id="final-reminder">

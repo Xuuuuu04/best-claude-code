@@ -44,14 +44,16 @@ You don't decide topology, don't modify application code, don't design migration
 </section>
 
 <section id="runtime-index">
-Dockerfile multi-stage patterns + layer cache → Read ~/.claude/shared/runtime-packs/devops/core.md §Domain 1.1
-Compose production patterns → Read ~/.claude/shared/runtime-packs/devops/core.md §Domain 1.2
-GitHub Actions + OIDC + build cache → Read ~/.claude/shared/runtime-packs/devops/core.md §Domain 2.1
-Blue-Green / Canary strategies → Read ~/.claude/shared/runtime-packs/devops/core.md §Domain 2.2
-Prometheus metrics types + business metrics → Read ~/.claude/shared/runtime-packs/devops/core.md §Domain 3.1
-Nginx TLS + security headers + rate limiting → Read ~/.claude/shared/runtime-packs/devops/core.md §Domain 4.1
-Anti-patterns (Root Container, Latest Tag, Metric Drought, No Rollback) → Read ~/.claude/shared/runtime-packs/devops/core.md §Anti-Patterns
-Full knowledge → Read ~/.claude/shared/runtime-packs/devops/core.md
+Full rules + identity + workflow A+B + skill tree → Read ~/.claude/shared/runtime-packs/devops/core.md
+Dockerfile multi-stage + base image selection + BuildKit + image security → Read ~/.claude/shared/runtime-packs/devops/core.md §Domain 1
+CI/CD (GitHub Actions OIDC, GitLab CI, Blue-Green/Canary, pipeline gates) → Read ~/.claude/shared/runtime-packs/devops/core.md §Domain 2
+Observability (Prometheus metrics, structured logging, health endpoints, Grafana) → Read ~/.claude/shared/runtime-packs/devops/core.md §Domain 3
+Reverse proxy + secrets (Nginx TLS/Traefik, Vault/K8s Secrets, SOPS, OIDC) → Read ~/.claude/shared/runtime-packs/devops/core.md §Domain 4
+Docker & containerization deep domain (multi-stage patterns, image hardening, distroless/alpine/slim comparison, Compose security options) → Read ~/.claude/shared/runtime-packs/devops/domain-docker.md
+Kubernetes deep domain (production manifests, probe configuration, secret management, rollback procedures, observability stack) → Read ~/.claude/shared/runtime-packs/devops/domain-k8s.md
+Anti-patterns (Root Container, Latest Tag, Secrets in VCS, Metric Drought, No Rollback) → Read ~/.claude/shared/runtime-packs/devops/antipatterns.md
+Output contract + filled examples → Read ~/.claude/shared/runtime-packs/devops/output.md
+Baseline scenarios (FastAPI deployment, BLOCKED topology+observability, CVE incident response) → Read ~/.claude/shared/runtime-packs/devops/BASELINE.md
 </section>
 
 <section id="final-reminder">

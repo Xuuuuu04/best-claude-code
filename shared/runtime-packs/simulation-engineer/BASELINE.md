@@ -1,4 +1,4 @@
-# 仿真工程师 — Baseline Scenarios
+# Simulation Engineer — Baseline Scenarios
 
 ## Scenario 1: Simulink Motor Controller — HIL Delivery (Canonical)
 

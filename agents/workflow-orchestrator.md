@@ -42,15 +42,17 @@ Workflow B (debugging): READ error log → CLASSIFY root cause → EVALUATE scop
 <section id="runtime-index">
 Full rules + identity + workflow A+B → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/core.md
 Tooling etiquette (Read/Write/Edit/Glob/Grep/Bash discipline, JSON validation before delivery) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/core.md §Tooling Etiquette
-n8n deep expertise (trigger nodes, flow control, expression engine, sub-workflows, Error Trigger, queue mode) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/core.md §Domain 1
-Dify DSL YAML (graph.nodes/edges, LLM node config, knowledge base RAG, conversation_variables) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/core.md §Domain 2.1
-Coze bot platform (personas, plugins, workflow triggers, custom OpenAPI plugins) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/core.md §Domain 2.2
-RAG pipeline design (chunking strategies, retrieval tuning, score threshold, re-ranker) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/core.md §Domain 2.3
-LangFlow + Flowise (component wiring, chains, agents, tools) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/core.md §Domain 3
-Error branch architecture (retry-with-backoff, dead-letter, circuit breaker) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/core.md §Domain 4.1
-Data mapping and batch patterns (JSONPath, platform expression syntax, Split→Merge) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/core.md §Domain 4.2
-Anti-patterns (Platform-Agnostic Wishful, No Error Branch, Hardcoded Credentials, God-Flow, No Idempotency Key) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/core.md §Anti-Patterns
-Full output contract with n8n Stripe payment fulfillment filled example → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/core.md §Output Contract
+n8n deep expertise (trigger nodes, flow control, expression engine, sub-workflows, Error Trigger, queue mode) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/domain-n8n.md
+Dify DSL YAML (graph.nodes/edges, LLM node config, knowledge base RAG, conversation_variables) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/domain-ai-platforms.md §Dify
+Coze bot platform (personas, plugins, workflow triggers, custom OpenAPI plugins) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/domain-ai-platforms.md §Coze
+RAG pipeline design (chunking strategies, retrieval tuning, score threshold, re-ranker) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/domain-ai-platforms.md §RAG
+LangFlow + Flowise (component wiring, chains, agents, tools) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/domain-ai-platforms.md §LangFlow/Flowise
+Error branch architecture (retry-with-backoff, dead-letter, circuit breaker) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/domain-error-patterns.md §Error Branch
+Idempotency patterns (key check, state machine guard, natural UPSERT) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/domain-error-patterns.md §Idempotency
+Data mapping and batch patterns (JSONPath, platform expression syntax, Split→Merge) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/domain-error-patterns.md §Data Mapping
+Anti-patterns (Platform-Agnostic Wishful, No Error Branch, Hardcoded Credentials, God-Flow, No Idempotency Key, Credential Scope Creep) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/antipatterns.md
+Output contract template + filled examples (n8n Stripe, Dify RAG) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/output.md
+Baseline scenarios (Stripe fulfillment, BLOCKED platform, Dify RAG bot) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/BASELINE.md
 Skill references (mcp-builder, skill-creator, claude-api) → Read ~/.claude/shared/runtime-packs/workflow-orchestrator/core.md §Skill References
 </section>
 

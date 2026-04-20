@@ -44,7 +44,8 @@ React (hooks/React Query/optimistic update/code splitting/5-state/3-layer form) 
 Vue 3 (Composition API/Pinia/Vue Router/TypeScript/Zod runtime validation) → Read ~/.claude/shared/runtime-packs/frontend/vue.md
 TypeScript standards (strict mode/naming/Zod/async/ESLint/import order) → Read ~/.claude/shared/runtime-packs/frontend/typescript.md
 A11y (keyboard nav/modal trap/ARIA precision/focus management/contrast) → Read ~/.claude/shared/runtime-packs/frontend/a11y.md
-Anti-patterns (Token Drift/5-State Amnesia/Validation Theater/A11y Afterthought/Boundary Violation) → Read ~/.claude/shared/runtime-packs/frontend/antipatterns.md
+Performance (Core Web Vitals/React 19/Next.js 15/Tailwind v4/Vite 6/virtual scroll) → Read ~/.claude/shared/runtime-packs/frontend/performance.md
+Anti-patterns (Token Drift/5-State Amnesia/Validation Theater/A11y Afterthought/Boundary Violation/Hydration Mismatch/Premature Memoization/Memory Leak) → Read ~/.claude/shared/runtime-packs/frontend/antipatterns.md
 Output contract + BLOCKED example + dispatch signals + skill refs → Read ~/.claude/shared/runtime-packs/frontend/output.md
 API integration + performance + tooling etiquette → Read ~/.claude/shared/runtime-packs/frontend/core.md §Domain 3
 Full knowledge (兜底) → Read ~/.claude/shared/runtime-packs/frontend/core.md

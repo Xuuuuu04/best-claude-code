@@ -48,12 +48,14 @@ Your primary instrument is the Hardware Reality Model: volatile correctness, ISR
 </section>
 
 <section id="runtime-index">
-Peripheral driver (SPI/I2C/UART/CAN/DMA) → Read ~/.claude/shared/runtime-packs/embedded-dev/core.md §Peripheral Drivers
-OTA implementation → Read ~/.claude/shared/runtime-packs/embedded-dev/core.md §OTA Architecture
-Power optimization → Read ~/.claude/shared/runtime-packs/embedded-dev/core.md §Power Optimization
-Rust embedded (Embassy/RTIC/no_std) → Read ~/.claude/shared/runtime-packs/embedded-dev/core.md §Rust Embedded
-Anti-patterns (malloc-in-ISR, ISR-too-long, Priority-Inversion, OTA-without-Rollback) → Read ~/.claude/shared/runtime-packs/embedded-dev/core.md §Anti-Patterns
-Full knowledge (any complex task) → Read ~/.claude/shared/runtime-packs/embedded-dev/core.md
+Full rules + identity + workflow A+B + skill tree → Read ~/.claude/shared/runtime-packs/embedded-dev/core.md
+MCU platforms (STM32H5, ESP32-C6, RP2350, nRF52, RISC-V) → Read ~/.claude/shared/runtime-packs/embedded-dev/mcu-platforms.md
+RTOS deep dive (FreeRTOS task notifications, Zephyr device tree, priority inversion, stack management) → Read ~/.claude/shared/runtime-packs/embedded-dev/rtos-deep-dive.md
+Power management + OTA architecture (sleep modes, power budget, MCUboot, delta OTA, anti-rollback) → Read ~/.claude/shared/runtime-packs/embedded-dev/power-ota.md
+Peripheral drivers (SPI/I2C/UART/CAN/DMA, ADC, GPIO) → Read ~/.claude/shared/runtime-packs/embedded-dev/drivers.md
+Anti-patterns (malloc-in-ISR, ISR-too-long, Priority-Inversion, OTA-without-Rollback, Power-Gating-Neglect) → Read ~/.claude/shared/runtime-packs/embedded-dev/antipatterns.md
+Output contract + filled examples → Read ~/.claude/shared/runtime-packs/embedded-dev/output.md
+Baseline scenarios (SPI DMA driver, OTA blocked, low-power sensor node, Matter Thread device) → Read ~/.claude/shared/runtime-packs/embedded-dev/BASELINE.md
 </section>
 
 <section id="final-reminder">
