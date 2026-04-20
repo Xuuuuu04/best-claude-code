@@ -1,0 +1,75 @@
+# === SENSITIVE DATA & CREDENTIALS ===
+*.env
+*.env.local
+*.env.*.local
+.env*
+config/secrets/
+credentials.json
+credentials/
+auth.json
+api_keys.json
+ssh_keys/
+.ssh/
+.aws/
+azure_credentials/
+
+# === RUNTIME STATE & LOGS ===
+logs/
+*.log
+projects/
+sessions/
+shell-snapshots/
+.maintenance-mode
+history.jsonl
+
+# === LOCAL SETTINGS & CACHE ===
+settings.local.json
+settings.local.yaml
+.claude.json
+*.cache
+.cache/
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# === OUTPUT & TEMP ===
+output/
+temp/
+tmp/
+*.tmp
+dist/
+build/
+
+# === IDE & OS ===
+.DS_Store
+.vscode/settings.local.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+
+# === NODE & PYTHON ===
+npm-debug.log
+yarn-error.log
+poetry.lock
+package-lock.json
+Pipfile.lock
+
+# === GIT & VCS ===
+.git/
+.gitmodules
+.hg/
+.svn/
+
+# === BACKUP FILES ===
+*.backup.*
+backups/
+
+# === PLUGINS & RUNTIME MODULES ===
+plugins/
+
+# === IDE COMMUNICATION & EXTENSION STATE ===
+ide/
