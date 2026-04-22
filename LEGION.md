@@ -105,10 +105,13 @@ Claude Code 在模型 + 内置工具之上提供一套扩展层：
 - `allowed-tools`：限制 Skill 运行中可用的工具（与 Agent 的 `tools` 字段类似）
 - `context: fork`：在隔离上下文中运行（类似 Subagent）
 
-**目录约定**：
-- `skills/` 下每个 Skill 一个子目录，目录内有 `SKILL.md`（必需）+ 其他资源
-- 目录名不决定调用名，`name` 字段才决定
-- 目录结构仅为组织用途
+**目录约定（关键）**：
+- **Skill 目录必须是 `skills/` 的直接子目录**——`~/.claude/skills/<skill-name>/SKILL.md` 或 `.claude/skills/<skill-name>/SKILL.md`
+- **不支持二级嵌套**：`skills/_category/<skill-name>/SKILL.md` 不会被发现（本系统早期踩过此坑，导致所有 Skill 和 `/bcc-*` 命令都加载失败）
+- 目录名不决定调用名，frontmatter 的 `name` 字段才决定
+- 想要分类？用命名前缀（`bcc-*`、`domain-*` 等）代替子目录
+
+**Rules 机制相反**：Rules 支持递归发现所有子目录，所以 `rules/_lang/python.md`、`rules/_framework/react.md` 这类嵌套是合法的。
 
 **加载机制**：
 - 会话开始：所有 Skill 的 name + description 加载到上下文（让 Claude 知道有什么）
@@ -288,10 +291,11 @@ Claude Code 在模型 + 内置工具之上提供一套扩展层：
 ├── LEGION.md                # 本文
 ├── settings.json            # 配置 + hooks
 ├── agents/                  # Subagent 定义
-├── skills/
-│   ├── _dispatch/           # 调度命令（disable-model-invocation:true，/bcc-* 前缀）
-│   ├── _domain/             # 领域知识（Agent 预加载使用）
-│   └── _reference/          # 参考资料（模型可自动调用）
+├── skills/                  # 所有 Skill 扁平存放（Claude Code 发现规则要求）
+│   │                        # 按命名前缀区分角色：
+│   ├── bcc-*/               # 调度命令（disable-model-invocation:true）
+│   ├── {domain-name}/       # 领域知识（Agent 预加载使用）
+│   └── {reference-name}/    # 参考资料（模型可自动调用）
 ├── rules/
 │   ├── _global/             # 无条件规则（启动加载）
 │   ├── _lang/               # 语言规范（path-specific）
@@ -343,7 +347,7 @@ Claude Code 在模型 + 内置工具之上提供一套扩展层：
 这些改动会有连锁影响，特别小心：
 
 - 修改 `agents/` 下的 Agent 身份（产品分析师改成别的认知模式）
-- 修改 `skills/_dispatch/` 下的流水线顺序（会改变 artifact 依赖关系）
+- 修改 `skills/bcc-*/` 下的流水线顺序（会改变 artifact 依赖关系）
 - 修改 `_global/artifact-protocol.md` 里的命名规则（所有 Agent 依赖此约定）
 - 删除 Hook 脚本却未删除 settings.json 中的引用（启动报错）
 - 改 Agent Memory 路径（已有 Memory 会被孤立）
@@ -355,7 +359,7 @@ Claude Code 在模型 + 内置工具之上提供一套扩展层：
 1. **先读本文**（完整读完）
 2. 再读根 CLAUDE.md 了解调度协议
 3. 浏览 `agents/` 下的 Agent 定义理解团队分工
-4. 浏览 `skills/_dispatch/` 下的流水线理解工作流
+4. 浏览 `skills/bcc-*/` 下的流水线理解工作流
 5. 如果要动配置，先跑 `/bcc-evolve` 看系统自己认为该改什么
 6. 手动改动遵循上文的"升级纪律"
 

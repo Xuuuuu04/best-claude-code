@@ -191,10 +191,10 @@ chmod +x ~/.claude/hooks/*.sh
 ├── README.md             # 本文件
 ├── settings.example.json # 配置模板（含占位符）
 ├── agents/               # 8 个 Subagent 定义
-├── skills/
-│   ├── _dispatch/        # /bcc-* 命令入口（流水线）
-│   ├── _domain/          # Agent 预加载的领域知识
-│   └── _reference/       # 可按需查询的参考文档
+├── skills/               # 所有 Skill 扁平存放（Claude Code 要求直接子目录）
+│   ├── bcc-*/            # /bcc-* 命令入口（流水线，disable-model-invocation）
+│   ├── {domain}/         # Agent 预加载的领域知识
+│   └── {reference}/      # 可按需查询的参考文档
 ├── rules/
 │   ├── _global/          # 无条件规则
 │   ├── _lang/            # 语言规范（path-specific）
