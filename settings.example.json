@@ -27,6 +27,11 @@
   "language": "Chinese",
   "effortLevel": "high",
   "outputStyle": "legion-dispatch",
+  "statusLine": {
+    "type": "command",
+    "command": "bash $HOME/.claude/statusline.sh",
+    "padding": 1
+  },
   "skipDangerousModePermissionPrompt": true,
   "teammateMode": "tmux",
   "mcpServers": {},
