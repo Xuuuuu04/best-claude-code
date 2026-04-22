@@ -8,7 +8,7 @@
 - **通用 Agent 池**（32 个）：`~/.claude/agents/`
 - **通信协议**：`~/.claude/shared/protocols/` （task-input / task-output / agent-sop / status-codes / escalation-rules）
 - **通用模板**：`~/.claude/shared/templates/` （task / review / test-report / ui-review / verdict / security-audit / project-claudemd）
-- **代码标准**：`~/.claude/shared/runtime-packs/backend/` （python / go / api-design）+ `~/.claude/shared/runtime-packs/frontend/typescript.md`
+- **Skill 库**：`~/.claude/skills/` （领域知识通过 `skills:` frontmatter 注入 Agent）
 
 ### Agent 池快速索引
 

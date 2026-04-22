@@ -1,0 +1,277 @@
+# 任务:将 Harness Agent Team 升级为第二代(Self-Contained + Skill-Injected 架构)
+
+你的任务是对位于 `~/.claude/agents/` 的 Harness Agent Team 进行一次系统性升级。这不是简单的文件修改——这是一次架构迁移,需要你像一个架构师那样先理解全局再动手。
+
+---
+
+## 0. 绝对禁止(违反任何一条都是任务失败)
+
+- NEVER 在完成本提示词 §1 "审计阶段" 并获得用户对分类台账的明确批准之前,修改、删除或新建任何 agent 文件。
+- NEVER 修改 `~/.claude/output-styles/` 下的任何文件(Harness Orchestrator 的升级是后续独立任务)。
+- NEVER 修改 `~/.claude/CLAUDE.md` 或任何项目级 `CLAUDE.md`。
+- NEVER 生成"用户需要自己去 runtime-packs 目录读详细内容"这种指令——第二代架构里,agent 启动时需要的全部知识必须通过 `skills:` frontmatter 自动注入,不依赖模型主动去 Read。
+- NEVER 让重写后的 agent 正文超过 250 行。超过说明知识该外化到 skill,不是塞在 agent 正文里。
+- NEVER 在一次响应里重写超过 3 个 agent。每批 3 个以内,让用户有机会发现问题再继续。
+
+---
+
+## 1. 审计阶段(必须先完成并获得批准)
+
+### 1.1 读取现有体系
+
+1. 列出 `~/.claude/agents/` 下所有 `.md` 文件。
+2. 逐个读取每个 agent 的完整内容(frontmatter + body + 所有 section)。
+3. 列出 `~/.claude/shared/runtime-packs/` 的完整目录结构,但不需要读取每个 runtime-pack 文件的内容(太大了,后续迁移阶段再按需读)。
+
+### 1.2 输出一份分类台账
+
+用表格形式输出,列:agent 文件名、现有职能摘要(1 行)、建议归类(保留独立 / 合并到 X / 降级为 skill / 删除)、理由(1-2 句)、自主编排模式下的必要性评级(Critical / Important / Optional / Redundant)。
+
+分类决策参考以下规则:
+
+**保留独立**的条件:满足"思维模式独特"或"领域知识密集且模型训练盲区"或"上下文隔离必要"中的至少两条,并且自主编排流水线缺它会断。典型例子:client(客户语义转译)、security-auditor(对抗性思维)、ai-nav(AI 领域时效性管理)、simulation-engineer(领域盲区)、database(不可逆数据决策守门)。
+
+**建议合并**的条件:两个或多个 agent 思维模式高度相似、心智模型同源、差异主要是领域知识而非思考方式。典型合并建议:
+- android-dev + ios-dev → mobile-native(差异通过 skill 处理)
+- test-func + test-ui → test-engineer(差异通过 skill 处理)
+- researcher + tech-research → researcher(如果 tech-research 没有 ai-nav 那种独特机制)
+- visual-designer + creative 不合并(这两个思维模式完全不同,一个发散一个收敛)
+
+**建议降级为 skill** 的条件:三测试(知识密集度测试、上下文隔离测试、思维独特性测试)都弱。典型例子:git-master(git 操作是确定性流程)。
+
+**建议删除**的条件:职能在自主编排模式下被 output style 接管,或频率极低且有替代方案。典型例子:scrum-master(自主模式下 Scrum 仪式由 output style 的状态机接管)、workflow-orchestrator(职能属于 output style)。
+
+**特别处置**:crossplatform-mobile-dev、desktop-dev、harmonyos-dev、miniprogram-dev 这四个的去留,你需要在台账里给出建议但明确标注"需要用户确认实际业务频率"。
+
+### 1.3 明确列出的问题
+
+在台账末尾,列出所有你无法自行判断的模糊点,用编号提问的方式交给用户决策。例如:
+- "ai-nav 的自动研究 (Mode A) 是否需要保留?自主编排模式下谁触发?"
+- "client 的 post-delivery triage 工作流是否保留?还是交给 pm?"
+- "simulation-engineer 的 Unreal/Unity/MATLAB/Python 四栈全保留还是精简?"
+
+### 1.4 停下来等批准
+
+输出台账后,明确写一句:"以上是审计结果,在得到用户明确批准(比如 'approved, proceed to phase 2')之前,我不会修改任何文件。请用户审阅台账,对任何条目有异议请指出,或回复 approved 进入下一阶段。"
+
+然后**停止,等待用户响应**。
+
+---
+
+## 2. 骨架宪法阶段(获得批准后执行)
+
+### 2.1 建立统一的 agent 文件结构
+
+所有第二代 agent 必须严格遵守以下结构。这是不可变的宪法:
+
+```markdown
+---
+name: [中文角色名,对应 @ 调用]
+description: [英文描述,必须包含明确上下游声明 + 强触发词列表。格式: "{职能一句话}. Upstream: @X. Downstream: @Y. Strong triggers: 'trigger1', 'trigger2', ..."]
+model: [opus / sonnet / haiku,按"决策深度 vs 频率"权衡]
+color: [按职能分色 — intake=purple, design=pink, implementation=cyan/orange, data=blue, verification=red, delivery=green]
+tools: [最小必要权限,优先用 allowlist,不要 inherit 所有工具]
+skills: [列出启动时预载的 skill 名称,这是第二代取代 runtime-index 的机制]
+memory: [对 code-review/architect/security-auditor/ai-nav/prompt-engineer 开启 'project';其他按需]
+---
+
+<agent>
+
+<section id="rules">
+NEVER [硬约束1 — 具体到行为,不是原则]. [违反该规则会造成什么具体后果].
+NEVER [硬约束2]. [后果].
+...(3-7 条 NEVER + 2-4 条 MUST,不超过 10 条总数)
+MUST [正向硬约束1].
+MUST [正向硬约束2].
+</section>
+
+<section id="identity">
+你是 Harness 团队的 [职能一句话定位]。你的核心工具是 [primary instrument — 一个具体的方法论或产物,不是抽象词].
+
+心智模型:[1-3 个具体心智模型,每个一句话]。
+
+与相邻 agent 的边界:
+- Unlike @X: [具体边界差异].
+- Unlike @Y: [具体边界差异].
+(只列可能被混淆的相邻 agent,不超过 3 条)
+</section>
+
+<section id="workflow">
+Workflow A ([主场景名称]): 1. [动作] 2. [动作] ... (数字化步骤,每步动词开头,5-9 步)
+Workflow B ([次场景,如果有]): [同上结构]
+(不超过 2 个 workflow,复杂分支用 BLOCK 或 route to 处理)
+</section>
+
+<section id="output-contract">
+## [Agent 名] Output
+**Task**: [Task ID] — [one-sentence description] | **Status**: READY-FOR-NEXT | BLOCKED | FAILED
+[其他字段,按该 agent 职能定制,但必须包含:]
+**Changed Files** 或 **Produced Files**: [具体路径 + 变更摘要]
+**Self-Check**: [职能相关的 3-5 项自检项]
+**Recommended Next Step**: @[downstream-agent] — [why + specific focus]
+[如果 Status 是 BLOCKED,必须有:]
+**Blocking Items**: [ID | description | corrective action | target agent to resolve]
+</section>
+
+<section id="final-reminder">
+[重复 rules 里最关键的 2-4 条 NEVER/MUST,放在结尾作为"近因效应"强化]
+[一句话总结该 agent 的核心价值,用"The X's value is ..." 格式]
+</section>
+
+</agent>
+```
+
+### 2.2 描述 description 的写法规范
+
+description 字段决定自主编排模式下的路由准确性,所以必须按以下规范:
+
+1. 第一句是**职能核心**,不是背景介绍。格式:"{动作动词} {核心产物} for the Harness team."
+2. 第二句必须是**上下游声明**,格式:"Upstream: @X (receives {input type}). Downstream: @Y (produces {output type})."
+3. 第三句是**差异化声明**,说明这个 agent 和最可能被混淆的相邻 agent 的区别。
+4. 最后是 **Strong triggers** 列表,包含中英文关键词、典型用户说法、技术术语,用引号列出。
+
+### 2.3 允许工具权限的规范
+
+按"最小必要"原则分配。给出 4 个典型档位:
+
+- **只读审查型**(code-review、security-auditor、test-engineer): `Read, Grep, Glob, Bash`(Bash 用于跑测试/扫描,但禁用 Write/Edit)
+- **文档输出型**(client、pm、dev-lead、doc-writer、creative): `Read, Write, Edit, Glob, Grep`(+ WebSearch for researcher/ai-nav/client)
+- **代码实现型**(backend、frontend、mobile-native 等): `Read, Write, Edit, Glob, Grep, Bash`
+- **研究型**(researcher、ai-nav): `Read, Write, Edit, Glob, Grep, WebSearch, WebFetch`
+
+---
+
+## 3. Skill 库构建阶段
+
+### 3.1 Skill 目录规范
+
+在 `~/.claude/skills/` 下,为每个知识域建立独立 skill 目录,结构:
+
+```
+~/.claude/skills/
+  mobile-core/
+    SKILL.md               # 跨 iOS/Android 共同的移动开发规范
+  mobile-android-specific/
+    SKILL.md               # Android 专属(推送、R8、lifecycle)
+  mobile-ios-specific/
+    SKILL.md               # iOS 专属(APNs、ARC、SwiftUI state)
+  design-system-core/
+    SKILL.md               # visual-designer 的 token 层规范
+  db-postgres/
+    SKILL.md               # PostgreSQL 深度
+  ...
+```
+
+每个 SKILL.md 的 frontmatter 写法:
+
+```markdown
+---
+name: [skill-name]
+description: [What knowledge this skill contains. Loaded by which agents via skills: frontmatter.]
+---
+
+# [Skill Title]
+
+[正文,不超过 800 行。如果超过,拆成多个 skill 或加 supporting files。]
+```
+
+### 3.2 从 runtime-packs 迁移的规则
+
+对每个保留或合并后的 agent,从其 runtime-pack 里提取内容到 skill,按以下原则:
+
+1. **共享知识拆到共享 skill**。例如"如何安全存储敏感数据"如果 android/ios/backend 都要,就放在 `security-baseline` skill 里,三个 agent 都在 `skills:` 里预载。
+2. **领域特异知识留在专属 skill**。Android 的 R8 规则、华为推送 SDK 集成,放 `mobile-android-specific` skill。
+3. **反模式(antipatterns)放独立 skill**。每个 agent 的反模式是训练最重要的部分,独立 `<agent-name>-antipatterns` skill。
+4. **不要迁移 output.md、BASELINE.md**。输出契约和基线场景属于 agent 正文,不放 skill。
+
+### 3.3 Skill 命名规范
+
+用 `<domain>-<facet>` 或 `<role>-<aspect>` 格式,全小写加连字符。示例:
+- `mobile-core`、`mobile-android-push`、`mobile-android-security`
+- `db-postgres`、`db-migration`、`db-pii-classification`
+- `ai-models-landscape`、`ai-frameworks-landscape`、`ai-rag-deep`
+- `creative-naming-frameworks`、`creative-brand-tone`
+- `test-functional-skill`、`test-ui-screenshot-protocol`
+
+---
+
+## 4. 执行阶段
+
+### 4.1 执行顺序
+
+按以下分组,每组内 agent 逐个处理,每次响应最多处理 3 个 agent:
+
+- **组 1 — Intake 层**: client, pm, researcher, ai-nav
+- **组 2 — Design 层**: architect, creative, visual-designer, dev-lead
+- **组 3 — Data 层**: database
+- **组 4 — Implementation 层**: backend, frontend, mobile-native, (其他按台账保留的)
+- **组 5 — Verification 层**: code-review, security-auditor, test-engineer, test-lead
+- **组 6 — Delivery 层**: devops, doc-writer
+- **组 7 — Meta 层**: prompt-engineer
+
+### 4.2 每个 agent 的处理步骤
+
+对每个 agent,按以下严格顺序:
+
+1. **读取现有 agent 文件 + 对应的 runtime-pack 所有文件**(如果有),完整读完,不跳读。
+2. **提取可复用知识到 skill**,先创建或更新 skill 文件(`~/.claude/skills/<skill-name>/SKILL.md`)。
+3. **重写 agent 文件**,严格按 §2.1 宪法结构。新 agent 文件正文不超过 250 行。
+4. **在 agent frontmatter 的 `skills:` 字段列出它依赖的所有 skill**。
+5. **不要删除旧的 runtime-pack 文件**(这一步最后统一清理,避免中途回滚麻烦)。
+6. **输出一份变更摘要**,说明新 agent 文件路径、新建的 skill 文件路径、从 runtime-pack 提取到 skill 的知识大类。
+
+### 4.3 每批输出后停下来
+
+每处理完 3 个 agent,停下来输出一条:"第 N 批完成,包含 [agent1, agent2, agent3]。请检查是否符合预期,回复 'continue' 进入下一批。"然后**等待用户响应**。
+
+### 4.4 特殊处理:合并 agent
+
+对于合并类变更(如 android-dev + ios-dev → mobile-native),不要简单拼接两个文件,而是:
+1. 提取两者共同的心智模型(两者都讲 MVVM、lifecycle、response UI),写入 mobile-native 的 identity section.
+2. 差异化内容(Android 的 R8、iOS 的 ARC)进入各自专属 skill(mobile-android-specific、mobile-ios-specific).
+3. `skills:` 字段同时预载 mobile-core + mobile-android-specific + mobile-ios-specific,或者动态根据任务触发词预载(Claude Code 启动时 subagent 会全部加载,所以不要怕预载多).
+
+### 4.5 最终清理
+
+所有 agent 处理完后,停下来问用户:
+"所有 agent 升级完成。现在需要决定如何处理 `~/.claude/shared/runtime-packs/` 目录。选项:A) 保留做备份;B) 归档到 `~/.claude/archive/runtime-packs-legacy-v1/`;C) 删除。请选择。"
+
+然后**等待用户决定后执行**。
+
+---
+
+## 5. 质量自检清单(每个 agent 完成后,在输出前自检)
+
+对每个重写后的 agent,输出前确认以下每一项:
+
+1. agent 正文是否 ≤ 250 行?
+2. description 是否包含明确上下游(Upstream + Downstream)?
+3. description 是否包含 Strong triggers?
+4. rules section 是否在 3-10 条之间?
+5. identity 是否明确列出和相邻 agent 的边界?
+6. workflow 是否数字化、动词开头?
+7. output-contract 是否包含 Status、Recommended Next Step、Self-Check?
+8. final-reminder 是否重复了最关键的 NEVER/MUST?
+9. skills: frontmatter 是否列出了该 agent 启动时需要的所有领域知识?
+10. tools 是否最小必要(避免继承全部工具)?
+11. model 是否合理(高频简单任务用 haiku/sonnet,深度决策用 opus)?
+12. 是否没有任何 "Read ~/.claude/shared/runtime-packs/..." 这种让模型主动读文件的指令?(这种指令在第二代被禁止,因为实证有效性低)
+
+任何一项不满足,不要输出,先修正。
+
+---
+
+## 6. 工作风格要求
+
+- 每次响应开头用 `★ Insight` 格式说明当前在执行哪个阶段的哪一步、为什么是这个顺序。
+- 遇到不确定的分类、合并判断,或者 runtime-pack 里发现重要但不确定怎么分类的知识时,**停下来问**,不要自己决定。
+- 保持和 Harness Orchestrator 的整体风格一致:serial by default、visible reasoning、evidence-based。
+- 你现在扮演的是 prompt-engineer + architect 的双重角色,不是具体实现者。你的产出是规范,不是代码。
+
+---
+
+## 7. 开始执行
+
+现在从 §1 审计阶段开始。读取 `~/.claude/agents/` 下所有 agent 文件,输出分类台账,列出你需要用户决策的模糊点,然后停下来等批准。
+
+不要跳过审计直接进入重写——这会让整个升级失败。

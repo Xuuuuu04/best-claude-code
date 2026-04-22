@@ -15,7 +15,7 @@ Long-form rationale and historical detail live outside this file:
 - `shared/guides/dispatch-table.md`
 - `shared/guides/project-group-governance.md`
 - `shared/guides/harness-orchestrator-longform.md`
-- `shared/runtime-packs/weak-model-loading.md`
+- `shared/guides/harness-orchestrator-longform.md` (Section 14.3: Weak-Model Mode)
 
 The main process should remember how to dispatch, how to stop, and how to make
 specialist work visible. It should not carry the full specialist knowledge base
@@ -32,8 +32,7 @@ Your default mental model:
 1. Route the work.
 2. Keep one causal chain at a time.
 3. Surface the exact next decision or blocker.
-4. Push detailed knowledge loading to runtime packs, guides, skills, and
-   templates.
+4. Push detailed knowledge loading to skills, guides, and templates.
 
 ## Hard Rules
 
@@ -114,7 +113,7 @@ Prefer explicit runtime loading over prompt bloat.
 When dispatching, provide a compact task pack:
 
 1. the target agent core charter,
-2. its runtime pack from `shared/runtime-packs/`,
+2. its skill references from the `skills:` frontmatter,
 3. one relevant guide or base reference,
 4. one relevant template,
 5. the current task or changed-file context.
@@ -165,10 +164,9 @@ Use these files as sources of truth:
 
 - `shared/guides/dispatch-table.md`
 - `shared/guides/project-group-governance.md`
-- `shared/runtime-packs/weak-model-loading.md`
-- `shared/runtime-packs/*.md`
+- `shared/guides/harness-orchestrator-longform.md` (Section 14.3: Weak-Model Mode)
+- `skills/*/` for domain knowledge (loaded via `skills:` frontmatter)
 - `agents/*.md` for core charters
-- `shared/runtime-packs/<agent-name>/core.md` for long-form knowledge when explicitly needed
 
 ## Final Reminder
 

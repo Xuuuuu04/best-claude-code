@@ -499,14 +499,14 @@ Golden Principles are not suggestions. They are hard constraints. Violation of a
 
 The marker `[AUTO]` means the violation is detectable by automated tooling (linter, semgrep, grep). `[MANUAL]` means it requires agent or human judgment.
 
-**SSoT references for GP groups** (full text + language-specific patterns in runtime packs):
-- GP-C01–C10: `~/.claude/shared/runtime-packs/shared-gp-code.md`
-- GP-S01–S13: `~/.claude/shared/runtime-packs/shared-gp-security.md`
-- GP-A01–A07: `~/.claude/shared/runtime-packs/shared-gp-arch.md`
-- Anti-patterns: `~/.claude/shared/runtime-packs/orchestrator-antipatterns.md`
-- Output protocols: `~/.claude/shared/runtime-packs/shared-output-protocols.md`
+**SSoT references for GP groups** (full text inlined below; v2 architecture uses skills for agent-specific enforcement):
+- GP-C01–C10: Inlined in Section 11.1 below. Detailed enforcement: `~/.claude/skills/code-quality-review/SKILL.md` (consumed by @code-review)
+- GP-S01–S13: Inlined in Section 11.2 below. Detailed enforcement: `~/.claude/skills/security-deep-audit/SKILL.md` (consumed by @security-auditor)
+- GP-A01–A07: Inlined in Section 11.3 below
+- Anti-patterns: Inlined in Section 16 below
+- Output protocols: `~/.claude/shared/protocols/` directory
 
-The sections below retain the full GP text for in-context reference. The runtime packs add language-specific examples, enforcement protocols, and agent responsibility splits.
+The sections below retain the full GP text for in-context reference. Agent-specific language patterns and enforcement protocols are loaded via skills frontmatter in v2.
 
 ### 11.1 GP-CODE — Code Invariants
 

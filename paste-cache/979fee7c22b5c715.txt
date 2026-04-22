@@ -1,0 +1,39 @@
+ROTATIONAL WORKPIECE VISION CELL
+回转体工件外径 / 椭圆度检测工作站
+以线阵采集建模、比例标定、尺寸测量和公差判级为主线，重构工业视觉测量工站的关键流程。 当前版本面向无硬件毕业设计场景，输出外径、轴向总长、锥度差、椭圆度和圆度误差等核心指标。
+AttributeError: 'NoneType' object has no attribute 'ndim'
+Traceback:
+File "C:\Users\Lenovo\Desktop\fcb-435-回转体工件视觉检测系统-Windows\.venv\Lib\site-packages\streamlit\runtime\scriptrunner\exec_code.py", line 129, in exec_func_with_error_handling
+    result = func()
+File "C:\Users\Lenovo\Desktop\fcb-435-回转体工件视觉检测系统-Windows\.venv\Lib\site-packages\streamlit\runtime\scriptrunner\script_runner.py", line 689, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\Lenovo\Desktop\fcb-435-回转体工件视觉检测系统-Windows\app.py", line 1165, in <module>
+    main()
+    ~~~~^^
+File "C:\Users\Lenovo\Desktop\fcb-435-回转体工件视觉检测系统-Windows\app.py", line 964, in main
+    catalog = ensure_workpiece_data(ROOT)
+File "C:\Users\Lenovo\Desktop\fcb-435-回转体工件视觉检测系统-Windows\src\workpiece_vision\synthetic.py", line 289, in ensure_workpiece_data
+    _build_case(base, "generated", **case) for case in generated_cases
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\Users\Lenovo\Desktop\fcb-435-回转体工件视觉检测系统-Windows\src\workpiece_vision\synthetic.py", line 162, in _build_case
+    simulation = simulate_line_scan(profile_image, pixels_per_line=3, width_scale=3.0)
+File "C:\Users\Lenovo\Desktop\fcb-435-回转体工件视觉检测系统-Windows\src\workpiece_vision\line_scan.py", line 33, in simulate_line_scan
+    if image.ndim != 3:
+       ^^^^^^^^^^
+Copy
+Ask Google
+Ask ChatGPT
+
+
+
+
+
+
+
+
+
+
+
+
+AI翻译

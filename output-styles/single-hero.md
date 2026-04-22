@@ -82,7 +82,7 @@ Security: SQL[✓] XSS[✓] Secrets[✓] Input[✓] Logs[✓]
 
 - Re-activate harness-orchestrator: mention "switch back to team mode"
   or call `/项目管理`.
-- Security baseline: `~/.claude/shared/runtime-packs/backend/security.md`
+- Security baseline: `~/.claude/skills/security-deep-audit/SKILL.md`
 
 ## Final Reminder
 

@@ -1,0 +1,36 @@
+[system] WeChatLib: 3.15.1 (2026.4.1 11:13:56)
+[system] Subpackages: N/A
+[system] LazyCodeLoading: false
+Tue Apr 21 2026 23:29:30 GMT+0800 (中国标准时间) 文章推荐
+getSystemInfo API 提示
+小程序基础库从 3.7.0 起正式支持 HarmonyOS 平台，开发者可通过 wx.getDeviceInfo() 判断平台进行兼容处理，让小程序在 HarmonyOS 也获得最佳体验，查看指引[https://developers.weixin.qq.com/community/develop/doc/00008e041106f0259bb33530164409]
+关于上述警告，点击查看更多信息：https://developers.weixin.qq.com/community/develop/doc/00008e041106f0259bb33530164409]
+[system] Launch Time: 3988 ms
+Error: timeout
+    at Function.<anonymous> (WAServiceMainContext.js?t=wechat&v=3.15.1:1)
+    at p (WAServiceMainContext.js?t=wechat&v=3.15.1:1)
+    at WAServiceMainContext.js?t=wechat&v=3.15.1:1
+    at WAServiceMainContext.js?t=wechat&v=3.15.1:1(env: macOS,mp,2.01.2510290; lib: 3.15.1)
+vendor.js? [sm]:7 wx.getSystemInfoSync is deprecated.Please use wx.getSystemSetting/wx.getAppAuthorizeSetting/wx.getDeviceInfo/wx.getWindowInfo/wx.getAppBaseInfo instead.
+(anonymous) @ vendor.js? [sm]:7
+setup @ NavBar.js? [sm]:1
+Xr @ vendor.js? [sm]:7
+(anonymous) @ vendor.js? [sm]:8
+Ei @ vendor.js? [sm]:8
+Qi @ vendor.js? [sm]:8
+s @ vendor.js? [sm]:8
+$vm.type @ vendor.js? [sm]:8
+attached @ vendor.js? [sm]:8
+[pages/user/center] Some selectors are not allowed in component wxss, including tag name selectors, ID selectors, and attribute selectors.(./components/UpgradeSheet.wxss:1:3301)
+[Deprecation] SharedArrayBuffer will require cross-origin isolation as of M92, around July 2021. See https://developer.chrome.com/blog/enabling-shared-array-buffer/ for more details.
+vendor.js? [sm]:7 wx.getSystemInfoSync is deprecated.Please use wx.getSystemSetting/wx.getAppAuthorizeSetting/wx.getDeviceInfo/wx.getWindowInfo/wx.getAppBaseInfo instead.
+(anonymous) @ vendor.js? [sm]:7
+setup @ NavBar.js? [sm]:1
+Xr @ vendor.js? [sm]:7
+(anonymous) @ vendor.js? [sm]:8
+Ei @ vendor.js? [sm]:8
+Qi @ vendor.js? [sm]:8
+s @ vendor.js? [sm]:8
+$vm.type @ vendor.js? [sm]:8
+attached @ vendor.js? [sm]:8
+orders.js? [sm]:1 [orders.vue] 列表首条订单全字段: {"id":97,"orderNo":"2046609965776793600","userId":10015,"goodsType":2,"goodsId":10001,"goodsName":"奇妙客房 大床(海岸邀请函)","goodsSpecs":"{\"床型\": \"大床\", \"入场票类\": \"海岸邀请函\", \"房间类型\": \"奇妙客房\"}","unitPrice":11110.02,"buyNum":1,"orderAmount":11110.02,"orderStatus":0,"createTime":"2026-04-21 23:20:14","eventName":"福瑞八奇物志·虚匣伪宴","eventCity":"成都","eventStartTime":"2026-07-24 08:30:00","eventEndTime":"2026-07-26 23:59:59"}

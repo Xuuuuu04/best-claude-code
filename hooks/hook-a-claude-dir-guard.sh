@@ -56,10 +56,9 @@ case "$expanded_path" in
     # prompt-engineer 作为唯一 agent 文件修改通道，自保护此路径。
     "$HOME/.claude/agents/"*) hook_pass ;;
     "$HOME/.claude/knowledge-base/"*) hook_pass ;;
-    # v1.3 — 2026-04-20：扩充 prompt-engineer 合法写入白名单
-    # 理由：runtime-packs/output-styles/guides/docs/hooks 均属 prompt-engineer 职责范围
-    # 经用户拍板（Phase 2 全面改造），一次性静态授权。
-    "$HOME/.claude/shared/runtime-packs/"*) hook_pass ;;
+    # v1.4 — 2026-04-22：v2 架构迁移，runtime-packs 已归档，skills 纳入白名单
+    # 理由：v2 采用 Self-Contained + Skill-Injected 架构，skill 文件由 prompt-engineer 维护
+    "$HOME/.claude/skills/"*) hook_pass ;;
     "$HOME/.claude/output-styles/"*) hook_pass ;;
     "$HOME/.claude/shared/guides/"*) hook_pass ;;
     "$HOME/.claude/docs/"*) hook_pass ;;
