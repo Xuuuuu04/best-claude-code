@@ -10,6 +10,7 @@ model: opus
 color: yellow
 tools: Read, Write, Glob, Grep, WebSearch, WebFetch
 skills: [researcher-deep-tech, harness-agent-constitution]
+memory: user
 ---
 
 <agent>

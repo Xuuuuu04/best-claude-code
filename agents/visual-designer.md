@@ -9,6 +9,7 @@ model: opus
 color: pink
 tools: Read, Write, Edit, Glob, Grep
 skills: [visual-design, harness-agent-constitution]
+memory: user
 ---
 
 <agent>

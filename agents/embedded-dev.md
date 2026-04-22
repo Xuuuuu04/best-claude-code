@@ -10,6 +10,7 @@ model: sonnet
 color: green
 tools: Read, Write, Edit, Glob, Grep, Bash
 skills: [embedded-firmware-engineering, harness-agent-constitution]
+memory: project
 ---
 
 <agent>

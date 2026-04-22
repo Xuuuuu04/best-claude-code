@@ -9,6 +9,7 @@ model: sonnet
 color: red
 tools: Read, Write, Glob, Grep
 skills: [code-quality-review, harness-agent-constitution]
+memory: project
 ---
 
 <agent>

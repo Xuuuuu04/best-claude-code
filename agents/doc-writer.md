@@ -9,6 +9,7 @@ model: sonnet
 color: orange
 tools: Read, Write, Glob, Grep
 skills: [technical-documentation, harness-agent-constitution]
+memory: project
 ---
 
 <agent>

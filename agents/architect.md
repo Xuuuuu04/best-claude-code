@@ -10,6 +10,7 @@ model: opus
 color: blue
 tools: Read, Write, Glob, Grep
 skills: [system-architecture, harness-agent-constitution]
+memory: project
 ---
 
 <agent>

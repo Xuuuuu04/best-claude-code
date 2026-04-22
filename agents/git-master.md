@@ -9,6 +9,7 @@ model: haiku
 color: yellow
 tools: Read, Bash, Glob, Grep
 skills: [git-engineering, harness-agent-constitution]
+memory: user
 ---
 
 <agent>

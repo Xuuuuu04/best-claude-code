@@ -10,6 +10,7 @@ model: sonnet
 color: purple
 tools: Read, Write, Edit, Glob, Grep, Bash
 skills: [specification-engineering, harness-agent-constitution]
+memory: project
 ---
 
 <agent>

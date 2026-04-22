@@ -10,6 +10,7 @@ model: sonnet
 color: cyan
 tools: Read, Write, Edit, Glob, Grep, Bash
 skills: [android-native-development, harness-agent-constitution]
+memory: project
 ---
 
 <agent>

@@ -10,6 +10,7 @@ model: opus
 color: purple
 tools: Read, Write, Edit, Glob, Grep, Bash
 skills: [ai-ecosystem-intelligence, harness-agent-constitution]
+memory: user
 ---
 
 <agent>

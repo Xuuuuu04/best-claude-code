@@ -10,6 +10,7 @@ model: sonnet
 color: pink
 tools: Read, Write, Glob, Grep, WebSearch, WebFetch
 skills: [creative-direction, harness-agent-constitution]
+memory: user
 ---
 
 <agent>

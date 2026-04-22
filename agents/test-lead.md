@@ -9,6 +9,7 @@ model: opus
 color: red
 tools: Read, Write, Edit, Glob, Grep
 skills: [quality-verdict, harness-agent-constitution]
+memory: project
 ---
 
 <agent>

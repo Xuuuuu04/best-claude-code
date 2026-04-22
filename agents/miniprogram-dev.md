@@ -10,6 +10,7 @@ model: sonnet
 color: cyan
 tools: Read, Write, Edit, Glob, Grep, Bash
 skills: [miniprogram-engineering, harness-agent-constitution]
+memory: project
 ---
 
 <agent>

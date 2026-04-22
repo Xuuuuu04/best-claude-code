@@ -9,6 +9,7 @@ model: sonnet
 color: green
 tools: Read, Write, Edit, Glob, Grep, Bash
 skills: [functional-testing, harness-agent-constitution]
+memory: project
 ---
 
 <agent>

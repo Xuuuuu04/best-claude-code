@@ -9,6 +9,7 @@ model: sonnet
 color: pink
 tools: Read, Write, Edit, Glob, Grep
 skills: [prompt-engineering, harness-agent-constitution]
+memory: user
 ---
 
 <agent>

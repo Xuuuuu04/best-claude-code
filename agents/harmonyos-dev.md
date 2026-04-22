@@ -10,6 +10,7 @@ model: sonnet
 color: green
 tools: Read, Write, Edit, Glob, Grep, Bash
 skills: [harmonyos-native-development, harness-agent-constitution]
+memory: project
 ---
 
 <agent>

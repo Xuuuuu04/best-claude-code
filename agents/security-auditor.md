@@ -9,6 +9,7 @@ model: sonnet
 color: red
 tools: Read, Glob, Grep, Bash
 skills: [security-deep-audit, harness-agent-constitution]
+memory: project
 ---
 
 <agent>

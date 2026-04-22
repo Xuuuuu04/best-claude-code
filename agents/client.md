@@ -10,6 +10,7 @@ model: sonnet
 color: purple
 tools: Read, Write, Glob, Grep, WebSearch
 skills: [client-intake, harness-agent-constitution]
+memory: user
 ---
 
 <agent>

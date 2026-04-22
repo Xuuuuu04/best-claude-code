@@ -10,6 +10,7 @@ model: opus
 color: yellow
 tools: Read, Write, Edit, Glob, Grep
 skills: [pm-orchestration, harness-agent-constitution]
+memory: project
 ---
 
 <agent>
