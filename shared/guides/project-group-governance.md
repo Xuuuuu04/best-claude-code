@@ -54,43 +54,17 @@ guide: true
   <section id="dispatch-flow">
     <title>三、调度判断流程（收到用户输入后的 Step 0）</title>
     <content>
-<p><strong>每次收到用户输入时，你必须先过这张表来决定调谁</strong>。不要等用户主动点名 Agent，那样会导致 Agent 池里大量成员长期沉默。</p>
-
-<p>⚠️ 本表已废弃。调度信号表单一真源已迁移至 <code>~/.claude/shared/guides/dispatch-table.md</code>。本表仅作历史快照保留。</p>
-
-<h3>用户输入信号 → 应调 Agent 映射</h3>
-<table>
-<tr><th>用户输入特征（关键词/场景）</th><th>先调 Agent</th><th>理由</th></tr>
-<tr><td>客户聊天记录/语音转写/零散需求描述</td><td><code>client</code></td><td>非结构化外部输入，需要先整理</td></tr>
-<tr><td>用户直接口述清晰需求</td><td><code>pm</code>（直接）</td><td>跳过 client，PM 拆 Task</td></tr>
-<tr><td>"帮我安排下一步"、"这个项目推进到哪了"</td><td><code>pm</code></td><td>调度判断</td></tr>
-<tr><td>"这个库/框架/服务能不能用"</td><td><code>tech-research</code></td><td>技术选型验证</td></tr>
-<tr><td>"帮我查最近的论文"、"行业竞品分析"、"某领域方法综述"</td><td><code>researcher</code></td><td>深度研究（不同于 tech-research 的选型验证）</td></tr>
-<tr><td>"给这个功能/项目取个名字"、"想个 Slogan"、"文案方向"</td><td><code>creative</code></td><td>创意策划</td></tr>
-<tr><td>"训练一个模型"、"微调"、"数据预处理"、"推理部署"</td><td><code>ml-engineer</code></td><td>ML 实现</td></tr>
-<tr><td>"设计一下这个功能的技术方案"</td><td><code>dev-lead</code></td><td>方案设计</td></tr>
-<tr><td>"这个跨模块的架构应该怎么搭"</td><td><code>architect</code></td><td>系统级设计</td></tr>
-<tr><td>"加一张表"、"改字段"、"写迁移"</td><td><code>database</code></td><td>数据模型</td></tr>
-<tr><td>"写这个接口/页面"（已有明确方案）</td><td><code>backend</code>/<code>frontend</code></td><td>直接实现</td></tr>
-<tr><td>"审一下这段代码"</td><td><code>code-review</code></td><td>代码审查</td></tr>
-<tr><td>"测一下这个功能"、"走一遍主流程"</td><td><code>test-func</code></td><td>功能测试</td></tr>
-<tr><td>"截个图"、"看看界面怎么样"</td><td><code>test-ui</code></td><td>UI 证据采集</td></tr>
-<tr><td>"这一轮能不能通过验收"</td><td><code>test-lead</code></td><td>综合裁决</td></tr>
-<tr><td>"部署一下"、"写 Dockerfile"</td><td><code>devops</code></td><td>部署</td></tr>
-<tr><td>"写一份 API 文档/用户手册/论文草稿"</td><td><code>doc-writer</code></td><td>文档成文</td></tr>
-</table>
-
-<h3>信号不明确时</h3>
-<p>如果用户输入含糊、多意图或包含多个 Task，<strong>默认调 <code>pm</code></strong> 做拆解和调度判断。</p>
+<p>调度信号表单一真源：<code>~/.claude/shared/guides/dispatch-table.md</code></p>
+<p>本节历史版本已移除。所有调度判断以 dispatch-table.md 为准。</p>
 
 <h3>轻量快速路径例外</h3>
-<p>同时满足以下三条时，你可跳过 PM 直接调下游：</p>
+<p>同时满足以下三条时，orchestrator 可跳过 PM 直接调下游：</p>
 <ol>
-<li>改动粒度为"单文件、局部修改"（例如改一行文案、调一个样式值、修一个明显小 bug）</li>
+<li>改动粒度为"单文件、局部修改"</li>
 <li>不涉及新增 API、数据库字段或业务规则</li>
 <li>用户已在输入中明确描述完整上下文</li>
 </ol>
-<p>跳过时必须在根 <code>Task.md</code> 留痕"快速路径-跳过 PM"，并在发现超出轻量范围时立即回到标准链。</p>
+<p>跳过时必须在根 <code>Task.md</code> 留痕"快速路径-跳过 PM"。</p>
     </content>
   </section>
 
@@ -111,8 +85,7 @@ pm（项目管理师）
 dev-lead（开发组长）      → 技术方案
 architect（架构师）         → 系统级设计（仅复杂场景）
 database（数据库工程师）    → Schema/迁移
-researcher（深度研究员）    → 领域研究/文献综述/竞品分析
-tech-research（技术调研）   → 技术选型/第三方服务评估
+researcher（深度研究员）    → 领域研究/文献综述/竞品分析/技术选型/第三方服务评估
 creative（创意策划师）      → 命名/文案/视觉方向
 visual-designer（视觉设计师）→ 设计系统/UI 规范/tokens/组件规范
 
@@ -134,9 +107,6 @@ test-lead（测试总监师）      → 综合裁决
 
 【元工程层】
 prompt-engineer（提示词工程师）→ Agent prompt 维护/评审
-
-【进度管理层】
-scrum-master（进度管理师）    → Sprint 节奏/站会/阻塞跟踪
 </pre>
 
 <h3>典型协作链示例</h3>
@@ -156,7 +126,7 @@ scrum-master（进度管理师）    → Sprint 节奏/站会/阻塞跟踪
 
 <p>常见越权场景：</p>
 <ul>
-<li>用户让你"查一下 xx 怎么用" → 你应该调 <code>tech-research</code>，而不是自己瞎答</li>
+<li>用户让你"查一下 xx 怎么用" → 你应该调 <code>researcher</code>（Mode B 技术选型），而不是自己瞎答</li>
 <li>用户让你"帮我想个产品名" → 你应该调 <code>creative</code>，而不是自己拍脑袋</li>
 <li>用户让你"看看这个论文说了啥" → 你应该调 <code>researcher</code></li>
 <li>用户让你"训练一个分类模型" → 你应该调 <code>ml-engineer</code></li>

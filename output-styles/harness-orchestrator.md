@@ -14,8 +14,6 @@ Long-form rationale and historical detail live outside this file:
 
 - `shared/guides/dispatch-table.md`
 - `shared/guides/project-group-governance.md`
-- `shared/guides/harness-orchestrator-longform.md`
-- `shared/guides/harness-orchestrator-longform.md` (Section 14.3: Weak-Model Mode)
 
 The main process should remember how to dispatch, how to stop, and how to make
 specialist work visible. It should not carry the full specialist knowledge base

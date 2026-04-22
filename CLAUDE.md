@@ -5,7 +5,7 @@
 当你在一个"多项目并行、需要 PM 调度、前台串行"的工作区作为项目群经理运行时，可引用以下全局资源：
 
 - **项目群总控规程**：`~/.claude/shared/guides/project-group-governance.md`
-- **通用 Agent 池**（32 个）：`~/.claude/agents/`
+- **通用 Agent 池**（30 个）：`~/.claude/agents/`
 - **通信协议**：`~/.claude/shared/protocols/` （task-input / task-output / agent-sop / status-codes / escalation-rules）
 - **通用模板**：`~/.claude/shared/templates/` （task / review / test-report / ui-review / verdict / security-audit / project-claudemd）
 - **Skill 库**：`~/.claude/skills/` （领域知识通过 `skills:` frontmatter 注入 Agent）
@@ -18,15 +18,14 @@
 | 外部输入 | 客户沟通师 | sonnet | 客户聊天记录、售后反馈、售前提案 |
 | 设计 | 开发组长 | sonnet | "技术方案"、"拆分到文件级" |
 | 设计 | 架构师 | opus | "整体架构"、"跨模块重构" |
-| 数据 | 数据库工程师 | sonnet | "加表"、"改字段"、"迁移" |
-| 研究 | 技术调研师 | sonnet | "A 和 B 哪个好"、"能不能用"、"定价" |
-| 研究 | 深度研究员 | opus | "文献综述"、"领域研究"、"深度竞品分析" |
+| 数据 | 数据库工程师 | opus | "加表"、"改字段"、"迁移" |
+| 研究 | 深度研究员 | opus | "文献综述"、"领域研究"、"深度竞品分析"、"A 和 B 哪个好"、"能不能用"、"定价" |
 | 创意 | 创意策划师 | sonnet | "取名"、"Slogan"、"品牌调性"、"文案方向" |
-| 视觉 | 视觉设计师 | sonnet | "设计系统"、"UI 规范"、"tokens"、"组件规范" |
+| 视觉 | 视觉设计师 | opus | "设计系统"、"UI 规范"、"tokens"、"组件规范" |
 | 实现 | 后端开发师 | sonnet | "写接口"、"后端实现" |
 | 实现 | 前端开发师 | sonnet | "写页面"、"前端实现" |
 | 实现 | 小程序开发师 | sonnet | "写小程序"、"uni-app"、"微信登录"、"分包" |
-| 实现 | 机器学习工程师 | opus | "训练模型"、"推理部署"、"算法项目" |
+| 实现 | 机器学习工程师 | sonnet | "训练模型"、"推理部署"、"算法项目" |
 | 审查 | 代码审计师 | sonnet | "审代码"、"code review" |
 | 安全 | 安全审计师 | sonnet | "安全审计"、"上线前检查"、"OWASP" |
 | 测试 | 功能测试师 | sonnet | "测功能"、"走主流程" |
@@ -35,7 +34,6 @@
 | 部署 | 运维部署工程师 | sonnet | "部署"、"Dockerfile"、"上线" |
 | 文档 | 文档工程师 | sonnet | "写 API 文档"、"用户手册"、"论文草稿" |
 | 元工程 | 提示词工程师 | sonnet | "改 prompt"、"调 agent 规格"、"agent 跑偏" |
-| 进度 | 进度管理师 | sonnet | "Sprint"、"站会"、"阻塞"、"燃尽图"、"进度风险" |
 | 实现 | iOS 开发师 | sonnet | "iOS"、"Swift"、"SwiftUI"、"App Store 上架"、"TestFlight" |
 | 实现 | Android 开发师 | sonnet | "Android"、"Kotlin"、"Jetpack Compose"、"Google Play"、"安卓" |
 | 实现 | 跨平台移动开发师 | sonnet | "Flutter"、"React Native"、"跨平台"、"Dart"、"双端" |

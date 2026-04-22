@@ -38,9 +38,9 @@ memory: [project | none]
 ### 1.3 model 选择原则
 - **opus**: 深度决策、架构设计、安全审计、对抗性审查、元工程
 - **sonnet**: 代码实现、技术方案、文档编写、常规研究、部署
-- **haiku**: 纯确定性流程（本代无独立 haiku agent）
+- **haiku**: 纯确定性流程（git-master、test-ui）
 
-## 2. Body Section Schema (7 个 section)
+## 2. Body Section Schema (5 个 section)
 
 ```markdown
 <agent>
