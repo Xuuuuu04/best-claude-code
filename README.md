@@ -1,8 +1,47 @@
-# Agent Legion — Best Claude Code Template
+<div align="center">
 
-> 一套基于 Claude Code **全部扩展机制**构建的自适应多 Agent 开发军团。把主会话变成指挥官，把干净的隔离上下文交给专业化 Subagent，让中等能力模型在单点任务上匹敌顶级模型。
+<br>
+
+```
+ █████╗  ██████╗ ███████╗███╗   ██╗████████╗    ██╗     ███████╗ ██████╗ ██╗ ██████╗ ███╗   ██╗
+██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝    ██║     ██╔════╝██╔════╝ ██║██╔═══██╗████╗  ██║
+███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║       ██║     █████╗  ██║  ███╗██║██║   ██║██╔██╗ ██║
+██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║       ██║     ██╔══╝  ██║   ██║██║██║   ██║██║╚██╗██║
+██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║       ███████╗███████╗╚██████╔╝██║╚██████╔╝██║ ╚████║
+╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝       ╚══════╝╚══════╝ ╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
+```
+
+### The Best Claude Code Template
+
+***把主会话变成指挥官，让 Subagent 军团在隔离上下文中完成一切***
+
+<br>
+
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-v2.1.59+-7c3aed?style=flat-square&logo=anthropic)](https://claude.com/claude-code)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](./LICENSE)
+[![Status: v1.0](https://img.shields.io/badge/Status-v1.0-f59e0b?style=flat-square)](#)
+[![Chinese First](https://img.shields.io/badge/Language-中文优先-ef4444?style=flat-square)](#)
+[![Agents](https://img.shields.io/badge/Agents-8-3b82f6?style=flat-square)](#六个-subagent-角色)
+[![Rules](https://img.shields.io/badge/Rules-42-8b5cf6?style=flat-square)](#支持的技术栈)
+[![Skills](https://img.shields.io/badge/Skills-19-06b6d4?style=flat-square)](#系统架构)
+
+<br>
+
+**[设计哲学](#设计哲学)** · **[架构](#系统架构)** · **[能做什么](#能做什么)** · **[快速开始](#安装与使用)** · **[维护指南](./LEGION.md)**
+
+<br>
 
 ---
+
+<br>
+
+> **一套基于 Claude Code 全部扩展机制构建的自适应多 Agent 开发军团。**
+>
+> 让中等能力模型在干净的隔离上下文中，单点任务上匹敌甚至超越顶级模型。
+
+</div>
+
+<br>
 
 ## 为什么是 Agent Legion
 
