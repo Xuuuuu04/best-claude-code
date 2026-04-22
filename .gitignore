@@ -31,6 +31,9 @@ settings.local.yaml
 .claude.json
 *.cache
 .cache/
+image-cache/
+paste-cache/
+mcp-needs-auth-cache.json
 node_modules/
 .venv/
 __pycache__/
