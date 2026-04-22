@@ -106,9 +106,15 @@ Batch 3（依赖 Batch 2）：scope-lock-{task-id}-4, scope-lock-{task-id}-5
 - `mobile` → `implementer-mobile`
 - `infra` → `devops`
 
-### 3.3 按批次派遣
+### 3.3 按批次派遣（前台优先）
 
-对每个 Batch，同时派遣该批次内的所有 implementer（利用后台 subagent 并行）：
+**默认前台阻塞**派遣——一次一个 implementer，等它完成并产出 artifact 后再派下一个，用户可以实时看到每个 Agent 的工作过程。
+
+仅在以下情况考虑并行派遣该批次所有 implementer：
+- 同批次有 ≥3 个无依赖的 Task
+- 用户明确同意并行（不同意则串行）
+
+并行时仍建议**每次最多 2-3 个**后台任务，不要一次性全丢。
 
 ```
 任务：实现 scope-lock 中定义的范围。
@@ -200,6 +206,11 @@ Refs: .claude/artifacts/requirements-{task-id}.md
 - **Subagent 调用失败**：捕获错误，向用户汇报具体阶段和失败原因
 - **上下文压缩**：PostCompact hook 会注入恢复提示，确认你仍是调度器身份
 
-## 并行化提示
+## 并行化的边界
 
-利用 Claude Code 的后台 subagent 能力：无依赖关系的 scope-lock 可以同时派遣。按 Batch 组织可以最大化并行度，同时保证依赖顺序。
+Claude Code 支持后台 Subagent，但本流水线**默认前台串行**——让用户看到每一步的实时进度。只有在用户明确同意、且同批次有多个无依赖 Task 时才启用并行，并且一次最多 2-3 个，不一口气丢所有。
+
+这是为了保证：
+- 用户可以及时打断或纠偏
+- 单 Agent 失败容易定位
+- 调度器自己不会在状态混乱中失控

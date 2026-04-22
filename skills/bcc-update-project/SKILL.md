@@ -12,7 +12,7 @@ disable-model-invocation: true
 
 ## 运行条件
 
-- `.claude/skills/_domain/project-knowledge/SKILL.md` 必须存在（由 `/bcc-init-project` 创建）
+- `.claude/skills/project-knowledge/SKILL.md` 必须存在（由 `/bcc-init-project` 创建）
 - 当前在 git 仓库中（用于提取近期提交作为变更日志素材）
 
 ---
@@ -24,7 +24,7 @@ disable-model-invocation: true
 ```
 任务：扫描代码库当前状态，产出更新所需的信息。
 
-对比项：读取现有的 .claude/skills/_domain/project-knowledge/SKILL.md，识别当前状态和已记录状态的差异。
+对比项：读取现有的 .claude/skills/project-knowledge/SKILL.md，识别当前状态和已记录状态的差异。
 
 请产出差异报告到 .claude/artifacts/update-analysis.md：
 
@@ -61,7 +61,7 @@ disable-model-invocation: true
 
 基于 researcher 的分析，更新两个文件：
 
-### 2.1 更新 `.claude/skills/_domain/project-knowledge/SKILL.md`
+### 2.1 更新 `.claude/skills/project-knowledge/SKILL.md`
 
 这是**详细版**项目知识，容量可达 200-500 行。更新规则：
 
@@ -95,7 +95,7 @@ disable-model-invocation: true
 审查类型：architecture-review
 审查对象：
 - CLAUDE.md
-- .claude/skills/_domain/project-knowledge/SKILL.md
+- .claude/skills/project-knowledge/SKILL.md
 
 请验证：
 - CLAUDE.md 仍符合 rules/_global/claudemd-standard.md 规范
@@ -126,7 +126,7 @@ disable-model-invocation: true
 
 ### 已更新的文件
 - CLAUDE.md（精练索引）
-- .claude/skills/_domain/project-knowledge/SKILL.md（详细知识）
+- .claude/skills/project-knowledge/SKILL.md（详细知识）
 
 ### 建议
 - {如果某些区块信息不足或过期严重，提醒用户手动补充}

@@ -90,7 +90,7 @@ disable-model-invocation: true
 
 ### 3.3 project-knowledge Skill
 
-生成 `.claude/skills/_domain/project-knowledge/SKILL.md`：
+生成 `.claude/skills/project-knowledge/SKILL.md`：
 
 ```markdown
 ---
@@ -150,7 +150,7 @@ CLAUDE.local.md
 
 ```
 审查类型：architecture-review
-审查对象：CLAUDE.md、.claude/skills/_domain/project-knowledge/SKILL.md
+审查对象：CLAUDE.md、.claude/skills/project-knowledge/SKILL.md
 
 请验证：
 - CLAUDE.md 符合 rules/_global/claudemd-standard.md 规范
@@ -169,7 +169,7 @@ CLAUDE.local.md
 
 **创建的文件**:
 - CLAUDE.md（{N} 行）
-- .claude/skills/_domain/project-knowledge/SKILL.md
+- .claude/skills/project-knowledge/SKILL.md
 - {列出其他创建的文件}
 
 **技术栈识别**:

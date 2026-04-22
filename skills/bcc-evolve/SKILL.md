@@ -163,7 +163,7 @@ disable-model-invocation: true
 
 ### 已执行的变更
 - [NEW] .claude/rules/_framework/api-error-format.md （来自提案 1）
-- [NEW] .claude/skills/_domain/pagination-patterns/SKILL.md （来自提案 3）
+- [NEW] .claude/skills/pagination-patterns/SKILL.md （来自提案 3）
 - [MERGE] 合并 _lang/typescript.md 和 _lang/typescript-strict.md （来自提案 5）
 - [CLEAN] 清理 ~/.claude/agent-memory/quality-guardian/error-patterns.md 中 8 条已固化的条目
 
