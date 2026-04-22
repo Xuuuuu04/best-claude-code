@@ -103,7 +103,7 @@ Agent Legion 把 Claude Code 的七种扩展层全部用上，让它们各司其
 - **implementer-{frontend,backend,mobile}** — 在 scope-lock 范围内高质量执行
 - **quality-guardian** — 对抗性思维守卫质量（需求/架构/代码/测试四类审查）
 - **devops** — 构建、部署、CI/CD、发布（可重复、可回滚、可追踪）
-- **explorer** — 广度探索只返摘要（保护主会话上下文）
+- **researcher** — 广度探索只返摘要（保护主会话上下文）
 
 ---
 

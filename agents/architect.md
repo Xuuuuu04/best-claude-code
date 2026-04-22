@@ -10,6 +10,7 @@ skills:
   - architecture-patterns
 memory: user
 color: purple
+permissionMode: bypassPermissions
 ---
 
 # Role Identity

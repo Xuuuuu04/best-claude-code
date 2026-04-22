@@ -14,7 +14,7 @@ disable-model-invocation: true
 
 ## Phase 1: 审计（在隔离上下文中进行）
 
-由于需要读取大量文件，此 Phase 应通过派遣 explorer 完成：
+由于需要读取大量文件，此 Phase 应通过派遣 researcher 完成：
 
 ```
 任务：全面审计 Agent Legion 系统的记忆和配置。
@@ -34,7 +34,7 @@ disable-model-invocation: true
 
 3. **Agent Memory（项目级）**
    - .claude/agent-memory/implementer-*/MEMORY.md
-   - .claude/agent-memory/explorer/MEMORY.md
+   - .claude/agent-memory/researcher/MEMORY.md
 
 4. **现有配置**
    - 所有 ~/.claude/agents/*.md

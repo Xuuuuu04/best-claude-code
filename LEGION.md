@@ -232,7 +232,7 @@ Claude Code 在模型 + 内置工具之上提供一套扩展层：
 
 **本系统的 Memory 分层策略**：
 - 思维类 Agent（产品分析师、架构师、质量守卫、运维）→ `user`（跨项目积累）
-- 执行类 Agent（implementer、explorer）→ `project`（项目特定）
+- 执行类 Agent（implementer、researcher）→ `project`（项目特定）
 
 ### 3.8 MCP 机制
 

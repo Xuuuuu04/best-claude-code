@@ -9,6 +9,7 @@ skills:
   - devops-protocol
 memory: user
 color: green
+permissionMode: bypassPermissions
 ---
 
 # Role Identity

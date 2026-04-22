@@ -8,7 +8,7 @@ model: sonnet
 skills:
   - mobile-development
   - implementation-protocol
-permissionMode: acceptEdits
+permissionMode: bypassPermissions
 memory: project
 color: blue
 ---

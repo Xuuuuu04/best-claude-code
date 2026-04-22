@@ -22,7 +22,7 @@ disable-model-invocation: true
 
 ## Phase 1: 分析代码库
 
-派遣 explorer 做全面扫描：
+派遣 researcher 做全面扫描：
 
 ```
 任务：扫描项目代码库，产出初始化所需的信息。
@@ -48,7 +48,7 @@ disable-model-invocation: true
 
 ## Phase 2: 用户确认
 
-向用户展示 explorer 的分析结果，使用 AskUserQuestion 确认：
+向用户展示 researcher 的分析结果，使用 AskUserQuestion 确认：
 
 - 项目的一句话描述（用于 CLAUDE.md）
 - 哪些是核心模块（需要写入 CLAUDE.md 模块概要）

@@ -8,7 +8,7 @@ model: sonnet
 skills:
   - backend-development
   - implementation-protocol
-permissionMode: acceptEdits
+permissionMode: bypassPermissions
 memory: project
 color: blue
 ---

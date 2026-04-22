@@ -19,7 +19,7 @@ disable-model-invocation: true
 
 ## Phase 1: 扫描
 
-派遣 explorer subagent 做全面扫描：
+派遣 researcher subagent 做全面扫描：
 
 ```
 任务：扫描代码库当前状态，产出更新所需的信息。
@@ -59,7 +59,7 @@ disable-model-invocation: true
 
 ## Phase 2: 生成更新
 
-基于 explorer 的分析，更新两个文件：
+基于 researcher 的分析，更新两个文件：
 
 ### 2.1 更新 `.claude/skills/_domain/project-knowledge/SKILL.md`
 
@@ -150,4 +150,4 @@ disable-model-invocation: true
 
 - **project-knowledge 不存在**：提示用户先运行 `/bcc-init-project`
 - **没有检测到变化**：仅更新时间戳，无需动用其他 Agent
-- **Explorer 扫描超时**：限定扫描范围（如仅扫描 src/）并告知用户
+- **Researcher 扫描超时**：限定扫描范围（如仅扫描 src/）并告知用户

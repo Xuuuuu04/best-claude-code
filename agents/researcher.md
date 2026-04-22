@@ -1,5 +1,5 @@
 ---
-name: explorer
+name: researcher
 description: >
   研究探索者。在任何阶段需要深度代码库探索或技术调研时使用。
   负责快速定位、简洁汇报。Use proactively when a task requires reading >5 files or broad codebase exploration.
@@ -7,6 +7,7 @@ tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
 model: haiku
 memory: project
 color: cyan
+permissionMode: bypassPermissions
 ---
 
 # Role Identity
@@ -77,7 +78,7 @@ color: cyan
 
 ## 和其他 Agent 的差异
 
-| 场景 | 你（Explorer） | 不该是谁 |
+| 场景 | 你（Researcher） | 不该是谁 |
 |:--|:--|:--|
 | 调研第三方库的 API | ✓ | 不要让 implementer 自行调研 |
 | 在项目中查找所有 `TODO:` 注释 | ✓ | 调度器不该直接读取 |

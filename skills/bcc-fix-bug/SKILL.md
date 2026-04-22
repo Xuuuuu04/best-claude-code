@@ -18,7 +18,7 @@ disable-model-invocation: true
 
 ## Phase 1: 定位与分析
 
-### 1.1 派遣 explorer 调研
+### 1.1 派遣 researcher 调研
 
 ```
 任务：调研以下 bug 的可能原因和代码位置。
@@ -31,8 +31,8 @@ Bug 描述：{$ARGUMENTS}
 ### 1.2 派遣 product-analyst 确认影响
 
 ```
-任务：基于 explorer 的调研报告，分析该 bug 的影响范围和修复优先级。
-调研报告：{explorer 的 artifact 路径}
+任务：基于 researcher 的调研报告，分析该 bug 的影响范围和修复优先级。
+调研报告：{researcher 的 artifact 路径}
 Task ID: {task-id}
 
 请产出简化版需求文档：
@@ -53,7 +53,7 @@ Task ID: {task-id}
 ```
 任务：为以下 bug 设计修复方案。
 需求文档：.claude/artifacts/requirements-{task-id}.md
-Explorer 调研：{路径}
+Researcher 调研：{路径}
 
 请产出：
 - 根因分析（在 architecture-{task-id}.md 中）
@@ -152,6 +152,6 @@ Refs: .claude/artifacts/requirements-{task-id}.md
 
 ## 异常处理
 
-- **explorer 无法定位**：要求用户提供更多信息（重现步骤、日志、环境）
+- **researcher 无法定位**：要求用户提供更多信息（重现步骤、日志、环境）
 - **bug 无法复现**：向 quality-guardian 明确说明，它会在功能测试中尝试构造复现
 - **修复引入回归**：退回到 Phase 3，要求 implementer 重新设计修复方案

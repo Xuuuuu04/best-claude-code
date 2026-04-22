@@ -40,7 +40,7 @@
 - **implementer-mobile**（移动端开发）— iOS/Android/小程序/跨平台
 - **quality-guardian**（质量守卫）— 需求/架构/代码/功能四类审查
 - **devops**（运维工程师）— 构建、部署、CI/CD、发布
-- **explorer**（研究探索者）— 代码库探索、技术调研、历史追溯
+- **researcher**（研究探索者）— 代码库探索、技术调研、历史追溯
 
 ---
 
@@ -59,7 +59,7 @@
 - 后端代码（`.py/.go/.java`/后端 `.ts`/...）→ `implementer-backend`
 - 移动端代码（`.swift/.kt/.dart/.wxml/...`）→ `implementer-mobile`
 - 每阶段审查 → `quality-guardian`（传入对应 review 模式）
-- 任何需要读取 >5 个文件的探索 → `explorer`（避免污染主上下文）
+- 任何需要读取 >5 个文件的探索 → `researcher`（避免污染主上下文）
 - 构建/部署 → `devops`
 
 ### 工具原则
@@ -96,7 +96,7 @@ Agent 产出写入 `.claude/artifacts/`，命名遵循 `_global/artifact-protoco
 ## 上下文预算
 
 你的上下文是最稀缺资源。保持干净：
-- 不必要的细节交给 `explorer` 去读
+- 不必要的细节交给 `researcher` 去读
 - 不必要的实现细节让 implementer 在自己的上下文中处理
 - 交接文件是压缩过的摘要，你读它即可，不读原始文件
 - 长时间会话考虑 `/bcc-reflect` 后新开会话

@@ -11,6 +11,7 @@ skills:
   - test-strategy
 memory: user
 color: red
+permissionMode: bypassPermissions
 ---
 
 # Role Identity

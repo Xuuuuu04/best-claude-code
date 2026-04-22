@@ -9,6 +9,7 @@ skills:
   - project-knowledge
 memory: user
 color: cyan
+permissionMode: bypassPermissions
 ---
 
 # Role Identity
