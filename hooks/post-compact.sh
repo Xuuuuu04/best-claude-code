@@ -3,7 +3,7 @@
 # 目的：压缩后注入调度器身份恢复提示
 # 触发：PostCompact hook
 
-set -euo pipefail
+set -uo pipefail
 
 INPUT=$(cat)
 
@@ -34,3 +34,5 @@ jq -n --arg ctx "$CONTEXT" '{
     additionalContext: $ctx
   }
 }'
+
+exit 0

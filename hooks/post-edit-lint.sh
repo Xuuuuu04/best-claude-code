@@ -5,7 +5,7 @@
 #
 # 行为：静默运行，失败不阻断 Claude 工作流。目的是"机会性修复"而非强制。
 
-set -euo pipefail
+set -uo pipefail
 
 INPUT=$(cat)
 

@@ -3,7 +3,7 @@
 # 目的：在上下文压缩前保存当前工作状态快照
 # 触发：PreCompact hook
 
-set -euo pipefail
+set -uo pipefail
 
 INPUT=$(cat)
 

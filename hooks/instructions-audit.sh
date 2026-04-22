@@ -7,7 +7,7 @@
 # - 调试"规则没生效"问题（确认是否加载了）
 # - /evolve 可以分析哪些 Rules 从未触发
 
-set -euo pipefail
+set -uo pipefail
 
 INPUT=$(cat)
 

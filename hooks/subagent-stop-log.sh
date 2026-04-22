@@ -3,7 +3,7 @@
 # 目的：记录 Subagent 完成事件到日志（用于 /evolve 分析和性能洞察）
 # 触发：SubagentStop hook
 
-set -euo pipefail
+set -uo pipefail
 
 INPUT=$(cat)
 

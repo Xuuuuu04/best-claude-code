@@ -1,207 +1,277 @@
 ---
 name: project-knowledge
-description: 当前项目的全局知识库，包含模块关系、API 索引、技术栈详情和迭代进度。由 /bcc-init-project 初始化，由 /bcc-update-project 持续维护。
+description: 漫展官网购票系统（Furry8）全局知识库。包含双端技术栈、31 个 API 端点、模块结构、共享代码、迭代进度与变更日志。由 /bcc-update-project 维护。
 ---
 
-# 项目知识库
+# 项目知识库：漫展官网购票系统（Furry8）
 
-> 这是一个**模板**。首次使用 Agent Legion 时，运行 `/bcc-init-project` 会将此模板个性化为具体项目的知识库。
-> 后续 `/bcc-update-project` 会根据代码库变化自动刷新各区块。
->
-> **最后更新**: （待 /bcc-init-project 生成时填充）
+**最后更新**: 2026-04-23
+**项目类型**: 纯前端外包（Web + 微信小程序）
+**后端**: 客户自有团队（`https://api.furry8.cn`）
 
 ---
 
 ## 项目身份
 
-- **名称**: {项目名}
-- **一句话描述**: {项目做什么}
-- **业务领域**: {电商 / SaaS / 工具 / 游戏 / 教育 / 其他}
-- **当前阶段**: {MVP / Beta / 生产 / 成熟期}
+- **名称**: 漫展官网购票系统（福瑞八奇物志 Furry8）
+- **一句话描述**: 漫展活动购票平台，含 Web 响应式站点 + 微信小程序双端
+- **业务领域**: 活动票务电商
+- **当前阶段**: 二期交付中（已收开工款 ¥2000/¥6000）
 
 ---
 
 ## 技术栈详情
 
 ### 语言 & 运行时
-- **主语言**: {Node.js 20 / Python 3.12 / Java 21 / Go 1.22 / ...}
-- **次要语言**: {Shell / SQL / ...}
+- **主语言**: JavaScript（Web）、TypeScript 4.9（小程序）
+- **Node.js**: 20+（开发环境）
 
-### 框架
-- **Web 框架**: {Express / FastAPI / Spring Boot / ...}
-- **前端框架**: {React 18 / Vue 3 / ...}
-- **ORM / 数据访问**: {Prisma / SQLAlchemy / ...}
+### 框架 & 库
+- **Web 端**: Vue 3.5 + Vue Router 4.6 + Pinia 3.0 + Axios 1.14
+- **小程序端**: uni-app (Vue 3.4) + @dcloudio/vite-plugin-uni 3.0
+- **加密**: crypto-js ^4.2.0（双端共享 AES）
+- **二维码**: qrcode ^1.5.4（Web）、uqrcodejs ^4.0.7（小程序）
+- **HTML 净化**: dompurify ^3.4.0（Web 端，当前由 richText.js 手写 sanitize 替代使用）
+- **国际化**: vue-i18n ^9.1.9（小程序依赖，当前未使用）
+
+### 构建工具
+- **Web**: Vite 8.0 + @vitejs/plugin-vue 6.0
+- **小程序**: Vite 5.2 + vue-tsc 1.0（类型检查）
+- **包管理**: npm
+
+### 测试 & CI/CD
+- **无单元测试 / E2E**（本项目未配置）
+- **无 CI/CD**（手动构建部署）
+- **部署**: 手动上传 Web 产物至服务器；小程序通过微信开发者工具上传
 
 ### 数据存储
-- **主数据库**: {PostgreSQL 15 / MySQL 8 / MongoDB / ...}
-- **缓存**: {Redis 7 / Memcached / ...}
-- **搜索**: {Elasticsearch / Meilisearch / ...}
-- **对象存储**: {S3 / OSS / ...}
-
-### 测试
-- **单元测试**: {Vitest / Jest / pytest / ...}
-- **E2E**: {Playwright / Cypress / ...}
-- **覆盖率工具**: {c8 / coverage.py / ...}
-
-### 构建与部署
-- **构建工具**: {Vite / Webpack / Turbopack / Gradle / ...}
-- **包管理**: {pnpm / npm / yarn / poetry / ...}
-- **容器化**: {Docker / 无}
-- **编排**: {Kubernetes / Docker Compose / ECS / ...}
-- **CI/CD**: {GitHub Actions / GitLab CI / ...}
+- **无数据库**（纯前端，数据全部来自后端 API）
+- **前端持久化**: localStorage（Web）、uni.getStorageSync（小程序）
 
 ---
 
 ## 模块依赖关系
 
 ```
-src/
-├── auth/        → 依赖 db/, utils/crypto
-├── api/         → 依赖 auth/, db/, services/
-├── services/    → 依赖 db/, external/
-├── db/          → 独立，Prisma schema
-├── utils/       → 独立
-└── frontend/
-    ├── components/ → 依赖 hooks/, utils/
-    ├── hooks/      → 依赖 api-client/
-    ├── pages/      → 依赖 components/, hooks/
-    └── api-client/ → 依赖 后端 API
+shared/                 # 双端共享（@shared 别名）
+├── constants/          # 业务枚举
+├── copy/               # 法律文案
+├── crypto/             # AES 加解密
+├── mock/               # Mock 数据（大部分已弃用）
+└── utils/              # 工具函数
+       │
+       ├─── web/        # Vue 3 SPA（浏览器）
+       │    ├── api/    # Axios + AES 封装
+       │    ├── components/  # 7 个组件
+       │    ├── router/      # 14 条路由
+       │    ├── stores/      # Pinia x3
+       │    ├── views/       # 14 个页面
+       │    └── utils/       # richText, webToast
+       │
+       └─── miniapp/    # uni-app（微信小程序）
+            ├── api/    # uni.request + AES 封装
+            ├── components/  # 6 个组件
+            ├── pages/       # 15 个页面
+            └── utils/       # auth, richText, wx
 ```
 
-### 模块详细说明
+### Web 端模块
 
-#### `src/auth/`
-- **职责**: 用户认证与授权
-- **主要导出**: `authenticate()`, `authorize()`, `refreshToken()`
-- **依赖**: `db/`, `utils/crypto`
-- **注意事项**: Token 刷新存在历史竞态条件，使用分布式锁保护
+| 目录 | 文件数 | 职责 |
+|------|--------|------|
+| `api/` | 4 | Axios 封装(request.js)、业务 API(index.js)、优惠券(coupon.js)、新闻(news.js) |
+| `components/` | 7 | AppIcon、AppNavbar、CheckoutSheet、CouponPanel、MyTicketsSheet、TicketQrCode、UpgradeSheet |
+| `router/` | 1 | 14 条路由定义 + 登录守卫 |
+| `stores/` | 3 | auth.js(认证)、ticket.js(票务/SKU)、order.js(订单) |
+| `views/` | 14 | 页面视图（auth/home/news/ticket/user/placeholder/scan） |
 
-#### `src/api/`
-- **职责**: REST API 端点定义与路由
-- **主要导出**: 各路由模块
-- **依赖**: `auth/`, `db/`, `services/`
-- **注意事项**: 所有端点必须经过认证中间件（除 `/auth/login`、`/health`）
+### 小程序端模块
 
-_（其他模块类似）_
+| 目录 | 文件数 | 职责 |
+|------|--------|------|
+| `api/` | 4 | uni.request 封装(request.ts)、业务 API、优惠券、新闻 |
+| `components/` | 6 | AppIcon、NavBar、CheckoutSheet、CouponPanel、TicketQrCode、UpgradeSheet |
+| `pages/` | 15 | 小程序页面（4 Tab + 11 非 Tab） |
+| `utils/` | 3 | auth.ts(登录态)、richText.ts、wx.ts(微信 code) |
+
+### 共享代码
+
+| 目录 | 文件 | 导出 |
+|------|------|------|
+| `constants/` | enums.js | EVENT_STATUS, SKU_STATUS, ORDER_STATUS, PAY_STATUS, TICKET_STATUS, REFUND_STATUS, REFUND_TYPE |
+| `constants/` | coupon.js | COUPON_TYPE, formatCouponValue, formatCouponAmount, formatMinAmount |
+| `copy/` | aboutUs.js, legalTerms.js, ticketNotice.js | 文案内容 |
+| `crypto/` | index.js | encrypt, decrypt（AES-128-ECB/PKCS7, key=v7X3n9q2wR4mK8pL） |
+| `mock/` | mockData.js, newsMock.js, couponMock.js | Mock 数据（newsMock USE_MOCK=false） |
+| `utils/` | date.js | safeDate, formatDate, formatDateRange |
+| `utils/` | eventStatus.js | computeEventDisplayStatus |
+| `utils/` | mask.js | isValidEmail, isValidPhone, maskPhone, maskEmail |
+| `utils/` | price.js | formatPrice |
+| `utils/` | stockLevel.js | formatStockLevel |
+| `utils/` | ticketQr.js | buildQrPayload, buildUserQrPayload |
 
 ---
 
-## API 端点索引
+## API 端点索引（31 个）
 
-| 路径 | 方法 | 描述 | 认证 | 限流 |
-|:--|:--|:--|:--|:--|
-| /api/auth/login | POST | 用户登录 | 否 | 10/min |
-| /api/auth/refresh | POST | Token 刷新 | Refresh Token | 30/min |
-| /api/auth/logout | POST | 用户登出 | 是 | - |
-| /api/users | GET | 用户列表 | 是（admin） | 60/min |
-| /api/users/:id | GET | 获取用户 | 是 | 60/min |
-| ...（/bcc-update-project 会自动扫描更新此表） | | | | |
-
-### 已废弃端点
-| 路径 | 废弃时间 | 替代 |
+### 认证
+| 路径 | 方法 | 说明 |
 |:--|:--|:--|
-| /api/v0/... | 2026-03 | /api/v1/... |
+| `/ticket/login` | POST | Web 账号密码登录 |
+| `/ticket/login/applet` | POST | 小程序微信登录（传 wx.login 的 code） |
+| `/ticket/register/email/code` | POST | 发送注册验证码（兼容手机号） |
+| `/ticket/register/email/verify` | POST | 验证并注册 |
+| `/ticket/forget/send` | POST | 发送重置验证码 |
+| `/ticket/forget/verify` | POST | 验证并重置密码 |
 
----
+### 活动 & 商品
+| 路径 | 方法 | 说明 |
+|:--|:--|:--|
+| `/ticket/event/list` | GET | 活动列表 |
+| `/ticket/banner/list` | GET | 首页 Banner |
+| `/ticket/sku/category` | GET | 商品类别（含规格） |
+| `/ticket/sku/info` | GET | 商品 SKU 详情 |
+| `/ticket/sku/info/:skuId` | GET | 商品 SKU 详情（按 ID） |
+| `/ticket/sku/tag` | GET | 商品 Tag 列表 |
 
-## 数据模型概要
+### 订单
+| 路径 | 方法 | 说明 |
+|:--|:--|:--|
+| `/ticket/order/create` | POST | 下单 |
+| `/ticket/order/pay` | POST | 支付 |
+| `/ticket/order/cancel` | POST | 取消订单 |
+| `/ticket/order/list` | GET | 订单列表 |
+| `/ticket/order/detail/:orderNo` | GET | 订单详情 |
+| `/ticket/order/refund` | POST | 退款申请 |
+| `/ticket/order/refund/cancel` | POST | 取消退款 |
+| `/ticket/order/refund/list/:orderNo` | GET | 退款历史 |
 
-### 核心实体
-- **User**: 用户基本信息、认证凭证
-- **Session**: 登录会话、token
-- **Permission**: 角色-权限映射（RBAC）
-- ...
+### 用户
+| 路径 | 方法 | 说明 |
+|:--|:--|:--|
+| `/ticket/user/center` | GET | 个人中心数据 |
+| `/ticket/user/info` | PUT | 更新昵称/头像 |
+| `/ticket/user/authenticate` | POST | 实名认证 |
+| `/ticket/user/bind/email/code` | POST | 发送绑定邮箱验证码 |
+| `/ticket/user/bind/email` | POST | 绑定邮箱 |
 
-### 关键关系
-- User 1:N Session
-- User M:N Role（through UserRole）
-- Role M:N Permission（through RolePermission）
+### 优惠券
+| 路径 | 方法 | 说明 |
+|:--|:--|:--|
+| `/ticket/user-coupon/coupon/available` | POST | 获取可用优惠方案 |
+| `/ticket/user-coupon/discount` | POST | 选券试算优惠明细 |
+| `/ticket/user-coupon` | GET | 我的优惠券列表 |
 
-### Schema 文件
-- 主 schema: `prisma/schema.prisma` / `alembic/versions/...`
-- migration 目录: `prisma/migrations/`
+### 票码 & 升级
+| 路径 | 方法 | 说明 |
+|:--|:--|:--|
+| `/ticket/code/list` | POST | 票码列表（含 ticketCode） |
+| `/ticket/code/upgrade/versions` | POST | 可升级版本列表 |
+| `/ticket/code/upgrade` | POST | 执行票码升级（返回支付信息） |
 
----
+### 新闻 & 其他
+| 路径 | 方法 | 说明 |
+|:--|:--|:--|
+| `/ticket/article/list` | GET | 新闻/公告列表 |
+| `/ticket/article/detail` | GET | 新闻详情 |
+| `/ticket/official/contact` | GET | 官方联系方式 |
 
-## 架构决策记录（ADR）
-
-### ADR-001: 认证方案选择 JWT
-- **决策时间**: 2025-12-15
-- **选项**: Session / JWT / OAuth
-- **选择**: JWT（短期 access + 长期 refresh）
-- **理由**: 无状态、易扩展、支持移动端
-- **代价**: 撤销 token 复杂（需要黑名单）
-
-### ADR-002: 前端状态管理
-- **决策时间**: 2026-01-10
-- **选项**: Redux / Zustand / 无全局状态
-- **选择**: Zustand
-- **理由**: 简单、TypeScript 友好、社区活跃
-- **代价**: 团队需要适应新范式
-
-_（/bcc-update-project 会追加新 ADR）_
-
----
-
-## 当前迭代进度
-
-### 已完成
-- [x] v1.0: 基础认证和用户管理
-- [x] v1.1: 权限系统 RBAC
-- [x] v1.2: 订单模块 MVP
-
-### 进行中
-- [ ] v1.3: 通知系统（预计 2026-05）
-  - 进度: 需求分析完成，架构设计中
-
-### 计划中
-- [ ] v1.4: 报表功能（预计 2026-06）
-- [ ] v2.0: 多租户支持（预计 2026-08）
-
----
-
-## 变更日志
-
-_（最近 20 条，/bcc-update-project 追加）_
-
-- **2026-04-23**: 项目知识库初始化
-- **2026-04-20**: 完成权限系统 RBAC 实现（v1.1 发布）
-- **2026-04-18**: 修复 token 刷新竞态条件
-- ...
-
----
-
-## 已知问题和技术债
-
-- [ ] `src/legacy/` 目录包含历史代码，计划在 v2.0 前清理
-- [ ] 测试覆盖率不足（当前 62%，目标 80%）
-- [ ] API 错误响应格式历史上不统一，新代码遵循统一格式
+### 范围外接口（客户未付款，不做）
+| 路径 | 说明 |
+|:--|:--|
+| `/ticket/coupon/get` | 领券 |
+| `/ticket/coupon/scope` | 券限品类 |
+| `/ticket/coupon/list` | 公共券列表 |
+| 兽装相关接口 x5 | 下次委托 |
+| 展商相关接口 x5 | 下次委托 |
 
 ---
 
 ## 关键约定
 
-- 错误响应格式: `{ error: { code: string, message: string } }`
-- 日期格式: ISO 8601
-- 分页: 游标分页，参数 `cursor` + `limit`
-- 时区: 后端统一 UTC，前端根据用户时区展示
+### 接口协议
+- 成功码：`code === 200`
+- Token 过期：`code === 4` → 清除登录态并跳转登录页
+- AES 加密：POST body 全链路加密（AES-128-ECB/PKCS7Padding）
+- 响应解密：去掉首字符（随机前缀）后解密 JSON
+- 密钥：`v7X3n9q2wR4mK8pL`（硬编码）
+
+### 订单状态（7 值）
+`0=待支付`, `1=待发放`, `2=已发放`, `3=已完成`, `4=已取消`, `5=退款中`, `6=已退款`
+
+### 金额单位
+后端返回「元」（非分），前端直接展示，无需 /100
+
+### 测试约束
+- **测试 SKU 只有"否+否"规格组合有数据**（¥0.02），其他规格后端未录入
+- Web 开发走 `/api` 代理，勿直连 `api.furry8.cn`（CORS）
+
+---
+
+## 当前迭代进度
+
+### 二期（¥6000，已收 ¥2000）
+- [x] TASK-007: 新闻/公告页双端
+- [x] TASK-008: 购票优惠券下单确认弹窗
+- [x] TASK-009: 用户端票据 QR 出示
+- [x] TASK-010: 票码升级
+- [x] TASK-011: 客户反馈 14 条全闭环
+- [ ] TASK-002: Logo/吉祥物素材替换（Logo 已换，吉祥物待客户提供）
+
+### 范围外（另案委托）
+- [ ] 扫码核销（2026-04-19 二次裁决移出本期）
+- [ ] 兽装相关接口（5 个）
+- [ ] 展商相关接口（5 个）
+- [ ] 兽牌上传 + P 图合成
+
+---
+
+## 变更日志
+
+- **2026-04-23**: 修改密码按绑定状态选邮箱/手机号（双端）；取消订单去掉原因 prompt；iOS 强密码覆盖层修复
+- **2026-04-20~22**: 活动状态按时间计算 + badge 统一；头像上传 loading 反馈；眼睛图标逻辑修正；X-Platform 回滚 applet
+- **2026-04-19~20**: 注册页合规改造（三链接协议 + checkbox @click.prevent）；法律文案全量更新；Logo 双端替换
+- **2026-04-18**: 票码升级功能双端完成；生产部署至 furry8.codermumu.top；nginx 代理修复
+- **2026-04-16**: 二期全部代码完成；优惠券 4 个真接口对接；ORDER_STATUS 枚举修正为 7 值
+- **2026-04-15**: 新增"我的优惠券"列表（双端）
+- **2026-04-14**: 票券快捷入口 + 加载稳定性修复
+- **2026-04-13**: 新闻接口对接真接口（USE_MOCK=false）
+
+---
+
+## 已知问题与技术债
+
+- [ ] `dompurify` 已安装但 `richText.js` 用手写 sanitize，未实际使用 DOMPurify
+- [ ] `vue-i18n` 已安装但代码中无 import，待清理或启用
+- [ ] `miniapp/src/static/logo.png` 754KB，占主包约 37%，建议 pngquant 压至 <150KB
+- [ ] 小程序 AppSecret 未配置，登录仍临时走 web 平台规避 wxCode 校验
+- [ ] 根目录 `jsencrypt.js` 为早期遗留，key 错误，勿引用
+- [ ] Web 端 Vue 3.5 vs 小程序 Vue 3.4，版本不一致（暂未引发问题）
 
 ---
 
 ## 外部服务依赖
 
-- **支付**: Stripe
-- **邮件**: SendGrid
-- **短信**: Twilio
-- **对象存储**: AWS S3 (us-west-2)
-- **监控**: Datadog
+- **后端 API**: `https://api.furry8.cn`
+- **Web 代理**: `https://1317241373-io0nv7qgxq.ap-chengdu.tencentscf.com`（开发时）
+- **生产部署**: `https://furry8.codermumu.top`（nginx + Let's Encrypt）
+- **微信小程序**: AppID `wx57cc0c50308f9dc2`
 
-_（如 API Key 需要在 .env 中配置，参考 .env.example）_
+---
+
+## 路由/页面清单
+
+### Web 端（14 条路由）
+`/`(首页), `/login`, `/register`, `/tickets`, `/tickets/:eventId`, `/user`, `/user/orders/:orderNo`, `/user/orders/:orderNo/refund`, `/scan`, `/furry-exhibit`, `/vendor-exhibit`, `/news`, `/news/:id`, `/apply`
+
+### 小程序端（15 页，4 Tab）
+Tab: `home/index`, `ticket/list`, `user/tickets`, `user/center`
+非 Tab: `ticket/detail`, `auth/login`, `auth/register`, `user/coupons`, `user/orders`, `user/orderDetail`, `user/profile`, `user/about`, `placeholder/index`, `news/list`, `news/detail`
 
 ---
 
 ## 使用说明
 
 - 此文件**不应手动编辑结构**——运行 `/bcc-update-project` 刷新
-- 手动编辑仅用于修正 /bcc-update-project 自动生成的错误
+- 手动编辑仅用于修正自动生成的错误
 - Agent（product-analyst, architect）会自动阅读此文件以了解项目全局
