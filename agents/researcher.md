@@ -10,6 +10,10 @@ model: opus
 color: yellow
 tools: Read, Write, Glob, Grep, WebSearch, WebFetch
 skills: [researcher-deep-tech, harness-agent-constitution]
+mcpServers:
+  context7:
+    command: npx
+    args: ["-y", "@upstash/context7-mcp"]
 memory: user
 ---
 

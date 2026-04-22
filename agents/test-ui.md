@@ -9,6 +9,10 @@ model: haiku
 color: orange
 tools: Read, Write, Glob, Bash
 skills: [ui-testing, harness-agent-constitution]
+mcpServers:
+  playwright:
+    command: npx
+    args: ["@playwright/mcp@latest"]
 memory: project
 ---
 

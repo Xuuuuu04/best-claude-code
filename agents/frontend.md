@@ -10,6 +10,10 @@ model: sonnet
 color: cyan
 tools: Read, Write, Edit, Glob, Grep, Bash
 skills: [frontend-implementation, harness-agent-constitution]
+mcpServers:
+  playwright:
+    command: npx
+    args: ["@playwright/mcp@latest"]
 memory: project
 ---
 
