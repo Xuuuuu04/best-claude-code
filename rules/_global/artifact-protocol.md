@@ -35,10 +35,10 @@ Agent 之间通过 `.claude/artifacts/` 目录中的结构化 Markdown 文件进
 | `review-predeploy` | quality-guardian | 部署前预检 |
 | `deploy-report` | devops | 部署记录 |
 | `incident` | devops | 事故记录 |
-| `init-analysis` | explorer | /init-project 初始扫描 |
-| `update-analysis` | explorer | /update-project 差异扫描 |
-| `evolve-audit` | explorer | /evolve 系统审计 |
-| `evolve-proposals` | 调度器 | /evolve 进化提案 |
+| `init-analysis` | researcher | /bcc-init-project 初始扫描 |
+| `update-analysis` | researcher | /bcc-update-project 差异扫描 |
+| `evolve-audit` | researcher | /bcc-evolve 系统审计 |
+| `evolve-proposals` | 调度器 | /bcc-evolve 进化提案 |
 | `evolve-log` | 调度器 | 进化历史累积文件 |
 
 ### Task ID

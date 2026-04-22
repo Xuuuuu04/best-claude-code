@@ -71,17 +71,17 @@ disable-model-invocation: true
 
 **判定标准**：Memory 中多次记录"先 X 再 Y 再 Z"的操作序列
 
-**产出**：新 Skill 在 `_domain/` 或 `_dispatch/` 下
-- 供 Agent 预加载的 → `_domain/`
-- 供调度器触发的 → `_dispatch/`
+**产出**：新 Skill 在 `skills/<name>/SKILL.md`（Claude Code 强制要求扁平目录结构）
+- 供 Agent 预加载的领域技能 → 描述性命名，如 `payment-patterns`、`caching-strategy`
+- 供调度器触发的流水线 → 用 `bcc-` 前缀，并设 `disable-model-invocation: true`
 
 ### 机会类型 3：领域知识积累 → 新 Knowledge Skill
 
 **判定标准**：Memory 中某一主题的条目 ≥5 条
 
-**产出**：在 `_domain/` 或 `_reference/` 下新增 Skill
-- Agent 专属的 → `_domain/`
-- 可复用参考的 → `_reference/`
+**产出**：在 `skills/<name>/SKILL.md` 新增（扁平路径）
+- Agent 专属（强绑定某角色）→ 命名反映角色，如 `security-<topic>`、`frontend-<topic>`
+- 可复用参考（多角色查阅）→ 通用命名，如 `<topic>-guide`、`<topic>-patterns`
 
 ### 机会类型 4：冗余或冲突 → 合并/清理
 

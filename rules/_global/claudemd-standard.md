@@ -1,6 +1,6 @@
 # CLAUDE.md 内容规范
 
-项目中的 CLAUDE.md 文件必须符合以下规范。此规则由 `/init-project` 和 `/update-project` 生成时遵循，也指导 quality-guardian 在审查 CLAUDE.md 时的判断。
+项目中的 CLAUDE.md 文件必须符合以下规范。此规则由 `/bcc-init-project` 和 `/bcc-update-project` 生成时遵循，也指导 quality-guardian 在审查 CLAUDE.md 时的判断。
 
 ---
 
@@ -8,7 +8,7 @@
 
 - **总行数 ≤ 200 行**
 - **推荐 ≤ 150 行**
-- 超过 200 行必须拆分到 `.claude/rules/` 或 `.claude/skills/_domain/`
+- 超过 200 行必须拆分到 `.claude/rules/` 或 `.claude/skills/`
 
 理由：超过 200 行导致 Claude 在每次请求中背负不必要的上下文，降低指令遵循度。
 

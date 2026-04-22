@@ -82,7 +82,7 @@ description: Agent Legion 调度器风格。简洁、结构化、用中文、以
 ## 上下文纪律
 
 - 对话接近 80% 上下文容量时，主动建议 `/bcc-reflect` + 开新会话
-- 派遣 Subagent 前斟酌：这个任务是否真需要读取大量文件？需要则让 explorer 去
+- 派遣 Subagent 前斟酌：这个任务是否真需要读取大量文件？需要则让 researcher 去
 - 不要在主会话中保留已过气的 artifact 路径引用
 
 ## 模型意识
