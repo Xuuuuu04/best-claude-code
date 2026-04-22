@@ -1,0 +1,125 @@
+{
+  "_comment": "Agent Legion 配置模板。复制为 settings.json 并填入实际 API Key 后使用。settings.json 已加入 .gitignore 不会被提交。",
+
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [],
+    "defaultMode": "dontAsk"
+  },
+  "enabledPlugins": {
+    "playwright@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "pyright-lsp@claude-plugins-official": true,
+    "jdtls-lsp@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    }
+  },
+  "language": "Chinese",
+  "effortLevel": "high",
+  "outputStyle": "legion-dispatch",
+  "skipDangerousModePermissionPrompt": true,
+  "teammateMode": "tmux",
+  "mcpServers": {},
+
+  "_providers_note": "可选：配置第三方 Claude 兼容协议提供商（如国内便宜可用的编程套餐）。每家需要自己的 API Key。",
+  "providers": [
+    {
+      "id": "glm",
+      "name": "GLMCodingPlan",
+      "baseUrl": "https://open.bigmodel.cn/api/anthropic",
+      "apiKey": "REPLACE_WITH_YOUR_GLM_API_KEY",
+      "models": [
+        { "id": "glm-5-turbo", "displayName": "GLM 5 Turbo" },
+        { "id": "glm-5.1", "displayName": "GLM 5.1" }
+      ]
+    },
+    {
+      "id": "minimax",
+      "name": "MiniMaxCodingPlan",
+      "baseUrl": "https://api.minimaxi.com/anthropic",
+      "apiKey": "REPLACE_WITH_YOUR_MINIMAX_API_KEY",
+      "models": [
+        { "id": "MiniMax-M2.7", "displayName": "MiniMax M2.7" },
+        { "id": "MiniMax-M2.7-highspeed", "displayName": "MiniMax M2.7 Highspeed" }
+      ]
+    },
+    {
+      "id": "kimi",
+      "name": "KIMICodingPlan",
+      "baseUrl": "https://api.kimi.com/coding",
+      "apiKey": "REPLACE_WITH_YOUR_KIMI_API_KEY",
+      "models": [
+        { "id": "kimi-for-coding", "displayName": "Kimi for Coding" }
+      ]
+    }
+  ],
+
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          { "type": "command", "command": "$HOME/.claude/hooks/session-start.sh", "statusMessage": "Loading context..." }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          { "type": "command", "command": "$HOME/.claude/hooks/pre-compact.sh", "async": true, "statusMessage": "Saving state..." }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          { "type": "command", "command": "$HOME/.claude/hooks/post-compact.sh", "statusMessage": "Restoring dispatcher..." }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Edit(**/prisma/migrations/**)|Write(**/prisma/migrations/**)",
+            "command": "echo 'Migration files are read-only. Create a new migration via prisma CLI instead.' >&2 && exit 2"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "$HOME/.claude/hooks/post-edit-lint.sh", "timeout": 30, "async": true, "statusMessage": "Running linter..." }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "$HOME/.claude/hooks/subagent-stop-log.sh", "async": true }
+        ]
+      }
+    ],
+    "InstructionsLoaded": [
+      {
+        "hooks": [
+          { "type": "command", "command": "$HOME/.claude/hooks/instructions-audit.sh", "async": true }
+        ]
+      }
+    ]
+  }
+}

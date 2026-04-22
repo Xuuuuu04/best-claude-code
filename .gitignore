@@ -26,18 +26,27 @@ tasks/
 teams/
 
 # === LOCAL SETTINGS & CACHE ===
+# settings.json contains real API keys — use settings.example.json as template
+settings.json
 settings.local.json
 settings.local.yaml
 .claude.json
 *.cache
 .cache/
+cache/
 image-cache/
 paste-cache/
+session-env/
 mcp-needs-auth-cache.json
 node_modules/
 .venv/
 __pycache__/
 *.pyc
+
+# === AGENT LEGION RUNTIME ===
+artifacts/
+agent-memory/
+agent-memory-local/
 
 # === OUTPUT & TEMP ===
 output/
