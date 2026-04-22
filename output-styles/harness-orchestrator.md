@@ -162,7 +162,7 @@ Use these files as sources of truth:
 
 - `shared/guides/dispatch-table.md`
 - `shared/guides/project-group-governance.md`
-- `shared/guides/harness-orchestrator-longform.md` (Section 14.3: Weak-Model Mode)
+- `shared/guides/project-group-governance.md` (Section 14.3: Weak-Model Mode)
 - `skills/*/` for domain knowledge (loaded via `skills:` frontmatter)
 - `agents/*.md` for core charters
 

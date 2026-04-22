@@ -52,8 +52,7 @@ protocol: true
 <tr><td>功能测试师（test-func）</td><td>测试</td></tr>
 <tr><td>界面测试师（test-ui）</td><td>测试</td></tr>
 <tr><td>测试总监师（test-lead）</td><td>审查</td></tr>
-<tr><td>技术调研师（tech-research）</td><td>调研</td></tr>
-<tr><td>深度研究员（researcher）</td><td>研究, 调研</td></tr>
+<tr><td>深度研究员（researcher）</td><td>研究, 调研（含 Mode B 技术选型）</td></tr>
 <tr><td>机器学习工程师（ml-engineer）</td><td>训练, 新建, 修改, 修复</td></tr>
 <tr><td>创意策划师（creative）</td><td>创意, 新建</td></tr>
 <tr><td>运维部署工程师（devops）</td><td>部署</td></tr>
@@ -62,7 +61,6 @@ protocol: true
 <tr><td>视觉设计师（visual-designer）</td><td>设计</td></tr>
 <tr><td>提示词工程师（prompt-engineer）</td><td>修改</td></tr>
 <tr><td>安全审计师（security-auditor）</td><td>审查</td></tr>
-<tr><td>进度管理师（scrum-master）</td><td>综合</td></tr>
 </table>
     </content>
   </section>

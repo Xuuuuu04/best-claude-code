@@ -48,7 +48,7 @@ Evaluate BEFORE writing spec. Any YES → BLOCK and escalate:
 **@database**: (1) new table; (2) new column; (3) changed column type/nullability/constraint; (4) new index; (5) migration requires data transform
 **@visual-designer**: (1) new UI component not in design system; (2) new interaction pattern not covered by existing tokens; (3) new color/spacing/typography token needed
 **@ml-engineer**: ML model or inference pipeline required
-**@tech-research**: technology selection question unresolved
+**@researcher** (Mode B): technology selection question unresolved
 
 ## 5. Interface Contract Design
 

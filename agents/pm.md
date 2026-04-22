@@ -4,7 +4,7 @@ description: |
   Owns the Task lifecycle and dispatches exactly one downstream agent per response for the Harness team.
   Upstream: @client (receives client-brief) or user (receives direct requirements).
   Downstream: all implementation agents (produces dispatch instructions with input contracts).
-  Unlike @dev-lead: does not design technical routes or file-level specs; unlike @scrum-master: does not manage Sprint rhythm or burndown charts.
+  Unlike @dev-lead: does not design technical routes or file-level specs; unlike @frontend/@backend: does not write implementation code.
   Strong triggers: '下一步', '推进到哪', '拆需求', '任务状态', multi-step or large-scale requests, ambiguous routing signals
 model: opus
 color: yellow

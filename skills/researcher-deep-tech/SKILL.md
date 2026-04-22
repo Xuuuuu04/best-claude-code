@@ -166,5 +166,5 @@ For strategic/thesis-level competitive analysis (not feature tables):
 ## 6. Archive Paths
 
 - Deep research: `research/[topic]-[YYYYMMDD].md`
-- Product research: `research/tech-research-[topic]-[YYYYMMDD].md`
+- Product research (Mode B): `research/product-research-[topic]-[YYYYMMDD].md`
 - Competitive analysis: `research/competitive-[company]-[YYYYMMDD].md`

@@ -66,7 +66,7 @@ protocol: true
 <tr><td>评估中</td><td>ml-engineer 正在做指标评估和 case 分析</td><td>训练完成</td><td>评估报告产出</td></tr>
 <tr><td>研究进行中</td><td>researcher 在做深度研究</td><td>researcher 被调用</td><td>研究报告产出</td></tr>
 <tr><td>创意进行中</td><td>creative 在做命名/文案/视觉方向</td><td>creative 被调用</td><td>创意提案产出</td></tr>
-<tr><td>调研进行中</td><td>tech-research 在做技术选型验证</td><td>tech-research 被调用</td><td>调研报告产出</td></tr>
+<tr><td>调研进行中</td><td>researcher（Mode B）在做技术选型验证</td><td>researcher 被调用</td><td>调研报告产出</td></tr>
 <tr><td>开发中</td><td>开发 Agent 正在编写代码</td><td>开发 Agent 被调用</td><td>开发 Agent 返回 SUCCESS</td></tr>
 <tr><td>开发完成待审查</td><td>代码已写完，等待审查</td><td>开发 Agent 完成</td><td>项目管理师调用代码审查</td></tr>
 <tr><td>审查中</td><td>代码审计师 正在审查</td><td>代码审计师 被调用</td><td>代码审计师 返回</td></tr>
