@@ -139,6 +139,7 @@ mkdir -p .claude/artifacts
 .claude/artifacts/
 .claude/backups/
 .claude/agent-memory-local/
+.claude/instructions-log.txt
 CLAUDE.local.md
 ```
 
