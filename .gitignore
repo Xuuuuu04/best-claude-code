@@ -47,6 +47,13 @@ __pycache__/
 artifacts/
 agent-memory/
 agent-memory-local/
+# Cost/debug logs produced by hooks; test runs may accidentally write
+# these under ~/.claude itself — never commit
+.claude/
+cost-log.txt
+cost-log.txt.broken.*
+hook-errors.log
+instructions-log.txt
 
 # === OUTPUT & TEMP ===
 output/
