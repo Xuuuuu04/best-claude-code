@@ -22,8 +22,8 @@
 [![Status: v1.0](https://img.shields.io/badge/Status-v1.0-f59e0b?style=flat-square)](#)
 [![Chinese First](https://img.shields.io/badge/Language-中文优先-ef4444?style=flat-square)](#)
 [![Agents](https://img.shields.io/badge/Agents-8-3b82f6?style=flat-square)](#六个-subagent-角色)
-[![Rules](https://img.shields.io/badge/Rules-42-8b5cf6?style=flat-square)](#支持的技术栈)
-[![Skills](https://img.shields.io/badge/Skills-19-06b6d4?style=flat-square)](#系统架构)
+[![Rules](https://img.shields.io/badge/Rules-43-8b5cf6?style=flat-square)](#支持的技术栈)
+[![Skills](https://img.shields.io/badge/Skills-24-06b6d4?style=flat-square)](#系统架构)
 
 <br>
 
