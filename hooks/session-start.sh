@@ -62,4 +62,9 @@ jq -n --arg ctx "$CONTEXT" '{
   }
 }' 2>/dev/null || true
 
+# ── 机会性日志轮转（~10% 会话概率触发，通常 no-op）──────────────────────────
+if [ -x "$HOME/.claude/bin/rotate-logs.sh" ] && [ $((RANDOM % 10)) -eq 0 ]; then
+  bash "$HOME/.claude/bin/rotate-logs.sh" >/dev/null 2>&1 || true
+fi
+
 exit 0

@@ -42,6 +42,10 @@ C_TIME="\033[38;2;100;116;139m"      # slate-500
 C_SEP="\033[38;2;71;85;105m"         # slate-600
 C_AGENT_BG="\033[48;2;5;150;105m"    # emerald-600 background
 C_AGENT_FG="\033[38;2;236;253;245m"  # emerald-50 foreground
+C_COST_ICO="\033[38;2;168;162;158m"  # stone-400 (sum sign)
+C_COST_CALL="\033[38;2;251;191;36m"  # amber-400 (call count)
+C_COST_TOK="\033[38;2;148;163;184m"  # slate-400 (token nums)
+C_COST_HEAVY="\033[38;2;251;146;60m" # orange-400 (heavy)
 BLINK="\033[5m"
 
 # ── Unicode icons ────────────────────────────────────────────────────────────
@@ -52,6 +56,7 @@ ICO_BRANCH=""  # set conditionally if Nerd Font detected-ish; fallback:
 ICO_CLOCK="◷"
 ICO_STYLE="✦"
 ICO_AGENT="▶"
+ICO_SUM="Σ"
 
 # Fallback branch icon (works everywhere)
 BR_SYM="⎇"   # branch-ish unicode
@@ -72,28 +77,51 @@ SESSION_ID="$(jq_get '.session_id')"
 # ── 1. LEGION brand prefix ──────────────────────────────────────────────────
 LEGION_SEG="${BOLD}${C_LEGION}${ICO_LEGION} LEGION${RESET}"
 
-# ── 1b. Active subagent badge (highlighted if one is running) ───────────────
+# ── 1b. Active subagent badge (supports N concurrent agents) ────────────────
 AGENT_SEG=""
 if [ -n "$SESSION_ID" ]; then
-  STATE_FILE="/tmp/claude-legion-active-${SESSION_ID}"
-  if [ -f "$STATE_FILE" ]; then
+  NOW_TS="$(date +%s)"
+  ACTIVE_NAMES=()
+  MAX_ELAPSED=0
+
+  shopt -s nullglob 2>/dev/null || true
+  for STATE_FILE in /tmp/claude-legion-active-${SESSION_ID}-*; do
+    [ -f "$STATE_FILE" ] || continue
     AGENT_LINE="$(cat "$STATE_FILE" 2>/dev/null || echo '')"
-    if [ -n "$AGENT_LINE" ]; then
-      AGENT_NAME="$(echo "$AGENT_LINE" | awk -F'\t' '{print $1}')"
-      AGENT_START="$(echo "$AGENT_LINE" | awk -F'\t' '{print $2}')"
-      NOW_TS="$(date +%s)"
-      ELAPSED=$(( NOW_TS - AGENT_START ))
-      # Format elapsed: Xs / Xm Ys
-      if [ "$ELAPSED" -lt 60 ]; then
-        ELAPSED_STR="${ELAPSED}s"
-      else
-        ELAPSED_MIN=$(( ELAPSED / 60 ))
-        ELAPSED_SEC=$(( ELAPSED % 60 ))
-        ELAPSED_STR="${ELAPSED_MIN}m${ELAPSED_SEC}s"
-      fi
-      # Highlighted badge with background color
-      AGENT_SEG=" ${C_AGENT_BG}${C_AGENT_FG}${BOLD} ${ICO_AGENT} ${AGENT_NAME} · ${ELAPSED_STR} ${RESET}"
+    [ -z "$AGENT_LINE" ] && continue
+
+    NAME="$(echo "$AGENT_LINE" | awk -F'\t' '{print $1}')"
+    START="$(echo "$AGENT_LINE" | awk -F'\t' '{print $2}')"
+    [ -z "$NAME" ] && continue
+    [ -z "$START" ] && START="$NOW_TS"
+
+    ELAPSED=$(( NOW_TS - START ))
+    [ "$ELAPSED" -gt "$MAX_ELAPSED" ] && MAX_ELAPSED=$ELAPSED
+    ACTIVE_NAMES+=("$NAME")
+  done
+
+  if [ ${#ACTIVE_NAMES[@]} -gt 0 ]; then
+    # Format elapsed (longest-running)
+    if [ "$MAX_ELAPSED" -lt 60 ]; then
+      ELAPSED_STR="${MAX_ELAPSED}s"
+    else
+      ELAPSED_STR="$(( MAX_ELAPSED / 60 ))m$(( MAX_ELAPSED % 60 ))s"
     fi
+
+    if [ ${#ACTIVE_NAMES[@]} -eq 1 ]; then
+      LABEL="${ACTIVE_NAMES[0]} · ${ELAPSED_STR}"
+    else
+      # 多个 agent：显示 Nx 计数 + 简略名单（前 2 个）
+      if [ ${#ACTIVE_NAMES[@]} -le 2 ]; then
+        JOINED="$(IFS=+; echo "${ACTIVE_NAMES[*]}")"
+        LABEL="${JOINED} · ${ELAPSED_STR}"
+      else
+        JOINED="${ACTIVE_NAMES[0]}+${ACTIVE_NAMES[1]}+…"
+        LABEL="${#ACTIVE_NAMES[@]}× ${JOINED} · ${ELAPSED_STR}"
+      fi
+    fi
+
+    AGENT_SEG=" ${C_AGENT_BG}${C_AGENT_FG}${BOLD} ${ICO_AGENT} ${LABEL} ${RESET}"
   fi
 fi
 
@@ -190,7 +218,49 @@ if [ -n "$USED_PCT" ] && [ "$USED_PCT" != "null" ]; then
   BAR_SEG="${BAR} ${LABEL}"
 fi
 
-# ── 6. Clock (dim, small) ───────────────────────────────────────────────────
+# ── 6. Project cost aggregate (only if cost-log.txt exists in cwd/.claude) ──
+COST_SEG=""
+if [ -n "$CWD" ] && [ -f "$CWD/.claude/cost-log.txt" ]; then
+  COST_LINE="$(awk -F'\t' '
+    NR==1 {next}
+    {c++; in_t+=$5; out_t+=$6; cr+=$7; rd+=$8}
+    END {printf "%d %d %d %d %d", c+0, in_t+0, out_t+0, cr+0, rd+0}
+  ' "$CWD/.claude/cost-log.txt" 2>/dev/null)"
+
+  CALLS="$(echo "$COST_LINE" | awk '{print $1}')"
+  IN_TOK="$(echo "$COST_LINE" | awk '{print $2}')"
+  OUT_TOK="$(echo "$COST_LINE" | awk '{print $3}')"
+  CACHE_RD="$(echo "$COST_LINE" | awk '{print $5}')"
+
+  if [ -n "$CALLS" ] && [ "$CALLS" -gt 0 ]; then
+    TOTAL_EFFECTIVE=$(( IN_TOK + CACHE_RD / 10 + OUT_TOK ))
+
+    fmt_tok() {
+      local n="$1"
+      if [ "$n" -lt 1000 ]; then
+        echo "${n}"
+      elif [ "$n" -lt 1000000 ]; then
+        echo "$(( n / 1000 ))K"
+      else
+        printf "%.1fM" "$(echo "scale=1; $n/1000000" | bc 2>/dev/null || echo "$(( n / 1000000 ))")"
+      fi
+    }
+
+    IN_STR="$(fmt_tok "$IN_TOK")"
+    OUT_STR="$(fmt_tok "$OUT_TOK")"
+
+    # 如果 effective token 超过 1M 用 heavy 色警示
+    if [ "$TOTAL_EFFECTIVE" -ge 1000000 ]; then
+      NUM_COLOR="$C_COST_HEAVY"
+    else
+      NUM_COLOR="$C_COST_TOK"
+    fi
+
+    COST_SEG="${C_COST_ICO}${ICO_SUM}${RESET} ${C_COST_CALL}${CALLS}×${RESET} ${NUM_COLOR}${IN_STR}↓ ${OUT_STR}↑${RESET}"
+  fi
+fi
+
+# ── 7. Clock (dim, small) ───────────────────────────────────────────────────
 NOW="$(date '+%H:%M' 2>/dev/null || echo '')"
 TIME_SEG=""
 if [ -n "$NOW" ]; then
@@ -205,6 +275,7 @@ OUT="$LEGION_SEG"
 [ -n "$STYLE_SEG" ] && OUT="${OUT}${SEP}${STYLE_SEG}"
 [ -n "$DIR_SEG" ]   && OUT="${OUT}${SEP}${DIR_SEG}"
 [ -n "$BAR_SEG" ]   && OUT="${OUT}${SEP}${BAR_SEG}"
+[ -n "$COST_SEG" ]  && OUT="${OUT}${SEP}${COST_SEG}"
 [ -n "$TIME_SEG" ]  && OUT="${OUT}${SEP}${TIME_SEG}"
 
 printf "%b" "$OUT"

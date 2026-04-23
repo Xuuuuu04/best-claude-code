@@ -89,8 +89,12 @@ if [ -n "$PROJ_DIR" ] && [ -d "$PROJ_DIR/.claude" ]; then
     >> "$COST_LOG" 2>/dev/null || true
 fi
 
-# ── 4. 清除活跃 subagent 状态文件（供 statusline） ──────────────────────────
-STATE_FILE="/tmp/claude-legion-active-${SESSION_ID}"
-rm -f "$STATE_FILE" 2>/dev/null || true
+# ── 4. 清除活跃 subagent 状态文件（只清此 agent 自己，保留兄弟 agent） ─────
+if [ -n "$AGENT_ID" ] && [ "$AGENT_ID" != "unknown" ]; then
+  rm -f "/tmp/claude-legion-active-${SESSION_ID}-${AGENT_ID}" 2>/dev/null || true
+else
+  # 老版本回退：如果 agent_id 为空，清空本 session 所有状态（保险起见）
+  rm -f /tmp/claude-legion-active-${SESSION_ID}-* 2>/dev/null || true
+fi
 
 exit 0

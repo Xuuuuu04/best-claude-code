@@ -30,6 +30,7 @@
 | `/bcc-update-project` | 重大变更后 / 定期 | 刷新项目知识 |
 | `/bcc-evolve` | 每 1-2 周 / Memory 积累足够 | 系统进化 |
 | `/bcc-reflect` | 重要工作会话结束 | 会话学习总结 |
+| `/bcc-doctor` | 每周 / 行为异常时 | 系统健康检查 |
 
 ---
 
