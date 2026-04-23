@@ -63,8 +63,27 @@ Agent 之间通过 `.claude/artifacts/` 目录中的结构化 Markdown 文件进
 **Task ID**: {task-id}[-{seq}]
 **生成时间**: {ISO 8601 timestamp}
 **产出者**: {agent-name}
+**状态**: draft / accepted / rejected / superseded
 **关联**: {其他 artifact 路径列表}
 ```
+
+### 状态字段（支持续传）
+
+`状态` 字段是流水线断点续传的关键：
+
+| 状态 | 含义 | 何时设 |
+|:--|:--|:--|
+| `draft` | 刚产出，未经审查 | Agent 写入时 |
+| `accepted` | 已通过 quality-guardian 审查 / 用户确认 | 审查通过后由调度器更新 |
+| `rejected` | 审查驳回，需要重做 | 审查驳回后由调度器更新 |
+| `superseded` | 被后续版本替代（如 `-v2`） | 新版产出后由调度器更新 |
+
+续传时，`/bcc-new-feature` / `/bcc-fix-bug` 可以读取某个 task-id 的所有 artifact，按 Type 和状态判断下一步应从哪个 Phase 继续：
+
+- 只有 requirements 且 accepted → 从 Phase 2（架构）开始
+- 有 architecture 但 scope-lock 是 draft → 重新审查架构
+- scope-lock accepted 但无 impl-report → 从 Phase 3（实现）开始
+- 全部 accepted 但无 commit → 从 Phase 5（提交）开始
 
 ### 结构化优于散文
 

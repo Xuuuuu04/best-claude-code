@@ -10,11 +10,39 @@ disable-model-invocation: true
 
 ---
 
-## 预备：生成 Task ID
+## 预备 A：续传判断
+
+如果 `$ARGUMENTS` 以 `resume ` 开头（形如 `resume feat-20260423-01`），进入**续传模式**而非新建：
+
+1. 提取 task-id，扫描 `.claude/artifacts/{requirements,architecture,scope-lock,impl-report,review-*}-{task-id}*.md`
+2. 读取每个 artifact 的 `状态` 字段（见 `_global/artifact-protocol.md`），判断流水线进度：
+
+   | 已存在的 artifact | 状态 | 下一步 |
+   |:--|:--|:--|
+   | 无 requirements | — | 不存在的 task，报错退出 |
+   | requirements 存在，draft | — | 从 Phase 1.2（审查需求）开始 |
+   | requirements accepted，无 architecture | — | 从 Phase 2（架构）开始 |
+   | architecture 存在，draft | — | 从 Phase 2.2（审查架构）开始 |
+   | scope-lock 存在且 accepted，无 impl-report | — | 从 Phase 3（实现）开始 |
+   | impl-report 存在，draft | — | 从 Phase 3.4（代码审查）开始 |
+   | 全部 accepted，无 commit 记录 | — | 从 Phase 5（提交）开始 |
+
+3. 向用户确认："识别到 {task-id} 进度在 {Phase N.x}，继续？"
+4. 用户确认后跳到对应 Phase 继续执行
+
+---
+
+## 预备 B：生成 Task ID（仅新建时）
 
 1. 使用 `date +%Y%m%d` 获取当前日期
 2. 扫描 `.claude/artifacts/` 看今天是否已有 task-id
 3. 生成形如 `feat-YYYYMMDD-NN`（NN 是当天序号）
+
+---
+
+## Agent 产出的 artifact 状态规范
+
+所有 Agent 产出的 artifact 首版状态都是 `draft`。通过 quality-guardian 审查后，**调度器**负责把状态更新为 `accepted`（用 Edit 工具修改 artifact frontmatter）。审查驳回则更新为 `rejected`。这是续传能正确判断进度的基础。
 
 ---
 

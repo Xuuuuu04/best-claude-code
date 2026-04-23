@@ -40,6 +40,9 @@ C_TOKEN="\033[38;2;148;163;184m"     # slate-400
 C_STYLE="\033[38;2;236;72;153m"      # pink-500
 C_TIME="\033[38;2;100;116;139m"      # slate-500
 C_SEP="\033[38;2;71;85;105m"         # slate-600
+C_AGENT_BG="\033[48;2;5;150;105m"    # emerald-600 background
+C_AGENT_FG="\033[38;2;236;253;245m"  # emerald-50 foreground
+BLINK="\033[5m"
 
 # ── Unicode icons ────────────────────────────────────────────────────────────
 ICO_LEGION="⚡"
@@ -48,6 +51,7 @@ ICO_DIR="▸"
 ICO_BRANCH=""  # set conditionally if Nerd Font detected-ish; fallback:
 ICO_CLOCK="◷"
 ICO_STYLE="✦"
+ICO_AGENT="▶"
 
 # Fallback branch icon (works everywhere)
 BR_SYM="⎇"   # branch-ish unicode
@@ -62,8 +66,36 @@ INPUT="$(cat 2>/dev/null || echo '{}')"
 
 jq_get() { echo "$INPUT" | jq -r "$1 // empty" 2>/dev/null; }
 
+# ── Session ID (for active-subagent detection) ──────────────────────────────
+SESSION_ID="$(jq_get '.session_id')"
+
 # ── 1. LEGION brand prefix ──────────────────────────────────────────────────
 LEGION_SEG="${BOLD}${C_LEGION}${ICO_LEGION} LEGION${RESET}"
+
+# ── 1b. Active subagent badge (highlighted if one is running) ───────────────
+AGENT_SEG=""
+if [ -n "$SESSION_ID" ]; then
+  STATE_FILE="/tmp/claude-legion-active-${SESSION_ID}"
+  if [ -f "$STATE_FILE" ]; then
+    AGENT_LINE="$(cat "$STATE_FILE" 2>/dev/null || echo '')"
+    if [ -n "$AGENT_LINE" ]; then
+      AGENT_NAME="$(echo "$AGENT_LINE" | awk -F'\t' '{print $1}')"
+      AGENT_START="$(echo "$AGENT_LINE" | awk -F'\t' '{print $2}')"
+      NOW_TS="$(date +%s)"
+      ELAPSED=$(( NOW_TS - AGENT_START ))
+      # Format elapsed: Xs / Xm Ys
+      if [ "$ELAPSED" -lt 60 ]; then
+        ELAPSED_STR="${ELAPSED}s"
+      else
+        ELAPSED_MIN=$(( ELAPSED / 60 ))
+        ELAPSED_SEC=$(( ELAPSED % 60 ))
+        ELAPSED_STR="${ELAPSED_MIN}m${ELAPSED_SEC}s"
+      fi
+      # Highlighted badge with background color
+      AGENT_SEG=" ${C_AGENT_BG}${C_AGENT_FG}${BOLD} ${ICO_AGENT} ${AGENT_NAME} · ${ELAPSED_STR} ${RESET}"
+    fi
+  fi
+fi
 
 # ── 2. Model ────────────────────────────────────────────────────────────────
 MODEL="$(jq_get '.model.display_name')"
@@ -166,7 +198,9 @@ if [ -n "$NOW" ]; then
 fi
 
 # ── Assemble ─────────────────────────────────────────────────────────────────
+# When a subagent is active, put its badge right after LEGION for max visibility
 OUT="$LEGION_SEG"
+[ -n "$AGENT_SEG" ] && OUT="${OUT}${AGENT_SEG}"
 [ -n "$MODEL_SEG" ] && OUT="${OUT}${SEP}${MODEL_SEG}"
 [ -n "$STYLE_SEG" ] && OUT="${OUT}${SEP}${STYLE_SEG}"
 [ -n "$DIR_SEG" ]   && OUT="${OUT}${SEP}${DIR_SEG}"

@@ -49,4 +49,8 @@ if [ -n "$PROJ_DIR" ] && [ -d "$PROJ_DIR/.claude" ]; then
     >> "$COST_LOG" 2>/dev/null || true
 fi
 
+# ── 3. 清除活跃 subagent 状态文件（供 statusline） ──────────────────────────
+STATE_FILE="/tmp/claude-legion-active-${SESSION_ID}"
+rm -f "$STATE_FILE" 2>/dev/null || true
+
 exit 0
