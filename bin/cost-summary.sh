@@ -15,29 +15,33 @@ if [ ! -f "$LOG" ]; then
 fi
 
 awk -F'\t' '
-NR==1 { next }                          # skip header
+NR==1 { next }
 {
   count[$2]++
-  input[$2]+=$4
-  output[$2]+=$5
-  cache_cr[$2]+=$6
-  cache_rd[$2]+=$7
-  dur[$2]+=$8
-  total_in+=$4; total_out+=$5; total_cr+=$6; total_rd+=$7; total_n++
+  turns[$2]+=$4
+  input[$2]+=$5
+  output[$2]+=$6
+  cache_cr[$2]+=$7
+  cache_rd[$2]+=$8
+  total_n++
+  total_turns+=$4
+  total_in+=$5; total_out+=$6; total_cr+=$7; total_rd+=$8
 }
 END {
   printf "\n══════ Agent Legion · Cost Summary ══════\n\n"
-  printf "%-24s %5s %10s %10s %10s %10s\n", "Agent", "N", "Input", "Output", "CacheCr", "CacheRd"
-  printf "%-24s %5s %10s %10s %10s %10s\n", "─────", "──", "─────", "──────", "───────", "───────"
+  printf "Project: %s\n\n", PROJ
+  printf "%-24s %5s %6s %12s %12s %12s %12s\n", "Agent", "Calls", "Turns", "Input", "Output", "CacheCr", "CacheRd"
+  printf "%-24s %5s %6s %12s %12s %12s %12s\n", "─────", "─────", "─────", "─────", "──────", "───────", "───────"
   for (a in count) {
-    printf "%-24s %5d %10d %10d %10d %10d\n", a, count[a], input[a], output[a], cache_cr[a], cache_rd[a]
+    printf "%-24s %5d %6d %12d %12d %12d %12d\n", a, count[a], turns[a], input[a], output[a], cache_cr[a], cache_rd[a]
   }
-  printf "%-24s %5s %10s %10s %10s %10s\n", "─────", "──", "─────", "──────", "───────", "───────"
-  printf "%-24s %5d %10d %10d %10d %10d\n", "TOTAL", total_n, total_in, total_out, total_cr, total_rd
+  printf "%-24s %5s %6s %12s %12s %12s %12s\n", "─────", "─────", "─────", "─────", "──────", "───────", "───────"
+  printf "%-24s %5d %6d %12d %12d %12d %12d\n", "TOTAL", total_n, total_turns, total_in, total_out, total_cr, total_rd
 
-  # 粗略成本估算（按 Anthropic Sonnet 4.x 典型价格做参考——非精确，不同 provider 不同价）
-  # Sonnet 4.6: $3/M input, $15/M output, $3.75/M cache_cr, $0.30/M cache_rd
+  # 成本估算（按 Sonnet 4.x 典型 Anthropic 价：$3/M input, $15/M output,
+  #           $3.75/M cache_write, $0.30/M cache_read）
+  # 注：你用的是 GLM/国产 API，价格更低；这里是 Anthropic 直连的参考值
   cost_usd = (total_in * 3 + total_out * 15 + total_cr * 3.75 + total_rd * 0.30) / 1000000
-  printf "\n约等价 Sonnet 价格: $%.4f (参考值；实际按 provider 计费)\n\n", cost_usd
+  printf "\n按 Sonnet-4 价格估算: $%.4f (仅参考；实际按 provider 计费)\n\n", cost_usd
 }
-' "$LOG"
+' PROJ="$PROJ" "$LOG"
