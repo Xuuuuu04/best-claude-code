@@ -160,6 +160,38 @@ Claude Code 在模型 + 内置工具之上提供一套扩展层：
 - `@agent-<name>` 显式 mention（强制）
 - `claude --agent <name>` 将整个会话作为该 Subagent 运行
 
+**SubagentStop 事件与 Transcript 的对应关系**（实战验证，v2.1.x）：
+
+Claude Code 真实的 `SubagentStop` hook 事件 JSON 字段**非常精简**，只有：
+
+```
+session_id, agent_id, agent_type, agent_transcript_path,
+hook_event_name, cwd, permission_mode, last_assistant_message,
+stop_hook_active, transcript_path
+```
+
+**没有** `usage` / `model` / `duration_ms`。这是一个容易误判的点——文档示例常显示"完整字段"但实际事件字段更少。
+
+Token 用量的真相源是 **subagent 自己的 transcript**，路径由 `agent_transcript_path` 指示，格式：
+
+```
+~/.claude/projects/<project-slug>/<session_id>/subagents/agent-<agent_id>.jsonl
+```
+
+每条记录是一个 turn，`.type` 为 `user` / `assistant` / `tool_use` / `tool_result`。`type: assistant` 的记录包含 `.message.usage`（input/output/cache tokens）和 `.message.model`。
+
+任何需要 subagent 级分析的脚本（成本、耗时、行为审计）都应读 transcript 而非依赖 hook event。
+
+**并发 Subagent 的状态追踪**：
+
+Claude Code 支持多 subagent 并发（`Agent` 工具可以一次发起多个调用）。任何"当前活跃状态"的追踪文件**必须按 `agent_id` 命名空间化**，例如：
+
+```
+/tmp/claude-legion-active-{session_id}-{agent_id}
+```
+
+读取时用 glob 收集所有活跃实例；`SubagentStop` 清理**只删自己的** agent_id 对应文件。否则只能追踪到"最后启动的那一个"。
+
 ### 3.5 Rules 机制
 
 - 存放在 `.claude/rules/` 目录（项目级）或 `~/.claude/rules/`（用户级）
@@ -296,6 +328,48 @@ Claude Code 在模型 + 内置工具之上提供一套扩展层：
 - `autoMemoryEnabled` / `autoMemoryDirectory`
 
 ---
+
+### 3.12 系统健康信号（经验性指标）
+
+以下经验性指标来自实战数据观察。`/bcc-doctor` 和未来 `/bcc-evolve` 可以用作判断依据。
+
+#### 3.12.1 Prompt Cache 健康比例
+
+在 Claude Code + Agent Legion 架构下，健康的 subagent 会话应有：
+
+```
+cache_read_tokens ≈ input_tokens × 10~20
+```
+
+**原理**：每个 Subagent 的 CLAUDE.md + Skills + system prompt 在每轮 turn 都重新发送。Prompt cache 识别重复前缀，以 1/10 价格读取。Cache 生效时这个比例会自然拉高到 10-20×。
+
+**判读**：
+- **≥10×**：cache 正常工作
+- **5~10×**：cache 部分生效，可能 session 短或前缀变化频繁
+- **<5×**：cache 几乎没工作——检查 provider 是否支持 prompt cache，或前缀（system prompt / CLAUDE.md）是否在 session 内被频繁修改
+
+#### 3.12.2 Turn 数作为 Scope-Lock 质量信号
+
+正常 implementer 完成一个**精确**的 scope-lock 应该在 **10-30 turns** 内。
+
+**判读**：
+- **≤30 turns**：正常
+- **30-60 turns**：偏多，可能 scope 偏大或有反复
+- **>60 turns**：scope-lock 不够精确，agent 在反复摸索"到底该改什么"——归因到 architect 的产出质量，而非 agent 本身
+
+**实战观察**：建造期内某项目 8 次 subagent 调用产出 365 turns（平均 46/次），说明早期 scope-lock 设计不够收敛。
+
+**处置**：
+- 单次实现如果 implementer 自己发现 turn 数 >50 还没收尾，应主动停下汇报，让 architect 重新拆 scope
+- `/bcc-evolve` 审计时可把"高 turn 数"作为寻找系统性问题的起点
+
+#### 3.12.3 成本异常排查路径
+
+当 `bin/cost-summary.sh` 显示某项目成本明显高于同类项目时，按序检查：
+
+1. **Turn 数**：`cost-log.txt` 列中 `turns` 平均值是否 >40？→ scope 问题
+2. **Cache 比例**：cache_rd / input 是否 <5×？→ prompt cache 未生效
+3. **调用次数**：单次流水线是否触发了过多 subagent？→ 可能误用了完整流水线在应该 `/bcc-quick-fix` 的任务上
 
 ## 四、系统的目录层面概览
 
