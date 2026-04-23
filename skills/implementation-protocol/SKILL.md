@@ -17,6 +17,20 @@ description: 实现工作纪律协议。定义所有 implementer Agent 的共享
 
 如果你觉得 scope-lock 本身有缺陷（例如接口契约自相矛盾、禁止事项覆盖了必须修改的文件），**立即停止**工作，向调度器报告缺陷原因，而不是"灵活处理"。
 
+### scope-lock 硬性强制
+
+本系统在 PreToolUse hook 启用 scope-lock 白名单守卫（`hooks/scope-lock-guard.sh`）。调度器派遣你时会把白名单通过环境变量 `CLAUDE_LEGION_SCOPE_ALLOW` 注入（每行一个 glob 模式）。
+
+**任何对白名单外文件的 Edit/Write 会被 hook 硬性拒绝**并返回 "scope-lock violation" 错误。
+
+遇到该错误时：
+- **不要**重试或绕过（会继续失败）
+- **不要**删除/重命名尝试规避
+- **立即停止**当前工作
+- 在实现报告里写明为什么需要扩展白名单，让调度器决定是否更新 scope-lock
+
+这是机制上的保障，不是建议。违反 scope-lock 会被阻止，这既是为了防止你越界，也是为了让"scope 违规"变成**可观察的事件**而不是"agent 悄悄做了不该做的事"。
+
 ---
 
 ## 标准工作流（7 步）

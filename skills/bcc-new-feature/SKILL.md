@@ -116,13 +116,22 @@ Batch 3（依赖 Batch 2）：scope-lock-{task-id}-4, scope-lock-{task-id}-5
 
 并行时仍建议**每次最多 2-3 个**后台任务，不要一次性全丢。
 
+派遣前，从 scope-lock 文件的"修改范围（白名单）"区块提取每个文件路径，用 `\n` 拼接成字符串作为任务提示中的"白名单"段：
+
 ```
 任务：实现 scope-lock 中定义的范围。
 Scope Lock: .claude/artifacts/scope-lock-{task-id}-{n}.md
 
+白名单路径（hook 会据此强制拦截越界写入）：
+src/auth/token.ts
+src/auth/types.ts
+src/auth/__tests__/**
+
 请严格遵循 scope-lock 的白名单、禁止事项和接口契约。
 完成后将实现报告写入 .claude/artifacts/impl-report-{task-id}-{n}.md。
 ```
+
+**关键提醒**：若执行 Agent 的运行环境支持传递 env，把白名单写入 `CLAUDE_LEGION_SCOPE_ALLOW` 环境变量会激活 PreToolUse hook 的硬性拦截。当前 Claude Code subagent 调度 API 是否支持注入 env 取决于版本——如果不支持，白名单文字依然通过 scope-lock 文件 + implementation-protocol Skill 让 agent 自我约束。
 
 ### 3.4 每个 implementer 完成后，派遣代码审查
 
