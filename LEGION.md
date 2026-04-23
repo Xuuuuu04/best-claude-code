@@ -246,6 +246,22 @@ Claude Code 在模型 + 内置工具之上提供一套扩展层：
 - `mcpServers` frontmatter 可以内联定义（此 Agent 专属）或按名引用（共享主会话配置）
 - 内联定义避免把该 MCP 暴露给主会话（节省主上下文）
 
+**本系统默认启用的 MCP（用户级）**：
+
+| MCP | 角色协同 | 零配置？ |
+|:--|:--|:--|
+| `github` | devops 的 PR/release 流程、researcher 查历史 PR、流水线自动化 | 需填 PAT |
+| `fetch` | researcher 做外部技术调研（比 WebFetch 更全：POST、header、md 转换） | 是 |
+| `time` | artifact 时间戳一致性、跨时区协作 | 是 |
+| `sequential-thinking` | architect 做复杂架构设计时的多步推理脚手架 | 是 |
+
+**通过 Plugin（不是 MCP）启用的能力**：
+- `playwright` — UI 自动化和视觉测试（quality-guardian 视觉验证）
+- `context7` — 第三方库文档按需获取
+- LSP 组（typescript / pyright / jdtls）— 精确符号导航
+
+插件和 MCP 二选一：某能力若已通过 Plugin 启用（如 Playwright），就不要再装对应 MCP——会重复加载、污染上下文。
+
 ### 3.9 Plugins 机制
 
 - Plugin 是 Skills + Hooks + Subagents + MCP 的打包单元
