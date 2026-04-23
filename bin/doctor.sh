@@ -286,6 +286,36 @@ if grep -q "REPLACE_WITH_YOUR_GITHUB_PAT" "$LEGION_DIR/settings.json" 2>/dev/nul
   warn "github MCP 的 GITHUB_PERSONAL_ACCESS_TOKEN 仍是占位符"
 fi
 
+# ── 11. README 徽章漂移（仅 Legion 仓库本身） ───────────────────────────────
+# 当前在 Legion 仓库时，检查 README.md 的数字徽章是否与实际统计一致
+if [ -f "$LEGION_DIR/README.md" ] && [ -f "$LEGION_DIR/LEGION.md" ]; then
+  section "11. README Badge Drift (Legion repo)"
+
+  ACTUAL_AGENTS="$(ls "$LEGION_DIR"/agents/*.md 2>/dev/null | wc -l | tr -d ' ')"
+  ACTUAL_SKILLS="$(find "$LEGION_DIR"/skills -maxdepth 2 -name 'SKILL.md' 2>/dev/null | wc -l | tr -d ' ')"
+  ACTUAL_RULES="$(find "$LEGION_DIR"/rules -name '*.md' 2>/dev/null | wc -l | tr -d ' ')"
+
+  check_badge() {
+    local label="$1"
+    local actual="$2"
+    local pattern="$3"
+    local declared=""
+    declared="$(grep -oE "$pattern" "$LEGION_DIR/README.md" 2>/dev/null | head -1 | grep -oE '[0-9]+' 2>/dev/null || true)"
+
+    if [ -z "${declared}" ]; then
+      info "$label 徽章未在 README 中声明"
+    elif [ "${declared}" = "$actual" ]; then
+      pass "$label 徽章: ${declared}（与实际一致）"
+    else
+      warn "$label 徽章: ${declared} 声明 vs $actual 实际（漂移）"
+    fi
+  }
+
+  check_badge "Agents" "$ACTUAL_AGENTS" "Agents-[0-9]+"
+  check_badge "Skills" "$ACTUAL_SKILLS" "Skills-[0-9]+"
+  check_badge "Rules"  "$ACTUAL_RULES"  "Rules-[0-9]+"
+fi
+
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo ""
 echo "═════════════════════════════════════════════════"

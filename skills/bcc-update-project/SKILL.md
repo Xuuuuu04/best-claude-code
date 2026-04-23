@@ -10,7 +10,40 @@ disable-model-invocation: true
 
 ---
 
-## 运行条件
+## 模式判定（预备阶段）
+
+运行前先判断当前仓库类型，走不同分支：
+
+### 系统仓库模式（meta-mode）
+
+**判定条件**（**全部**满足）：
+- 当前 pwd 是 `~/.claude`（或它的 git 工作树）
+- 根目录存在 `LEGION.md`
+- `skills/project-knowledge/SKILL.md` 存在（作为**模板**，不是项目实例）
+- `.claude/skills/project-knowledge/SKILL.md` **不**存在
+
+**对应动作**：跳过标准流水线（没有项目级 project-knowledge 可更新），改走**元仓库审计**：
+1. 对比 README.md 的徽章数字与实际统计（Agents/Skills/Rules/LSPs 数量）
+2. 对比 CLAUDE.md 命令表与 `skills/bcc-*/SKILL.md` 实际存在的命令
+3. 检查 LEGION.md 是否引用了已被移除的概念
+4. 用 `git log --oneline -20` 给出近期变更摘要
+5. 所有漂移用**提案形式**列出，让用户决定是否修复（不自动改）
+
+完成后**不调用** quality-guardian（因为没有 project-knowledge 可审），但**可选**运行 `bash ~/.claude/bin/doctor.sh` 做全面健康检查。
+
+### 标准项目模式
+
+**判定条件**：`.claude/skills/project-knowledge/SKILL.md` 存在（由 `/bcc-init-project` 创建）
+
+**对应动作**：按下面 Phase 1-4 正常流程执行。
+
+### 异常
+
+- **两者都不符合**：提示"这里既不是 Agent Legion 系统仓库，也不是已初始化的项目。请先运行 `/bcc-init-project`"并退出
+
+---
+
+## 运行条件（标准项目模式）
 
 - `.claude/skills/project-knowledge/SKILL.md` 必须存在（由 `/bcc-init-project` 创建）
 - 当前在 git 仓库中（用于提取近期提交作为变更日志素材）
