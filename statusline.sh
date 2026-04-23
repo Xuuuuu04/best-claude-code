@@ -215,7 +215,7 @@ if [ -n "$USED_PCT" ] && [ "$USED_PCT" != "null" ]; then
     LABEL="${BAR_COLOR}${PCT}%${RESET}"
   fi
 
-  BAR_SEG="${BAR} ${LABEL}"
+  BAR_SEG="${C_TOKEN}上下文${RESET} ${BAR} ${LABEL}"
 fi
 
 # ── 6. Project cost aggregate (only if cost-log.txt exists in cwd/.claude) ──
@@ -256,7 +256,7 @@ if [ -n "$CWD" ] && [ -f "$CWD/.claude/cost-log.txt" ]; then
       NUM_COLOR="$C_COST_TOK"
     fi
 
-    COST_SEG="${C_COST_ICO}${ICO_SUM}${RESET} ${C_COST_CALL}${CALLS}×${RESET} ${NUM_COLOR}${IN_STR}↓ ${OUT_STR}↑${RESET}"
+    COST_SEG="${C_COST_ICO}消耗${RESET} ${C_COST_CALL}${CALLS} 次${RESET} ${C_COST_TOK}·${RESET} ${NUM_COLOR}${IN_STR}↓ ${OUT_STR}↑${RESET}"
   fi
 fi
 
@@ -267,16 +267,24 @@ if [ -n "$NOW" ]; then
   TIME_SEG="${C_TIME}${ICO_CLOCK} ${NOW}${RESET}"
 fi
 
-# ── Assemble ─────────────────────────────────────────────────────────────────
-# When a subagent is active, put its badge right after LEGION for max visibility
-OUT="$LEGION_SEG"
-[ -n "$AGENT_SEG" ] && OUT="${OUT}${AGENT_SEG}"
-[ -n "$MODEL_SEG" ] && OUT="${OUT}${SEP}${MODEL_SEG}"
-[ -n "$STYLE_SEG" ] && OUT="${OUT}${SEP}${STYLE_SEG}"
-[ -n "$DIR_SEG" ]   && OUT="${OUT}${SEP}${DIR_SEG}"
-[ -n "$BAR_SEG" ]   && OUT="${OUT}${SEP}${BAR_SEG}"
-[ -n "$COST_SEG" ]  && OUT="${OUT}${SEP}${COST_SEG}"
-[ -n "$TIME_SEG" ]  && OUT="${OUT}${SEP}${TIME_SEG}"
+# ── Assemble (两行布局) ──────────────────────────────────────────────────────
+# Line 1: 品牌 · 活跃 agent（如有）· 模型 · 风格
+# Line 2: 目录 ⎇ 分支 · 上下文进度 · 项目消耗 · 时钟
 
-printf "%b" "$OUT"
+LINE1="$LEGION_SEG"
+[ -n "$AGENT_SEG" ] && LINE1="${LINE1}${AGENT_SEG}"
+[ -n "$MODEL_SEG" ] && LINE1="${LINE1}${SEP}${MODEL_SEG}"
+[ -n "$STYLE_SEG" ] && LINE1="${LINE1}${SEP}${STYLE_SEG}"
+
+LINE2=""
+[ -n "$DIR_SEG" ]   && LINE2="${DIR_SEG}"
+[ -n "$BAR_SEG" ]   && LINE2="${LINE2:+${LINE2}${SEP}}${BAR_SEG}"
+[ -n "$COST_SEG" ]  && LINE2="${LINE2:+${LINE2}${SEP}}${COST_SEG}"
+[ -n "$TIME_SEG" ]  && LINE2="${LINE2:+${LINE2}${SEP}}${TIME_SEG}"
+
+if [ -n "$LINE2" ]; then
+  printf "%b\n%b" "$LINE1" "$LINE2"
+else
+  printf "%b" "$LINE1"
+fi
 exit 0
