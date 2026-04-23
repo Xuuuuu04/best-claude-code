@@ -256,7 +256,7 @@ if [ -n "$CWD" ] && [ -f "$CWD/.claude/cost-log.txt" ]; then
       NUM_COLOR="$C_COST_TOK"
     fi
 
-    COST_SEG="${C_COST_ICO}消耗${RESET} ${C_COST_CALL}${CALLS} 次${RESET} ${C_COST_TOK}·${RESET} ${NUM_COLOR}${IN_STR}↓ ${OUT_STR}↑${RESET}"
+    COST_SEG="${C_COST_ICO}本项目累计${RESET} ${C_COST_CALL}${CALLS} 次${RESET} ${C_COST_TOK}·${RESET} ${NUM_COLOR}${IN_STR}↓ ${OUT_STR}↑${RESET}"
   fi
 fi
 
@@ -277,9 +277,10 @@ LINE1="$LEGION_SEG"
 [ -n "$STYLE_SEG" ] && LINE1="${LINE1}${SEP}${STYLE_SEG}"
 
 LINE2=""
+# 目录和"本项目累计"紧贴在一起，让"项目归属"视觉成簇
 [ -n "$DIR_SEG" ]   && LINE2="${DIR_SEG}"
-[ -n "$BAR_SEG" ]   && LINE2="${LINE2:+${LINE2}${SEP}}${BAR_SEG}"
 [ -n "$COST_SEG" ]  && LINE2="${LINE2:+${LINE2}${SEP}}${COST_SEG}"
+[ -n "$BAR_SEG" ]   && LINE2="${LINE2:+${LINE2}${SEP}}${BAR_SEG}"
 [ -n "$TIME_SEG" ]  && LINE2="${LINE2:+${LINE2}${SEP}}${TIME_SEG}"
 
 if [ -n "$LINE2" ]; then
