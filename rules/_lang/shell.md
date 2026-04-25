@@ -3,6 +3,8 @@ paths:
   - "**/*.sh"
   - "**/*.bash"
   - "**/*.zsh"
+  - "!**/hooks/*.sh"
+  - "!**/hooks/*.bash"
 ---
 
 # Shell 脚本规范
@@ -19,6 +21,8 @@ IFS=$'\n\t'
 - `set -u`：未定义变量报错
 - `set -o pipefail`：管道任一失败则失败
 - `IFS` 明确，避免默认空格分割带来的意外
+
+> **例外：Hook 脚本不使用 `set -e`**。Claude Code hook 脚本使用 `set -uo pipefail`（不加 `-e`）。在空 git 仓库、无 jq 环境等边界场景中，`git branch --show-current` 等诊断命令的非零退出会因 `set -e` 立即杀死脚本，使问题极难排查。详见 `rules/_global/hook-scripts-pattern.md`。
 
 ## 引号
 

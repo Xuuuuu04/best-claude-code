@@ -1,6 +1,6 @@
 # CLAUDE.md 内容规范
 
-项目中的 CLAUDE.md 文件必须符合以下规范。此规则由 `/bcc-init-project` 和 `/bcc-update-project` 生成时遵循，也指导 quality-guardian 在审查 CLAUDE.md 时的判断。
+项目中的 CLAUDE.md 文件必须符合以下规范。此规则由 `/bcc-init-project` 和 `/bcc-update-project` 生成时遵循，也指导 `architecture-reviewer` 在审查 CLAUDE.md 时的判断。
 
 ---
 
@@ -38,7 +38,7 @@
 作为调度器的行为准则，包括：
 - 可用的流水线命令
 - Agent 选择规则
-- 调度原则（何时用 Explorer、何时 quality-guardian 必须审查）
+- 调度原则（何时用 repo-researcher / tech-researcher，何时各层 reviewer/tester 必须审查）
 
 ### 7. @imports（3-5 行）
 引用 README、package.json 等关键参考文件。
@@ -71,7 +71,7 @@
 
 ## 审查要点
 
-quality-guardian 审查 CLAUDE.md 时，除了形式合规，还要检查：
+`architecture-reviewer` 审查 CLAUDE.md 时，除了形式合规，还要检查：
 
 - 核心铁律**具体可检验**（"写好代码"不算，"ESLint 必须无警告"算）
 - Agent 调度指引**与实际 Agent 定义一致**（引用的 Agent 名称存在）

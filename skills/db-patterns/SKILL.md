@@ -1,6 +1,7 @@
 ---
 name: db-patterns
 description: 数据库设计模式参考。在设计 schema、选择索引、处理迁移或优化查询时提供查询的参考资料。
+when_to_use: 当 database-engineer / implementer-backend 设计 schema、加索引、写迁移脚本、排查慢查询、做分库分表时；用户提"加表"、"改字段"、"加索引"、"迁移"、"慢查询"、"主键设计"时自动加载。
 ---
 
 # 数据库设计模式参考

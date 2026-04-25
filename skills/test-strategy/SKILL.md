@@ -1,6 +1,7 @@
 ---
 name: test-strategy
-description: 测试策略与方法论。为 quality-guardian 和 implementer 提供测试分层、覆盖标准和边界构造方法。
+description: 测试策略与方法论。为 functional-tester、visual-tester 和 implementer 提供测试分层、覆盖标准和边界构造方法。
+when_to_use: 当 implementer / tester 设计测试分层、决定单元/集成/e2e 比例、构造边界用例、补回归测试时；用户提"测试策略"、"测试金字塔"、"覆盖率"、"单元 vs 集成"、"补测试" 时自动加载。
 ---
 
 # 测试策略

@@ -2,11 +2,12 @@
   "_comment": "Agent Legion 配置模板。复制为 settings.json 并填入实际 API Key 后使用。settings.json 已加入 .gitignore 不会被提交。",
 
   "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "_HOOK_PROFILE_DOC": "CLAUDE_HOOK_PROFILE=minimal|standard|strict 调档（默认 standard）；CLAUDE_DISABLED_HOOKS=id1,id2 黑名单。详见 rules/_global/hook-scripts-pattern.md §8"
   },
   "permissions": {
     "allow": [],
-    "defaultMode": "dontAsk"
+    "defaultMode": "default"
   },
   "enabledPlugins": {
     "playwright@claude-plugins-official": true,
@@ -41,7 +42,8 @@
     "command": "bash $HOME/.claude/statusline.sh",
     "padding": 1
   },
-  "skipDangerousModePermissionPrompt": true,
+  "_permission_note": "默认采用保守权限。subagent 继续复用 settings 中声明的共享 MCP，不为权限收紧重复下沉 mcpServers。",
+  "skipDangerousModePermissionPrompt": false,
   "teammateMode": "tmux",
   "_mcp_note": "MCP 服务器列表。github 需要你的 PAT；其余三个零配置即用。",
   "mcpServers": {
@@ -126,6 +128,10 @@
       {
         "matcher": "Edit|Write",
         "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/scope-lock-guard.sh"
+          },
           {
             "type": "command",
             "if": "Edit(**/prisma/migrations/**)|Write(**/prisma/migrations/**)",

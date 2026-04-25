@@ -64,7 +64,7 @@ UP_SYM="↑"
 DN_SYM="↓"
 
 # Separator: elegant middle-dot
-SEP="${C_SEP}  ·  ${RESET}"
+SEP="${C_SEP} · ${RESET}"
 
 # ── Read stdin JSON ──────────────────────────────────────────────────────────
 INPUT="$(cat 2>/dev/null || echo '{}')"
@@ -121,24 +121,30 @@ if [ -n "$SESSION_ID" ]; then
       fi
     fi
 
-    AGENT_SEG=" ${C_AGENT_BG}${C_AGENT_FG}${BOLD} ${ICO_AGENT} ${LABEL} ${RESET}"
+    AGENT_SEG=" ${C_AGENT_BG}${C_AGENT_FG}${BOLD} ${ICO_AGENT} 代理 ${LABEL} ${RESET}"
   fi
 fi
 
 # ── 2. Model ────────────────────────────────────────────────────────────────
 MODEL="$(jq_get '.model.display_name')"
 [ -z "$MODEL" ] && MODEL="$(jq_get '.model.id')"
+# 简化：去掉括号注释 "(1M context)" / "[high]" 等冗余（用 bash 字符串切，BSD/GNU 通用）
+MODEL="${MODEL%% (*}"
+MODEL="${MODEL%% [*}"
+MODEL="${MODEL%"${MODEL##*[![:space:]]}"}"  # 右侧 trim
 MODEL_SEG=""
 if [ -n "$MODEL" ]; then
-  MODEL_SEG="${C_MODEL}${ICO_MODEL} ${MODEL}${RESET}"
+  MODEL_SEG="${C_TOKEN}模型${RESET} ${C_MODEL}${ICO_MODEL} ${MODEL}${RESET}"
 fi
 
 # ── 3. Output style (if custom) ─────────────────────────────────────────────
 STYLE="$(jq_get '.output_style.name')"
 STYLE_SEG=""
-if [ -n "$STYLE" ] && [ "$STYLE" != "default" ]; then
-  STYLE_SEG="${C_STYLE}${ICO_STYLE} ${STYLE}${RESET}"
-fi
+# 隐藏默认 / Legion 自身 style（避免每行都有冗余）；其他自定义 style 才显示
+case "$STYLE" in
+  ""|default|legion-dispatch) ;;
+  *) STYLE_SEG="${C_TOKEN}风格${RESET} ${C_STYLE}${ICO_STYLE} ${STYLE}${RESET}" ;;
+esac
 
 # ── 4. Directory + Git state ────────────────────────────────────────────────
 CWD="$(jq_get '.workspace.current_dir')"
@@ -146,21 +152,22 @@ CWD="$(jq_get '.workspace.current_dir')"
 [ -z "$CWD" ] && CWD="$(pwd 2>/dev/null || echo '')"
 
 DIR_SEG=""
+BRANCH_SEG=""
 if [ -n "$CWD" ]; then
   BASENAME="$(basename "$CWD" 2>/dev/null || echo '?')"
-  DIR_SEG="${C_DIR}${ICO_DIR} ${BASENAME}${RESET}"
+  DIR_SEG="${C_TOKEN}项目${RESET} ${C_DIR}${ICO_DIR} ${BASENAME}${RESET}"
 
-  # Git info
+  # Git info（独立成段，与项目用 SEP 分隔，不再粘在一起）
   if git -C "$CWD" --no-optional-locks rev-parse --git-dir &>/dev/null; then
     BRANCH="$(git -C "$CWD" --no-optional-locks symbolic-ref --short HEAD 2>/dev/null \
               || git -C "$CWD" --no-optional-locks rev-parse --short HEAD 2>/dev/null \
               || echo '')"
     if [ -n "$BRANCH" ]; then
-      # Dirty check
-      DIRTY_MARK=""
+      # Dirty check：用中文 "(改)" 替代 ● 字符，加空格分开 branch 名
+      DIRTY_NOTE=""
       if ! git -C "$CWD" --no-optional-locks diff --quiet 2>/dev/null \
          || ! git -C "$CWD" --no-optional-locks diff --cached --quiet 2>/dev/null; then
-        DIRTY_MARK="${C_GIT_DIRTY}●${RESET}"
+        DIRTY_NOTE=" ${C_GIT_DIRTY}(改)${RESET}"
       fi
 
       # Ahead/behind (only if upstream exists)
@@ -170,11 +177,11 @@ if [ -n "$CWD" ]; then
         COUNTS="$(git -C "$CWD" --no-optional-locks rev-list --left-right --count "HEAD...@{u}" 2>/dev/null || echo '0	0')"
         AHEAD="$(echo "$COUNTS" | awk '{print $1}')"
         BEHIND="$(echo "$COUNTS" | awk '{print $2}')"
-        [ "${AHEAD:-0}" != "0" ] && AHEAD_BEHIND="${AHEAD_BEHIND}${C_GIT_AHEAD}${UP_SYM}${AHEAD}${RESET}"
-        [ "${BEHIND:-0}" != "0" ] && AHEAD_BEHIND="${AHEAD_BEHIND}${C_GIT_BEHIND}${DN_SYM}${BEHIND}${RESET}"
+        [ "${AHEAD:-0}" != "0" ] && AHEAD_BEHIND="${AHEAD_BEHIND} ${C_GIT_AHEAD}${UP_SYM}${AHEAD}${RESET}"
+        [ "${BEHIND:-0}" != "0" ] && AHEAD_BEHIND="${AHEAD_BEHIND} ${C_GIT_BEHIND}${DN_SYM}${BEHIND}${RESET}"
       fi
 
-      DIR_SEG="${DIR_SEG} ${C_GIT}${BR_SYM} ${BRANCH}${RESET}${DIRTY_MARK}${AHEAD_BEHIND}"
+      BRANCH_SEG="${C_TOKEN}分支${RESET} ${C_GIT}${BR_SYM} ${BRANCH}${RESET}${DIRTY_NOTE}${AHEAD_BEHIND}"
     fi
   fi
 fi
@@ -195,8 +202,8 @@ if [ -n "$USED_PCT" ] && [ "$USED_PCT" != "null" ]; then
   else                         BAR_COLOR="$C_BAR_LOW"
   fi
 
-  # 12-slot bar — finer than 10 for more precision
-  TOTAL_SLOTS=12
+  # 10-slot bar — 紧凑窄屏友好
+  TOTAL_SLOTS=10
   FILLED=$(( PCT * TOTAL_SLOTS / 100 ))
   [ "$FILLED" -gt "$TOTAL_SLOTS" ] && FILLED=$TOTAL_SLOTS
   EMPTY=$(( TOTAL_SLOTS - FILLED ))
@@ -207,14 +214,14 @@ if [ -n "$USED_PCT" ] && [ "$USED_PCT" != "null" ]; then
   for (( i=0; i<EMPTY;  i++ )); do BAR="${BAR}▱"; done
   BAR="${BAR}${RESET}"
 
-  # Token label
-  if [ -n "$INPUT_TOKENS" ] && [ "$INPUT_TOKENS" != "null" ]; then
+  # Token label：仅在 token > 0 时附加 K 数（避免显示 "0K"）
+  LABEL="${BAR_COLOR}${PCT}%${RESET}"
+  if [ -n "$INPUT_TOKENS" ] && [ "$INPUT_TOKENS" != "null" ] && [ "$INPUT_TOKENS" -gt 500 ]; then
     USED_K=$(( INPUT_TOKENS / 1000 ))
-    LABEL="${BAR_COLOR}${PCT}%${RESET}${C_TOKEN} · ${USED_K}K${RESET}"
-  else
-    LABEL="${BAR_COLOR}${PCT}%${RESET}"
+    [ "$USED_K" -gt 0 ] && LABEL="${LABEL}${C_TOKEN} ${USED_K}K${RESET}"
   fi
 
+  # 加"上下文"中文标签明示含义
   BAR_SEG="${C_TOKEN}上下文${RESET} ${BAR} ${LABEL}"
 fi
 
@@ -256,7 +263,8 @@ if [ -n "$CWD" ] && [ -f "$CWD/.claude/cost-log.txt" ]; then
       NUM_COLOR="$C_COST_TOK"
     fi
 
-    COST_SEG="${C_COST_ICO}本项目累计${RESET} ${C_COST_CALL}${CALLS} 次${RESET} ${C_COST_TOK}·${RESET} ${NUM_COLOR}${IN_STR}↓ ${OUT_STR}↑${RESET}"
+    # 中文标签 + 紧凑数值
+    COST_SEG="${C_TOKEN}成本${RESET} ${C_COST_ICO}${ICO_SUM}${RESET} ${C_COST_CALL}${CALLS}${RESET} ${NUM_COLOR}${IN_STR}↓${OUT_STR}↑${RESET}"
   fi
 fi
 
@@ -264,24 +272,43 @@ fi
 NOW="$(date '+%H:%M' 2>/dev/null || echo '')"
 TIME_SEG=""
 if [ -n "$NOW" ]; then
-  TIME_SEG="${C_TIME}${ICO_CLOCK} ${NOW}${RESET}"
+  TIME_SEG="${C_TOKEN}时间${RESET} ${C_TIME}${ICO_CLOCK} ${NOW}${RESET}"
+fi
+
+# ── Router tier (v3.1: 显示最近一次 intent-classify 结果) ───────────────────
+TIER_SEG=""
+TIER_LOG="$HOME/.claude/logs/intent-classify.jsonl"
+if [ -r "$TIER_LOG" ] && command -v jq >/dev/null 2>&1; then
+  TIER="$(tail -1 "$TIER_LOG" 2>/dev/null | jq -r '.tier // empty' 2>/dev/null || echo "")"
+  if [ -n "$TIER" ]; then
+    case "$TIER" in
+      trivial)  C_TIER="\033[38;2;148;163;184m"; ICO_TIER="◌" ;;  # slate
+      small)    C_TIER="\033[38;2;74;222;128m";  ICO_TIER="◯" ;;  # green
+      medium)   C_TIER="\033[38;2;251;191;36m";  ICO_TIER="◐" ;;  # amber
+      large)    C_TIER="\033[38;2;251;146;60m";  ICO_TIER="◉" ;;  # orange
+      unclear)  C_TIER="\033[38;2;248;113;113m"; ICO_TIER="?"  ;;  # red
+      *)        C_TIER="\033[38;2;148;163;184m"; ICO_TIER="·" ;;
+    esac
+    TIER_SEG="${C_TOKEN}调度${RESET} ${C_TIER}${ICO_TIER} ${TIER}${RESET}"
+  fi
 fi
 
 # ── Assemble (两行布局) ──────────────────────────────────────────────────────
-# Line 1: 品牌 · 活跃 agent（如有）· 模型 · 风格
+# Line 1: 品牌 · 活跃 agent（如有）· 模型 · 风格 · tier
 # Line 2: 目录 ⎇ 分支 · 上下文进度 · 项目消耗 · 时钟
 
 LINE1="$LEGION_SEG"
 [ -n "$AGENT_SEG" ] && LINE1="${LINE1}${AGENT_SEG}"
 [ -n "$MODEL_SEG" ] && LINE1="${LINE1}${SEP}${MODEL_SEG}"
 [ -n "$STYLE_SEG" ] && LINE1="${LINE1}${SEP}${STYLE_SEG}"
+[ -n "$TIER_SEG"  ] && LINE1="${LINE1}${SEP}${TIER_SEG}"
 
 LINE2=""
-# 目录和"本项目累计"紧贴在一起，让"项目归属"视觉成簇
-[ -n "$DIR_SEG" ]   && LINE2="${DIR_SEG}"
-[ -n "$COST_SEG" ]  && LINE2="${LINE2:+${LINE2}${SEP}}${COST_SEG}"
-[ -n "$BAR_SEG" ]   && LINE2="${LINE2:+${LINE2}${SEP}}${BAR_SEG}"
-[ -n "$TIME_SEG" ]  && LINE2="${LINE2:+${LINE2}${SEP}}${TIME_SEG}"
+[ -n "$DIR_SEG" ]    && LINE2="${DIR_SEG}"
+[ -n "$BRANCH_SEG" ] && LINE2="${LINE2:+${LINE2}${SEP}}${BRANCH_SEG}"
+[ -n "$COST_SEG" ]   && LINE2="${LINE2:+${LINE2}${SEP}}${COST_SEG}"
+[ -n "$BAR_SEG" ]    && LINE2="${LINE2:+${LINE2}${SEP}}${BAR_SEG}"
+[ -n "$TIME_SEG" ]   && LINE2="${LINE2:+${LINE2}${SEP}}${TIME_SEG}"
 
 if [ -n "$LINE2" ]; then
   printf "%b\n%b" "$LINE1" "$LINE2"

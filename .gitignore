@@ -24,6 +24,10 @@ history.jsonl
 file-history/
 tasks/
 teams/
+# Claude Code 自身产生的运行时遥测（含 token 用量 / session UUID / 失败事件，不应进版本库）
+stats-cache.json
+telemetry/
+plans/
 
 # === LOCAL SETTINGS & CACHE ===
 # settings.json contains real API keys — use settings.example.json as template

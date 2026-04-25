@@ -193,7 +193,7 @@ git secrets --add-provider -- cat .git-secrets-patterns
 
 ## 审查要点
 
-quality-guardian 审查 env 和 config 变更时：
+`security-auditor` 审查 env 和 config 变更时：
 
 - [ ] 没有密钥硬编码
 - [ ] `.env` 没被提交

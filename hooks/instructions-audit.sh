@@ -20,7 +20,7 @@ SESSION_ID="$(echo "$INPUT" | jq -r '.session_id // "unknown"' 2>/dev/null || ec
 GLOBAL_LOG_DIR="$HOME/.claude/logs"
 mkdir -p "$GLOBAL_LOG_DIR" 2>/dev/null || true
 
-jq -n \
+jq -c -n \
   --arg ts "$TIMESTAMP" \
   --arg session "$SESSION_ID" \
   --argjson raw "${INPUT:-null}" \

@@ -1,6 +1,7 @@
 ---
 name: security-checklist
-description: 安全审查清单。为 quality-guardian 提供系统化的安全检查方法，覆盖 OWASP Top 10 和常见漏洞模式。
+description: 安全审查清单。为 security-auditor 和 code-reviewer 提供系统化的安全检查方法，覆盖 OWASP Top 10 和常见漏洞模式。
+when_to_use: 当 security-auditor / code-reviewer 审查认证、授权、输入验证、注入、敏感数据处理、依赖风险时；用户提"安全审查"、"OWASP"、"漏洞"、"鉴权"、"权限"、"SQL 注入"、"XSS"、"CSRF" 时自动加载。
 ---
 
 # 安全审查清单

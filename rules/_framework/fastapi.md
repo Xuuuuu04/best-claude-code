@@ -5,9 +5,12 @@ paths:
   - "**/api/**/*.py"
   - "**/dependencies.py"
   - "**/schemas.py"
+when_to_use: 仅当项目确认为 FastAPI（pyproject.toml / requirements.txt 含 `fastapi`，或代码中 `from fastapi import`）。单独 main.py 不足以证明，非 FastAPI 项目也常用此文件名。
 ---
 
 # FastAPI 规范
+
+> **适用判定（主会话读到本规则后先检查）**：查找 `from fastapi import` 或 `import fastapi`；若未命中，本规则不适用，以项目实际技术栈为准（可能是 Flask / Django / 纯 Python 脚本）。
 
 ## 版本
 - FastAPI 0.100+（Pydantic v2）

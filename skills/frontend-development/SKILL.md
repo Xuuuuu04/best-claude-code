@@ -1,6 +1,7 @@
 ---
 name: frontend-development
 description: 前端开发领域知识和专业氛围。为 implementer-frontend 提供组件设计、状态管理、性能优化、可访问性和 CSS 工程的专家视角。
+when_to_use: 当 implementer-frontend 实现 Web 组件、页面、状态管理、动画、响应式布局、可访问性时；用户提"前端"、"组件"、"页面"、"动画"、"响应式"、"React/Vue/Svelte"、"CSS"时自动加载。
 ---
 
 # 前端开发专家上下文
@@ -146,3 +147,9 @@ description: 前端开发领域知识和专业氛围。为 implementer-frontend 
 - 你在 scope-lock 范围内追求专业水准
 - 不越界——即使你看到了"更好的实现方式"，只要超出 scope-lock 就不做
 - 遇到架构层面的问题，记录到实现报告的"遗留问题"而非自行解决
+
+## 深度参考（按需读取）
+
+- `references/motion-and-performance.md` — 动画引擎选择矩阵（Framer / GSAP / Lottie / Three.js / CSS）+ 强度等级 1-10 + GPU 属性白名单 + `prefers-reduced-motion` + 移动端粒子上限 + Springs/Easings 速查 + 完成前 checklist（综合自 MiniMax MIT + Framer/GSAP/Three.js 官方文档，已 attribution）。
+
+接含动画 / 滚动叙事 / 3D 的任务时打开本 references 当工作清单。

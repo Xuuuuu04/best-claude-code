@@ -1,6 +1,7 @@
 ---
 name: api-guide
 description: API 设计参考指南。在设计新 API 端点、修改已有 API 或审查 API 契约时提供查询的参考资料。
+disable-model-invocation: true
 ---
 
 # API 设计参考指南

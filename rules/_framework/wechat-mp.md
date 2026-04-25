@@ -4,11 +4,15 @@ paths:
   - "**/*.wxml"
   - "**/*.wxss"
   - "**/*.wxs"
-  - "pages/**"
-  - "components/**"
+  - "**/app.json"
+  - "**/project.config.json"
+  - "**/sitemap.json"
+when_to_use: 仅当项目确认为微信小程序（存在 app.json、project.config.json、miniprogram 目录或 .wxml 文件）时启用。**不要**因为路径含 pages/ 或 components/ 而应用本规则——这两个目录在 Next.js / Vue / 任意前端项目都存在。
 ---
 
 # 微信小程序规范
+
+> **适用判定（主会话读到本规则后先检查）**：项目根是否存在 `project.config.json` 或 `app.json` 中有 `pages` 字段。若否，本规则不适用，以项目实际技术栈为准。
 
 ## 项目结构
 

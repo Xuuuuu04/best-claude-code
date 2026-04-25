@@ -3,6 +3,11 @@
 # Helper: wraps a hook invocation so any non-zero exit or stderr output
 # gets appended to an error log. Works as a "tee+capture" layer.
 #
+# Also acts as the single Hook Profile gate for Agent Legion:
+# when the hook is disabled under the current CLAUDE_HOOK_PROFILE /
+# CLAUDE_DISABLED_HOOKS, this wrapper consumes stdin and exits 0
+# before executing the underlying hook script.
+#
 # Usage (from settings.json):
 #   "command": "$HOME/.claude/hooks/_lib/run-with-logging.sh $HOME/.claude/hooks/actual-hook.sh"
 #
@@ -22,7 +27,22 @@ if [ -z "$HOOK_SCRIPT" ] || [ ! -x "$HOOK_SCRIPT" ]; then
   exec "$HOOK_SCRIPT" "$@"
 fi
 
-# Pass stdin through unchanged, capture stderr separately
+# ---- Hook Profile gate ------------------------------------------------------
+# Load hook-flags helper from alongside this script.
+WRAPPER_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [ -r "$WRAPPER_DIR/hook-flags.sh" ]; then
+  # shellcheck disable=SC1091
+  . "$WRAPPER_DIR/hook-flags.sh"
+  HOOK_ID="$(hook_id_from_path "$HOOK_SCRIPT" 2>/dev/null || echo "")"
+  if [ -n "$HOOK_ID" ] && ! is_hook_enabled "$HOOK_ID"; then
+    # Disabled: drain stdin so Claude Code does not block waiting on the pipe,
+    # then exit 0. No logging (this is an intentional opt-out).
+    cat >/dev/null 2>&1 || true
+    exit 0
+  fi
+fi
+
+# ---- Execute hook with stderr capture --------------------------------------
 STDERR_TMP="$(mktemp -t cc-hook-stderr-XXXXXX 2>/dev/null || echo "/tmp/cc-hook-stderr-$$")"
 
 # Run the hook, preserve its stdin and stdout, capture stderr

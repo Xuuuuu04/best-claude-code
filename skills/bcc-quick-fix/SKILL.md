@@ -1,6 +1,6 @@
 ---
 name: bcc-quick-fix
-description: 轻量级快速修复流水线。用于 <20 行、单文件、无架构影响的小改动——typo、注释笔误、显然的单点 bug、小样式调整。跳过完整 5 阶段流水线直接派遣 implementer。
+description: 轻量级快速修复流水线。用于 <20 行、单文件、无架构影响的小改动——typo、注释笔误、显然的单点 bug、小样式调整。默认由主会话直接完成，必要时再派遣 implementer。
 disable-model-invocation: true
 ---
 
@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 完整流水线（`/bcc-new-feature` / `/bcc-fix-bug`）适合有架构影响或需要测试设计的任务。但大量日常修复是琐碎的：改错字、调 CSS 值、加一条 console.log、去掉一个多余 import。这些走 5 阶段属于杀鸡用牛刀。
 
-此 Skill 是**单点直修**的通道：**跳过 product-analyst、architect、quality-guardian**，直接派遣合适的 implementer，靠其自检 + scope-lock-guard hook 保障。
+此 Skill 是**单点直修**的通道：**跳过 product-analyst、architect、完整 reviewer/tester 链路**，默认由主会话直接完成；只有在需要隔离上下文或主会话无法安全判断时才派遣 implementer。
 
 ---
 
@@ -19,7 +19,7 @@ disable-model-invocation: true
 在派遣前，用以下标准自检"这个任务真的适合 quick-fix 吗"？**任何一条不符就应转走完整流水线**：
 
 - [ ] 改动预计 ≤ 20 行
-- [ ] 改动集中在 **1-2 个文件**（不跨模块）
+- [ ] 改动集中在 **1 个文件**
 - [ ] 不涉及**接口签名变更**
 - [ ] 不涉及**数据库 schema**
 - [ ] 不涉及**安全、权限、认证**
@@ -50,14 +50,27 @@ disable-model-invocation: true
 - 运行 npm run typecheck 无新错
 ```
 
-### Step 2: 派遣对应 implementer
+### Step 2: 选择执行方式
 
-根据涉及文件类型选择：
+优先级如下：
+
+1. **主会话直接修复（默认）**
+   - 适用于 `~/.claude` 自身文件
+   - 适用于单文件、边界明确、无需额外探索的小业务修复
+   - 主会话直接按微型 scope-lock 修改并运行最小验证
+
+2. **派遣 implementer（例外）**
+   - 主会话对代码库不熟，读几处文件后仍不确定
+   - 需要隔离上下文，避免污染主会话
+   - 需要更强的领域实现约束（frontend / backend / mobile）
+
+如需派遣，根据涉及文件类型选择：
 - `.tsx` / `.vue` / `.css` / `.html` → `implementer-frontend`
 - `.py` / `.go` / `.java` / 后端 `.ts` → `implementer-backend`
-- `.swift` / `.kt` / `.dart` / `.wxml` → `implementer-mobile`
+- `.swift` / `.kt` / `.dart` → `implementer-mobile`
+- `.wxml` / `.wxss` / `.wxs` / `miniprogram` 目录 → `miniprogram-dev`
 
-**前台阻塞**派遣，任务提示直接包含上一步的微型 scope-lock：
+派遣时，**前台阻塞**运行，任务提示直接包含上一步的微型 scope-lock：
 
 ```
 任务：快速修复。
@@ -72,12 +85,15 @@ disable-model-invocation: true
 - 是否通过
 ```
 
-### Step 3: 汇报
+### Step 3: 最小验证与汇报
 
-implementer 完成后，主会话用固定格式汇报给用户：
+无论由主会话还是 implementer 执行，都至少完成一项与改动最相关的验证：`typecheck` / `lint` / 单测 / 静态检查。
+
+完成后，主会话用固定格式汇报给用户：
 
 ```
 ✓ 快速修复完成
+  └ 路径：主会话直修 / implementer 派遣
   └ 文件：{路径}
   └ 改动：{一句话}
   └ 验证：{lint ✓ / typecheck ✓ / 测试 ✓}
@@ -107,12 +123,13 @@ implementer 完成后，主会话用固定格式汇报给用户：
 
 ## 不做代码审查是否安全？
 
-`/bcc-quick-fix` 跳过 quality-guardian 的代码审查。安全性由以下替代机制提供：
+`/bcc-quick-fix` 跳过完整 reviewer/tester 链路。安全性由以下轻量替代机制提供：
 
-1. **scope-lock-guard hook**：硬性阻止越界写入
-2. **post-edit-lint hook**：自动跑 linter/formatter
-3. **implementer 的自检**：运行测试、lint、typecheck
-4. **用户视觉检查**：前台派遣用户看得到改动
+1. **微型 scope-lock**：先写清白名单、禁止事项、完成标准
+2. **scope-lock-guard hook**：在支持环境变量注入的派遣场景下硬性阻止越界写入
+3. **post-edit-lint hook**：自动跑 linter/formatter
+4. **执行者自检**：至少跑一项最相关的验证
+5. **用户可见性**：前台修复或前台派遣，用户看得到过程
 
 对 20 行以内的单文件小改动，这套轻量保障**通常够用**。但以下情况宁可慢也要走完整流水线：
 - 改动涉及安全/认证相关代码（即使只有 5 行）

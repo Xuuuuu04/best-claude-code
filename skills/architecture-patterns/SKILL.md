@@ -1,6 +1,7 @@
 ---
 name: architecture-patterns
 description: 架构设计模式与决策框架。为 architect 提供模块解耦、接口设计、数据流、权衡取舍的专家视角。
+when_to_use: 当 architect 设计新模块 / 做技术选型 / 评估接口边界 / 考虑模块解耦时；用户提"架构设计"、"技术方案"、"模块边界"、"系统设计"、"重构方案"时自动加载。
 ---
 
 # 架构设计模式
@@ -230,7 +231,7 @@ src/
 4. **可执行的验证命令**：开发者可以复制粘贴运行
 5. **可逐条勾选的完成标准**：不留解释空间
 
-对照 `review-protocol` Skill 的架构审查检查清单自检。
+对照 `architecture-review-protocol` Skill 的架构审查检查清单自检。
 
 ---
 

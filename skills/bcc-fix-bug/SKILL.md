@@ -1,157 +1,166 @@
 ---
 name: bcc-fix-bug
-description: Bug 修复流水线（简化版）。当用户报告 bug、错误或异常行为时使用。
+description: Bug 修复流水线。用于错误、异常行为和回归问题修复。
 disable-model-invocation: true
 ---
 
 # Bug 修复流水线
 
-`$ARGUMENTS` 是 bug 描述。执行以下简化流水线——相比新功能流水线，bug 修复通常范围更小、流程更短。
+`$ARGUMENTS` 是 bug 描述。目标链路是：**定位 → 影响分析 → 范围锁定（小 bug 可跳过架构）→ 实现 → 代码审查 → 安全审计（如适用）→ 回归验证 → 视觉验证（UI bug）**。
+
+调度真源：`rules/_global/dispatch-table.md`。若本 Skill 与调度表冲突，以调度表为准。
 
 ---
 
-## 预备：生成 Task ID
+## 预备：Task ID
 
-形如 `bug-YYYYMMDD-NN`。
+生成 `bug-YYYYMMDD-NN`。
 
 ---
 
-## Phase 1: 定位与分析
+## Phase 1: 定位与影响分析
 
-### 1.1 派遣 researcher 调研
+### 1.1 派遣 `repo-researcher`
 
-```
-任务：调研以下 bug 的可能原因和代码位置。
+```text
+任务：定位以下 bug 的可能根因和相关代码位置。
 Bug 描述：{$ARGUMENTS}
 
-请使用 git log / grep / 文件阅读定位到具体文件和行号。
-如无法复现或无法定位，明确说明。
+请写入 .claude/artifacts/repo-research-{task-id}.md：
+- 可能的根因
+- 涉及文件与行号
+- 相关调用者
+- 如无法复现或无法定位，明确说明
 ```
 
-### 1.2 派遣 product-analyst 确认影响
+### 1.2 派遣 `product-analyst`
 
-```
-任务：基于 researcher 的调研报告，分析该 bug 的影响范围和修复优先级。
-调研报告：{researcher 的 artifact 路径}
+```text
+任务：基于 repo research，分析该 bug 的影响范围、修复优先级和验收标准。
 Task ID: {task-id}
+调研报告：.claude/artifacts/repo-research-{task-id}.md
 
-请产出简化版需求文档：
-- 受影响的功能
-- 修复后的验收标准（必须有可复现的测试用例）
-- 优先级判断
-- 是否需要同时修复关联问题
-
-写入 .claude/artifacts/requirements-{task-id}.md。
+请写入 .claude/artifacts/requirements-{task-id}.md。
 ```
+
+### 1.3 派遣 `requirements-reviewer`
+
+审查修复后的 requirements 是否可复现、可验证。
 
 ---
 
-## Phase 2: 架构与范围锁定
+## Phase 2: 修复方案与范围锁定
 
-### 2.1 派遣 architect
+### 2.1 派遣 `architect`
 
-```
-任务：为以下 bug 设计修复方案。
+简单 bug（单文件 ≤20 行、无高风险、根因明确）可跳过 `architect`，直接进入 `scope-planner`。否则派遣 `architect`：
+
+```text
+任务：为 bug 设计最小化修复方案。
 需求文档：.claude/artifacts/requirements-{task-id}.md
-Researcher 调研：{路径}
+研究报告：.claude/artifacts/repo-research-{task-id}.md
 
-请产出：
-- 根因分析（在 architecture-{task-id}.md 中）
-- 修复方案（最小化改动，不顺便重构）
-- scope-lock 文件（通常一个 bug 对应 1 个 scope-lock）
-
-特别重要：scope-lock 中必须要求先写一个**能复现 bug 的失败测试**，再修复代码让测试通过（TDD）。
+请写入 .claude/artifacts/architecture-{task-id}.md。
+要求明确：
+- 根因
+- 修复思路
+- 风险
+- 不变量
 ```
 
-### 2.2 审查（可选快速路径）
+### 2.2 派遣 `scope-planner`
 
-对于简单 bug（<=20 行改动），可以跳过 quality-guardian 的架构审查，直接进入实现。对于涉及安全、并发、数据完整性的 bug，**必须**审查。
+```text
+任务：基于 architecture 产出 bug 修复 scope-lock。
+若跳过 architect，则基于 requirements + repo-research 产出 scope-lock。
+特别要求：
+- 先写一个能复现 bug 的失败测试
+- 再修复代码让测试通过
+```
+
+### 2.3 审查架构与范围
+
+简单 bug（单文件 ≤20 行、无高风险）可跳过架构审查；否则派遣 `architecture-reviewer`。
 
 ---
 
 ## Phase 3: 实现
 
-### 3.1 派遣对应 implementer
+### 3.1 派遣 implementer
 
-根据 scope-lock 技术栈选择。注意 scope-lock 应包含 TDD 要求：
+根据 scope-lock 技术栈选择执行者：
 
-```
-任务：按 TDD 方式修复 bug。
-Scope Lock: .claude/artifacts/scope-lock-{task-id}-1.md
+- `frontend` → `implementer-frontend`
+- `backend` → `implementer-backend`
+- `mobile` → `implementer-mobile`
+- `miniprogram` → `miniprogram-dev`
+- `database` → `database-engineer`
+- `ml` → `ml-engineer`
 
+同一 Batch 内只有满足 `dispatch-table.md` 的 `S2` 条件才允许并发；bug 修复默认串行，除非 scope-lock 明确无依赖且白名单无交集。
+
+任务提示必须强调：
+
+```text
 步骤：
 1. 先编写能复现 bug 的失败测试
-2. 运行测试确认它失败（red）
+2. 运行确认失败（red）
 3. 最小改动修复代码
-4. 运行测试确认它通过（green）
-5. 运行完整测试套件确认无回归
+4. 运行确认通过（green）
+5. 跑相关回归测试
 ```
 
-### 3.2 代码审查
+### 3.2 派遣 `code-reviewer`
 
-派遣 quality-guardian 做 code-review，**特别关注**：
-- 是否真正修复了根因而不只是掩盖症状
-- 是否有回归风险（其他场景可能被影响）
-- 测试是否真的能复现原 bug
+重点检查：
+- 是否真的修复根因，而不只是掩盖症状
+- scope 是否越界
+- 回归测试是否真覆盖原 bug
+
+### 3.3 派遣 `security-auditor`（按需）
+
+如 bug 涉及认证、权限、输入验证、敏感数据、日志、配置、依赖，必须追加安全审计。
 
 ---
 
 ## Phase 4: 回归验证
 
-派遣 quality-guardian 做 functional-test：
-- 运行完整测试套件
-- 设计可能被影响的相关场景用例
-- 确认 bug 确实已消失
+### 4.1 派遣 `functional-tester`
+
+运行完整测试或关键回归测试，确认 bug 消失且没有引入新问题。
+
+### 4.2 派遣 `visual-tester`（仅 UI 可见 bug）
+
+若 bug 为可见界面缺陷、交互缺陷或状态渲染错误，则追加视觉验证。
+
+### 4.3 派遣 `test-lead`（发布前 / 里程碑 bug）
+
+若 bug 位于发布阻塞、客户验收、生产事故修复或安全敏感路径，必须派遣 `test-lead` 汇总裁决。
 
 ---
 
 ## Phase 5: 完成
 
-### 5.1 更新 changelog（如项目维护）
+### 5.1 提交
 
-在变更日志中记录此次修复，便于追踪。
-
-### 5.2 提交
-
-```
+```text
 fix({scope}): {短描述}
 
 {根因说明 + 修复方式}
 
-Fixes: {bug 报告/Issue ID，如有}
 Refs: .claude/artifacts/requirements-{task-id}.md
 ```
 
-### 5.3 向用户报告
+### 5.2 汇报
 
 ```markdown
-## Bug 已修复：{Bug 标题}
+## Bug 已修复：{标题}
 
 **Task ID**: {task-id}
 **根因**: {一句话}
 **修复方式**: {一句话}
-**添加的回归测试**: {N} 个
-
-### 变更摘要
-{列出修改的文件}
-
-### 潜在影响
-{可能被影响的相关场景，如已验证则说明}
+**回归测试**: {N} 个
+**安全审计**: ✓ / 不适用
+**视觉验证**: ✓ / 不适用
+**最终裁决**: ✓ / 不适用
 ```
-
----
-
-## 何时升级到 new-feature 流水线
-
-如果在 Phase 1 或 Phase 2 发现：
-- bug 根因涉及架构缺陷，修复会连带改动多个模块
-- 修复需要 >3 个 scope-lock
-- 需要 schema 变更
-
-则停止当前流水线，向用户建议"这不是简单 bug，建议以功能迭代方式处理"，并可运行 `/bcc-new-feature` 流水线。
-
-## 异常处理
-
-- **researcher 无法定位**：要求用户提供更多信息（重现步骤、日志、环境）
-- **bug 无法复现**：向 quality-guardian 明确说明，它会在功能测试中尝试构造复现
-- **修复引入回归**：退回到 Phase 3，要求 implementer 重新设计修复方案

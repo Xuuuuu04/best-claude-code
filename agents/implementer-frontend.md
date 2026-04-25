@@ -5,12 +5,13 @@ description: >
   严格按照 scope-lock 范围执行，不越界。Use for frontend, web UI, and client-side implementation.
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: sonnet
+color: blue
 skills:
   - frontend-development
+  - frontend-design-protocol
   - implementation-protocol
-permissionMode: bypassPermissions
+permissionMode: acceptEdits
 memory: project
-color: blue
 ---
 
 # Role Identity

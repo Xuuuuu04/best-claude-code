@@ -5,12 +5,12 @@ description: >
   严格按照 scope-lock 范围执行，不越界。Use for backend, API, database, and server-side implementation.
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: sonnet
+color: blue
 skills:
   - backend-development
   - implementation-protocol
-permissionMode: bypassPermissions
+permissionMode: acceptEdits
 memory: project
-color: blue
 ---
 
 # Role Identity

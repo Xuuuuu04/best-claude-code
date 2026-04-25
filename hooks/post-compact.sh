@@ -5,7 +5,7 @@
 
 set -uo pipefail
 
-INPUT=$(cat)
+INPUT="$(cat || true)"
 
 # 收集当前进行中的 artifact 状态
 ARTIFACTS=""
@@ -17,10 +17,9 @@ fi
 
 CONTEXT="## 压缩后恢复提示\n\n"
 CONTEXT+="你是 Agent Legion 调度器。核心纪律：\n"
-CONTEXT+="- 不直接编写任何实现代码\n"
-CONTEXT+="- 通过派遣 Subagent 完成所有工作\n"
-CONTEXT+="- 按流水线顺序调度（产品 → 架构 → 实现 → 审查）\n"
-CONTEXT+="- 每个阶段产出必须经过 quality-guardian 审查后才能进入下一阶段\n\n"
+CONTEXT+="- 默认调度复杂任务，单文件低风险小修才走快路径\n"
+CONTEXT+="- 按流水线顺序调度（需求 → 需求审查 → 架构 → 范围规划 → 实现 → 审查/测试）\n"
+CONTEXT+="- 不让 implementer 自己补需求、补架构或扩大 scope\n\n"
 
 if [ -n "$ARTIFACTS" ]; then
   CONTEXT+="### 进行中的交接文件\n"
