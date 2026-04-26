@@ -9,6 +9,7 @@ color: yellow
 effort: high
 skills:
   - code-review-protocol
+  - security-checklist
 memory: project
 permissionMode: default
 ---

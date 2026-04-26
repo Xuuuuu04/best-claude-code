@@ -8,6 +8,8 @@ model: opus
 color: purple
 skills:
   - ml-engineering
+  - implementation-protocol
+  - db-patterns
 memory: project
 permissionMode: acceptEdits
 ---

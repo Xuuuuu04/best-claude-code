@@ -9,6 +9,8 @@ color: blue
 skills:
   - backend-development
   - implementation-protocol
+  - security-checklist
+  - db-patterns
 permissionMode: acceptEdits
 memory: project
 ---

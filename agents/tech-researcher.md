@@ -7,9 +7,11 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash, WebFetch, WebSearch
 model: opus
 color: cyan
+skills:
+  - remote-diag-protocol
+  - mcp-builder-protocol
 memory: project
 permissionMode: default
-skills: remote-diag-protocol
 ---
 
 # Role Identity

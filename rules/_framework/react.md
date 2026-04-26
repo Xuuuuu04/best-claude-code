@@ -87,3 +87,202 @@ paths:
 ✗ `useState` 存可从 props 或其他 state 派生的值
 ✗ 过度使用 `useMemo` / `useCallback`（增加成本不增加收益）
 ✗ 在 render 中创建新对象/函数传给 memo 子组件（破坏 memo）
+
+---
+
+## 高频陷阱（含反例代码）
+
+### 陷阱 1：useEffect 闭包捕获旧值（stale closure）
+
+✗ 错误：定时器读到旧的 count
+```tsx
+function Counter() {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    const id = setInterval(() => {
+      setCount(count + 1)  // ❌ 始终读到 count=0，count 永远 = 1
+    }, 1000)
+    return () => clearInterval(id)
+  }, [])  // 空依赖 = 闭包冻结
+}
+```
+
+✓ 正确：用函数式更新
+```tsx
+useEffect(() => {
+  const id = setInterval(() => {
+    setCount(c => c + 1)  // 用最新 c
+  }, 1000)
+  return () => clearInterval(id)
+}, [])
+```
+
+### 陷阱 2：list key 用 index 导致输入丢失
+
+✗ 错误：
+```tsx
+{items.map((item, i) => (
+  <input key={i} defaultValue={item.name} />  // 删除中间项，所有 input 错位
+))}
+```
+
+✓ 正确：用稳定 ID
+```tsx
+{items.map(item => (
+  <input key={item.id} defaultValue={item.name} />
+))}
+```
+
+**判据**：`key={index}` 在动态列表（增删排序）中视为 Critical bug。仅静态列表（永不变化）允许。
+
+### 陷阱 3：useEffect 依赖错误导致死循环
+
+✗ 错误：
+```tsx
+useEffect(() => {
+  setData({ count: data.count + 1 })  // ❌ 改 data 触发 effect，effect 又改 data
+}, [data])
+```
+
+✓ 正确：识别真实依赖
+```tsx
+// 如果是事件触发，移到事件处理器
+function handleClick() {
+  setData({ count: data.count + 1 })
+}
+
+// 如果是初始化，effect 用空依赖 + ref 守卫
+const initialized = useRef(false)
+useEffect(() => {
+  if (initialized.current) return
+  initialized.current = true
+  setData({ count: 1 })
+}, [])
+```
+
+### 陷阱 4：在 render 中创建对象传给 memo 子组件
+
+✗ 错误：memo 失效
+```tsx
+function Parent() {
+  return <Child config={{ theme: 'dark' }} />
+  //              ^ 每次 render 新对象，Child memo 失效
+}
+const Child = React.memo(({ config }) => ...)
+```
+
+✓ 正确：稳定引用
+```tsx
+function Parent() {
+  const config = useMemo(() => ({ theme: 'dark' }), [])
+  return <Child config={config} />
+}
+```
+
+或更好：把 config 提出组件
+```tsx
+const CONFIG = { theme: 'dark' } as const
+function Parent() {
+  return <Child config={CONFIG} />
+}
+```
+
+### 陷阱 5：用 useEffect 做派生 state
+
+✗ 错误：
+```tsx
+function User({ firstName, lastName }) {
+  const [fullName, setFullName] = useState('')
+  useEffect(() => {
+    setFullName(`${firstName} ${lastName}`)  // ❌ 双次渲染 + 同步问题
+  }, [firstName, lastName])
+}
+```
+
+✓ 正确：直接计算
+```tsx
+function User({ firstName, lastName }) {
+  const fullName = `${firstName} ${lastName}`  // 派生值不需要 state
+}
+```
+
+### 陷阱 6：Context value 不稳定导致全树重渲
+
+✗ 错误：
+```tsx
+function App() {
+  const [user, setUser] = useState(null)
+  return (
+    <UserContext.Provider value={{ user, setUser }}>
+      {/* 每次 render 新对象，所有 consumer 重渲 */}
+    </UserContext.Provider>
+  )
+}
+```
+
+✓ 正确：
+```tsx
+function App() {
+  const [user, setUser] = useState(null)
+  const value = useMemo(() => ({ user, setUser }), [user])
+  return <UserContext.Provider value={value}>{...}</UserContext.Provider>
+}
+```
+
+### 陷阱 7：Strict Mode 下 effect 执行两次时假设单次
+
+✗ 错误：
+```tsx
+useEffect(() => {
+  socket.connect()  // ❌ Strict Mode 下连接 2 次，可能撞限流
+}, [])
+```
+
+✓ 正确：cleanup 必须配对
+```tsx
+useEffect(() => {
+  socket.connect()
+  return () => socket.disconnect()  // 第二次连接前先断开
+}, [])
+```
+
+### 陷阱 8：在 setState 之后立即读 state（异步陷阱）
+
+✗ 错误：
+```tsx
+const [count, setCount] = useState(0)
+function handleClick() {
+  setCount(1)
+  console.log(count)  // ❌ 仍然是 0，state 更新是异步的
+}
+```
+
+✓ 正确：用本地变量或 useEffect 响应
+```tsx
+function handleClick() {
+  const newCount = 1
+  setCount(newCount)
+  console.log(newCount)  // 用本地值
+  // 或用 useEffect([count]) 响应 state 变化
+}
+```
+
+---
+
+## 决策树：什么时候不用 useEffect
+
+```
+我想要副作用？
+├─ 它是响应用户交互的吗？
+│   └─ ✅ 用事件处理器，不用 useEffect
+├─ 它是计算派生值吗？
+│   └─ ✅ 直接在 render 中计算，不用 state + useEffect
+├─ 它是数据获取吗？
+│   └─ ✅ 用 TanStack Query / SWR，不手动 useEffect + fetch
+├─ 它是同步到外部系统（DOM API、订阅、定时器）吗？
+│   └─ ✅ 这是 useEffect 的正确用法
+└─ 它是初始化全局状态吗？
+    └─ ⚠️ 考虑外部状态库（Zustand / Jotai）而非 useEffect
+```
+
+参考：[You Might Not Need an Effect](https://react.dev/learn/you-might-not-need-an-effect)
