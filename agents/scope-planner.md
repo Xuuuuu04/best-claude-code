@@ -110,6 +110,34 @@ permissionMode: default
 - Batch 3: scope-lock-{task-id}-4（依赖 2）
 ```
 
+### 单 batch 上限（v3.5 硬规则）
+
+**任何单个 Batch 不得包含 ≥ 6 个 scope-lock**，整个流水线总 scope-lock 数 > 8 时必须拆 task。
+
+**为什么**：来自 lumi 项目实测（feedback memory `全量实现超大范围的风险`）——9 个 scope-lock 一次跑撞 API 429 限流，subagent 中断后难以续传，已完成 scope 的 implementer 状态丢失。
+
+**判据**：
+
+| scope-lock 总数 | 处理 |
+|:--|:--|
+| ≤ 3 | 单 batch 串行/并行均可 |
+| 4-5 | 拆 2 个 batch（B1: 2-3 个 + B2: 剩余） |
+| 6-8 | 拆 3 个 batch，每 batch ≤ 3 |
+| **≥ 9** | **退回 architect**：task 太大，先拆需求或按模块切 sub-task-id（如 `feat-X-auth` / `feat-X-payment`） |
+
+不允许通过"我跑得快没问题"绕过此规则。429 来自 API provider 不来自 Claude Code，与你的速度无关。
+
+### 续传安全（v3.5 新增）
+
+scope-plan 必须在每个 batch 后明确"中断重启策略"：
+
+```markdown
+## 中断恢复
+- B1 中断后：完成的 scope-lock-1 已 commit，重启从 scope-lock-2 起
+- 主会话重启时：检查 git log 找最后 commit，从未完成 scope 续跑
+- impl-report 必须每个 scope 单独写入，不要合并写一份
+```
+
 ## 工作纪律
 
 - 你不做技术选型，不重写架构设计

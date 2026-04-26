@@ -112,6 +112,89 @@ when_to_use: 仅当 devops Agent 处理构建 / 部署 / CI/CD 配置 / 发布 /
 
 ---
 
+## 文件传输完整性（v3.5 新增 — 来自眼科项目实测）
+
+**触发条件**：scp / rsync / sftp 任何文件传输到远端服务器，**必须**校验完整性。
+
+来自眼科项目 feedback `deploy-md5-check`：曾因 scp 静默截断导致部署的 jar 损坏，后端服务起不来，排查多个小时才定位到是文件不完整。
+
+### 必须做（不是可选）
+
+```bash
+# Step 1: 上传前算本地 md5
+LOCAL_MD5=$(md5sum dist/app.jar | awk '{print $1}')
+
+# Step 2: scp 上传
+scp dist/app.jar user@host:/path/to/
+
+# Step 3: 远端算 md5（关键！）
+REMOTE_MD5=$(ssh user@host "md5sum /path/to/app.jar | awk '{print \$1}'")
+
+# Step 4: 对比
+if [ "$LOCAL_MD5" != "$REMOTE_MD5" ]; then
+  echo "FATAL: file corrupted during transfer"
+  echo "  local : $LOCAL_MD5"
+  echo "  remote: $REMOTE_MD5"
+  exit 1
+fi
+
+echo "OK: md5 match $LOCAL_MD5"
+# Step 5: 才允许重启服务
+ssh user@host "systemctl restart app"
+```
+
+### 反例（实战发生过）
+
+```bash
+# ❌ 错误：直接 scp + restart，没校验
+scp dist/app.jar user@host:/path/
+ssh user@host "systemctl restart app"
+# 结果：jar 在传输中被静默截断（网络波动 / 磁盘满 / 权限问题）
+# 现象：服务重启后 ClassNotFoundException 但代码明明没改
+```
+
+### 适用范围
+
+| 场景 | 必须校验 |
+|:--|:--|
+| jar / war / 二进制可执行 | ✅ |
+| docker image 上传 | docker pull 自带校验 ✅ |
+| 大文件（> 10MB） | ✅ |
+| 配置文件（.env / .yaml） | ✅ 建议（容易被传到一半） |
+| 静态资源 zip / tar | ✅ |
+
+**判据**：devops 在交付任何"上传 + 重启"流程时，**没 md5 校验视为 Critical**。
+
+---
+
+## 双产物 / 多端同步编译（v3.5 新增 — 来自眼科项目）
+
+**触发条件**：项目同时输出多个产物（如 uni-app 同时 H5 + mp-weixin、Tauri 同时 desktop + mobile、Next.js 同时 SSR + static）。
+
+来自眼科项目 feedback `compile-both`：每次修改必须**同时**编译所有产物，因为：
+
+```bash
+# ❌ 错误：只编译一个就推
+npm run build:h5
+git push  # mp-weixin 可能因平台特性差异编译失败
+
+# ✅ 正确：双产物都通过才推
+npm run build:h5 && npm run build:mp-weixin
+# 或并行
+npm run build:h5 & npm run build:mp-weixin & wait
+git push
+```
+
+### 平台特性差异（uni-app 实例）
+
+- H5 支持 `localStorage`，小程序需用 `uni.setStorage`
+- H5 CSS 支持 `position: fixed`，小程序部分场景受限
+- H5 用 `<input type="password">`，小程序需 `password` 布尔属性（已固化到 `rules/_framework/wechat-mp.md`）
+
+**判据**：双产物项目的 PR 必须证明所有产物编译通过，不接受"H5 build 通过所以 mp 也行"的假设。
+
+---
+
 ## 版本管理
 
 ### SemVer

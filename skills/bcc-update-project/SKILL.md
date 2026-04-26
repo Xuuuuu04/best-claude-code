@@ -41,11 +41,42 @@ disable-model-invocation: true
 - 现有 project-knowledge 中已过时的内容
 ```
 
+## Phase 1.5：CLAUDE.md ↔ 代码一致性扫描（v3.5 必走）
+
+来自漫展项目实测（memory `platform-header-default-mismatch`）——CLAUDE.md 写"X-Platform 默认 'web'"但代码 `request.ts:68` 实际是 `'applet'`，文档与代码不一致后续 Agent 全部被误导。
+
+派遣 `repo-researcher` 做对账扫描：
+
+```text
+任务：CLAUDE.md ↔ 代码一致性核查。
+
+读取项目根 CLAUDE.md 和所有 `.claude/CLAUDE.md` / `.claude/skills/project-knowledge/SKILL.md`。
+对其中每条**具体技术声明**做反查：
+
+要核对的声明类型（不限于）：
+1. 默认值声明（"X-Platform 默认 'web'"）→ grep 实际配置文件
+2. 端口声明（"开发端口 3000"）→ 查 vite.config / package.json scripts
+3. 路径声明（"API 在 src/api/"）→ ls 验证
+4. 命令声明（"npm run dev 启动"）→ 查 package.json scripts
+5. 字段声明（"用户表有 status 字段"）→ grep schema.prisma 或 migrations
+6. 依赖声明（"用 Zod 校验"）→ grep package.json dependencies
+
+对每条不一致写入：
+- CLAUDE.md 第 N 行原文
+- 实际代码 file:line
+- 严重程度（误导级 / 轻微）
+
+写入 .claude/artifacts/update-consistency-{YYYYMMDD}.md。
+```
+
+**判据**：发现 ≥1 条"误导级"不一致 → bcc-update-project 必修 CLAUDE.md，**禁止**只做新增不做修正。
+
 ## Phase 2: 生成更新
 
-基于 `update-analysis.md` 更新：
+基于 `update-analysis.md` + `update-consistency-*.md` 更新：
 - 项目级 `.claude/skills/project-knowledge/SKILL.md`
 - 根 `CLAUDE.md`（只更新精练索引，不写详细 API）
+- **修正所有"误导级"不一致**（这是必做项，不是 nice-to-have）
 
 ## Phase 3: 审查
 
@@ -55,8 +86,9 @@ disable-model-invocation: true
 任务：审查更新后的 CLAUDE.md 与 project-knowledge。
 重点：
 - CLAUDE.md 是否仍 <200 行
-- 信息是否与实际项目一致
+- 信息是否与实际项目一致（对照 update-consistency 报告复核）
 - 是否遗漏重大变化
+- **修正后是否解决了所有"误导级"不一致**
 ```
 
 ## Phase 4: 汇报

@@ -302,3 +302,83 @@ function isCompletedInList(order: OrderListItem) {
 ```
 
 无证据的枚举判断 = Critical，退回 implementer 重做。
+
+#### 反例：阈值判断的"中间态"陷阱（v3.5 新增）
+
+来自漫展项目实测：`orderStatus >= 2` 漏掉 `status=1`「待发放」中间态，导致用户刚付完款立即点「已完成支付」时被错判未支付。
+
+```typescript
+// ❌ 错误：直觉认为 "已支付" = status >= 2
+if (order.orderStatus >= 2) {
+  showPaidUI()
+}
+
+// 真实定义（@shared/constants/enums.js）：
+//   0 = 待支付
+//   1 = 待发放（**支付到账后、票券生成中的中间态**）  ← 容易漏
+//   2 = 已发放
+//   3 = 已完成
+//   4/5/6 = 取消/退款
+```
+
+```typescript
+// ✅ 正确：精确包含中间态
+if (order.orderStatus !== ORDER_STATUS.PENDING_PAYMENT) {
+  showPaidUI()
+}
+// 或语义化辅助函数
+function isOrderPaid(s: number) { return s >= ORDER_STATUS.PROCESSING; }  // >=1
+```
+
+**判据**：状态机字段判断的边界（`>=` / `>` / `!==`）必须基于完整状态枚举表，不能凭直觉。
+
+#### 反例：同名字段跨 endpoint 类型不同（v3.5 实测案例）
+
+漫展项目真实情况——`payType` 在不同 API 取值类型与含义都不同：
+
+| 出处 | 类型 | 取值 |
+|:--|:--|:--|
+| `payOrder` 响应 | `int` | `1=微信`, `2=聚合（微信+支付宝）` |
+| 订单详情 `PAY_TYPE` | `string` | `'0'=支付宝`, `'2'=微信支付` |
+| 前端 QR 弹窗 `payQRType` | `int` | `1=仅微信`, `2=双通道` |
+
+```typescript
+// ❌ 错误：implementer 看到 payType 复用之前的判断
+if (orderDetail.payType === 1) {  // 这是订单详情，1 不存在！(只有 '0'/'2')
+  // 永远不进
+}
+
+// ✅ 正确：每个调用点独立查 OAS
+import { PAY_TYPE_DETAIL } from '@/types/order-detail'  // string union
+import { PAY_TYPE_ORDER } from '@/types/pay-order'       // int enum
+
+if (orderDetail.payType === PAY_TYPE_DETAIL.WECHAT) { ... }   // '2'
+if (payOrderRes.payType === PAY_TYPE_ORDER.WECHAT) { ... }    // 1
+```
+
+**判据**：跨 endpoint 复用同名字段 = Critical。每个 endpoint 的字段都是独立类型空间。
+
+---
+
+## 用户态信号（v3.5 新增 — 客户压力下的强制门控）
+
+**触发条件**：用户对话中出现以下任一信号，立即升级为强制完整门控（无论 hook 标什么 tier）：
+
+| 信号词 | 含义 |
+|:--|:--|
+| "返工"、"反复修"、"又错了" | 累积失败 — 客户耐心耗尽 |
+| "客户不满"、"客户怒了"、"客户多次反馈" | 客户态恶化 |
+| "低级错误"、"这种 bug"、"又犯" | 已被识别为 implementer 失误 |
+| "终极摸排"、"全面审查"、"逐一核对" | 用户已要求最高严肃度 |
+
+**强制规则**：
+
+1. 改动节奏放慢——禁止一次完成多文件，必经 scope-planner 拆 ≤3 个 scope-lock
+2. **强制走完整门控**：product-analyst → architect → scope-planner → implementer → code-reviewer + security-auditor + functional-tester
+3. **禁止 implementer 自报通过**——code-reviewer 不点头不允许 commit
+4. **接口字段对账升级为 mandatory**（无论是否枚举判断），先 grep 所有相关字段
+5. **每个 commit message 必须含**："已通过 code-reviewer 审查"
+
+**为什么 mandatory**：来自漫展项目 feedback `client-rework-fatigue-state` + `never-skip-code-review-medium`。客户因 implementer 长上下文写出"字段方向反"等低级 bug 反复返工到不满意状态。implementer 无 review 直接推 = 让客户当 reviewer。
+
+**code-reviewer 不可省略的硬规则**：medium 及以上档位（多文件 / 跨模块 / 接口字段判断 / 状态机判断），即使 implementer 自己说"build 通过"也**不算合规**，必须经 code-reviewer。
