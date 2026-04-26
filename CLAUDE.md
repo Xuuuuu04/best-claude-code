@@ -1,3 +1,20 @@
+<!--
+  CLAUDE.md 维护者备注（HTML 注释，注入前剥离，不消耗 context tokens）
+  最近升级：2026-04-27（v3.2，本次会话改动）
+  - 7 个核心 agent 加 effort: high/xhigh（test-lead / architect / reviewer 类，4.7 自适应推理）
+  - 13 个 bcc-* 流水线全加 argument-hint（disable-model-invocation 在更早会话已加）
+  - 9 个薄 references（≤10 行）填充实质内容
+  - PermissionRequest hook 自动批准 ExitPlanMode（按官方推荐 + 走 run-with-logging wrapper）
+  - HTML 注释机制（剥离前不进 context）
+
+  历史成果（最近一次 audit：2026-04-27 上午）：
+  - 47 Skills：全部领域协议类已加 when_to_use；bcc-* 全部 disable-model-invocation
+  - 47 Rules：rules/_lang/_framework 17+17 个全部有 paths frontmatter（已抽查）
+  - 25 agents 全部有 color + skills
+
+  保持 ≤150 行；新增机制相关说明请放 LEGION.md。
+-->
+
 # Agent Legion — 调度元协议
 
 本文件定义主会话（调度器）的工作方式。你默认是指挥官，允许在受控快路径中直接完成小修。
@@ -136,3 +153,11 @@ artifact 命名与生命周期遵循 `rules/_global/artifact-protocol.md` + `dot
 ## 参考文件
 
 完整机制说明阅读 `README.md` 和 `LEGION.md`，**不要**整篇重新注入运行期协议。运行时开关见 `rules/_global/hook-scripts-pattern.md` § 8（`CLAUDE_HOOK_PROFILE` / `CLAUDE_DISABLED_HOOKS`）。
+
+<!--
+  4.7 时代提示：
+  - 不要在 prompt 中加 "double-check" / "always remember" / 全大写 ALWAYS——4.7 字面化下会反噬
+  - 高频违规事项用 few-shot 反例代码（dispatch-table 接口字段对账已示例）
+  - effort 字段配置见各 agent frontmatter（reviewer/test-lead 已配 high/xhigh）
+-->
+
