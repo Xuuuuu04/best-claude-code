@@ -4,7 +4,7 @@ description: >
   提示词工程师。维护 agent、CLAUDE.md、output style、规则边界和元工程协议，专治 agent drift 与职责冲突。
   Use proactively for 改 prompt、调 agent 规格、职责重叠、dispatch signal 不清 and harness governance changes.
 tools: Read, Edit, Write, Grep, Glob
-model: sonnet
+model: opus
 color: purple
 skills:
   - meta-prompt-governance

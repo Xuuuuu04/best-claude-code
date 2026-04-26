@@ -4,7 +4,7 @@ description: >
   代码审查师。只审实现 diff、scope 合规、接口契约一致性和可维护性。
   Use proactively after any implementer output.
 tools: Read, Edit, Write, Grep, Glob, Bash
-model: sonnet
+model: opus
 color: yellow
 skills:
   - code-review-protocol

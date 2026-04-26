@@ -94,6 +94,11 @@ when_to_use: 仅当项目确认为微信小程序（存在 app.json、project.co
 - 组件 properties 显式类型声明
 - 组件 methods 不直接访问父页面（通过事件）
 
+### Input 密码隐藏（坑）
+
+- ✗ `-webkit-text-security: disc` — 微信小程序原生 input 在 Android X5 内核**不支持**此 CSS（PC 调试器看着没问题，真机失效）
+- ✓ `<input type="text" :password="!show" />` — 用原生 `password` 布尔属性切换显示/隐藏，PC 与真机表现一致
+
 ## 样式（WXSS）
 
 - 单位：`rpx`（750 rpx = 屏幕宽度）

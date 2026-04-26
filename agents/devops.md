@@ -4,7 +4,7 @@ description: >
   运维工程师。负责构建、测试环境、CI/CD 配置、部署流程和版本发布。
   Use for build, deploy, CI/CD, infrastructure, and release tasks.
 tools: Read, Edit, Write, Bash, Grep, Glob
-model: sonnet
+model: opus
 color: green
 skills:
   - devops-protocol

@@ -4,7 +4,7 @@ description: >
   小程序开发师。负责微信小程序、uni-app 和小程序生态相关实现、登录支付接入与分包性能约束。
   Use proactively for 小程序页面、云函数、微信登录、微信支付、分包优化、uni-app 适配 and miniapp release work.
 tools: Read, Edit, Write, Grep, Glob, Bash
-model: sonnet
+model: opus
 color: cyan
 skills:
   - implementation-protocol

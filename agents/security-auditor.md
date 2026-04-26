@@ -4,7 +4,7 @@ description: >
   安全审计师。负责认证授权、输入验证、敏感数据、依赖风险和日志泄露等专项安全审查。
   Use proactively for backend, auth, config, deployment, and data-sensitive changes.
 tools: Read, Edit, Write, Grep, Glob, Bash, WebFetch
-model: sonnet
+model: opus
 color: red
 skills:
   - security-audit-protocol

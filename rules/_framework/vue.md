@@ -77,6 +77,34 @@ Props 默认值：`withDefaults(defineProps<...>(), { showEmail: false })`
 - 不推荐在组件内写全局样式
 - 支持 CSS 预处理器（`<style lang="scss">`）
 
+### Scoped CSS 重复声明陷阱（高频 bug）
+
+scoped 编译后所有选择器都加 `.cls.data-v-xxx` 后缀。**同一选择器在 `<style>` 内声明多次时后者完全覆盖前者**（不是 cascade 增强，是等价覆盖）。
+
+✗ 错误：
+```vue
+<style scoped>
+.menu-item { padding: 28rpx 32rpx; }
+/* ... 100 行后 ... */
+.panel-menu { ... }
+.menu-item { padding: 28rpx 0; }  /* 后声明覆盖前面，主菜单 padding 实际 = 0 */
+</style>
+```
+
+✓ 正确：用后代选择器或独立类名限定作用域：
+```vue
+<style scoped>
+.menu-item { padding: 28rpx 32rpx; }
+.panel-menu .menu-item { padding: 28rpx 0; }
+</style>
+```
+
+**改 `.vue` 文件 CSS 前必做**：
+```bash
+grep -nE '^\s*\.{className}\s*\{' file.vue
+```
+确认目标类只声明一次。客户报告"我改了但没变化"时，**第一反应排查 CSS 覆盖**，而不是缓存或编译问题。
+
 ## 性能
 
 - `v-memo` 缓存渲染
@@ -97,3 +125,4 @@ Props 默认值：`withDefaults(defineProps<...>(), { showEmail: false })`
 ✗ 直接修改 props（破坏单向数据流）
 ✗ 过度使用 `provide/inject` 替代 props
 ✗ 在 template 中调用昂贵方法（用 computed）
+✗ 动态切换 `<input :type>` 不加 `:key`：input 已有值时浏览器可能不重新渲染，密码可见性切换无效。修复：`<input :type="show ? 'text' : 'password'" :key="show">` 强制重建 DOM。

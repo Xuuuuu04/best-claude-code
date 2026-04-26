@@ -4,7 +4,7 @@ description: >
   需求审查师。只审 requirements artifact 的完整性、可测性、边界与风险。
   Use proactively after product-analyst outputs requirements.
 tools: Read, Edit, Write, Grep, Glob, Bash
-model: sonnet
+model: opus
 color: orange
 skills:
   - requirements-review-protocol

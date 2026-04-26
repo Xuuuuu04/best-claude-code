@@ -79,6 +79,18 @@
 - **可读**：历史对未来的你和队友有意义
 - **可搜索**：commit message 包含关键词便于 `git log --grep`
 
+## Push 前门控（强制）
+
+`git push` 前**必须**：
+
+- 本地编译通过（如 `npm run build` / `cargo build` / `go build` 项目对应命令）
+- 类型检查通过（如 `npm run type-check` / `tsc --noEmit` / `mypy`）
+- Lint 通过（如 `npm run lint` / `eslint .` / `ruff`）
+
+**禁止**："改完直接 push 让 CI 当编译器"。CI 失败会污染 commit 历史、阻塞团队，且让客户在测试环境看到 broken build。
+
+**双产物项目**（如 uni-app 同时输出 H5 + mp-weixin）：每个产物都要单独编译验证，不能只跑其中一个就推。
+
 ---
 
 ## 禁止操作
