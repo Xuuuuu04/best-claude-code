@@ -289,7 +289,8 @@ if [ -r "$TIER_LOG" ] && command -v jq >/dev/null 2>&1; then
       unclear)  C_TIER="\033[38;2;248;113;113m"; ICO_TIER="?"  ;;  # red
       *)        C_TIER="\033[38;2;148;163;184m"; ICO_TIER="·" ;;
     esac
-    TIER_SEG="${C_TOKEN}调度${RESET} ${C_TIER}${ICO_TIER} ${TIER}${RESET}"
+    # v3.4：明示这是 hook 参考分类（非 AI 实际决策档位），用 ITALIC + "提示" 标签
+    TIER_SEG="${C_TOKEN}提示${RESET} ${ITALIC}${C_TIER}${ICO_TIER} ${TIER}${RESET}"
   fi
 fi
 
