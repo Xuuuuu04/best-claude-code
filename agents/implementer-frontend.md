@@ -4,9 +4,9 @@ description: >
   前端开发工程师。在架构设计和 scope-lock 完成后使用，负责前端/客户端代码实现。
   严格按照 scope-lock 范围执行，不越界。Use for frontend, web UI, and client-side implementation.
 tools: Read, Edit, Write, Bash, Grep, Glob
-model: opus
+model: sonnet
 color: blue
-effort: medium
+effort: high
 isolation: worktree
 maxTurns: 150
 skills:

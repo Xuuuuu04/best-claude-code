@@ -4,7 +4,7 @@ description: >
   项目管理师。负责复杂任务的状态机、下一跳调度、阻塞升级与返工治理。
   Use proactively for "下一步"、多阶段任务、路由不明、连续返工和需要用户拍板的复杂场景。
 tools: Read, Edit, Write, Grep, Glob, Bash
-model: opus
+model: sonnet
 color: orange
 effort: medium
 maxTurns: 80

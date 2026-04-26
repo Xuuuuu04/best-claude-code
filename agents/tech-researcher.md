@@ -5,9 +5,9 @@ description: >
   以及远程/云端只读诊断（生产日志、部署状态、云函数、CI/CD 状态）。
   Use proactively for external research, technology comparisons, and remote/cloud read-only diagnosis.
 tools: Read, Edit, Write, Grep, Glob, Bash, WebFetch, WebSearch
-model: opus
+model: sonnet
 color: cyan
-effort: low
+effort: medium
 maxTurns: 100
 skills:
   - remote-diag-protocol

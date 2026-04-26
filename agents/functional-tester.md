@@ -4,7 +4,7 @@ description: >
   功能测试师。负责验收标准验证、边界场景、回归测试和端到端用户路径验证。
   Use proactively before release or task completion.
 tools: Read, Edit, Write, Grep, Glob, Bash
-model: opus
+model: sonnet
 color: green
 effort: medium
 maxTurns: 120
