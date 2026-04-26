@@ -1,9 +1,19 @@
 ---
 name: security-audit-protocol
-description: 安全审计协议。为 security-auditor 提供专项安全审查步骤与结论模板。
+description: 安全审计协议（流程总纲）。为 security-auditor 提供专项审查步骤、证据收集和 verdict 模板。聚焦"如何做安全审查"，与 security-checklist（OWASP 检查细则）配合使用。
+when_to_use: 仅当 security-auditor Agent 在执行专项安全审查（认证 / 授权 / 输入验证 / 敏感数据 / 依赖风险 / 日志泄露）时加载。code-reviewer 一般审查 / functional-tester 不应触发。
 ---
 
-# 安全审计协议
+# 安全审计协议（流程总纲）
+
+## 与 security-checklist 的分工
+
+| 文件 | 职责 | 何时用 |
+|:--|:--|:--|
+| **security-audit-protocol（本文件）** | **流程总纲**：审查步骤、证据收集、verdict 模板、Critical 阻断规则 | security-auditor 主流程 |
+| **security-checklist** | **检查细则**：OWASP Top 10 具体漏洞模式、注入/XSS/CSRF 反例代码 | 本协议每步深入时引用 |
+
+调用顺序：先按本协议的步骤推进，遇到具体漏洞类型时跳到 security-checklist 对应章节查细则。
 
 ## 目标
 

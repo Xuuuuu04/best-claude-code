@@ -204,8 +204,101 @@ Batch {n} 回收：{完成数}/{总数}
 |:--|:--|
 | `trivial` | 主会话直接答 |
 | `small` | 快路径 / 单 implementer；code-reviewer 建议但非强制 |
-| `medium` | product-analyst → implementer → **code-reviewer 必经** |
+| `medium` | product-analyst → implementer → **code-reviewer 必经** + **接口字段对账必经**（见下） |
 | `large` | 完整流水线 + 全门控 |
 | `unclear` | 已被 `clarification-gate` 拦截或追问，禁止假设推进 |
 
 `[REVIEW-PENDING]` 标记出现时：本会话有未 review 的 implementer 改动，medium/large 档必须派 code-reviewer 或经用户明确跳过。
+
+## 接口字段对账（medium 及以上 mandatory）
+
+**触发条件**：任务涉及前端调用后端 endpoint、判断接口枚举字段（payType / orderStatus / status 等）、或新增/修改 API 调用。
+
+**强制步骤**（任一缺失视为流水线违规）：
+
+1. implementer 写代码前，**先 grep 项目内已上线 work 的同字段使用点**：
+   ```bash
+   grep -rn "{fieldName}" --include="*.vue" --include="*.ts" --include="*.js"
+   ```
+2. 找到 `shared/constants/enums.js` / 类似字典文件 / OAS 真值表，**对照确认枚举方向与类型**
+3. 当心"同名不同义"：同一字段在不同 endpoint/上下文取值可能不同（int vs string、不同语义集合）
+4. code-reviewer 审查时，**枚举判断必须有参考代码或 OAS 真值证据**，凭直觉的 `=== 1`、`=== '2'` 视为可疑
+
+**为什么 mandatory**：本协议增加是因为客户因接口字段方向反、字段缺漏类 bug 反复返工到不满意状态（feedback memory `enum-field-direction-cross-check`）。这是已知低级错误，必须用机制堵住。
+
+### Few-shot：错误 vs 正确
+
+#### 反例：凭直觉判断 payType（最常见返工根因）
+
+```typescript
+// ❌ 错误：implementer 凭直觉假设 1=微信 2=支付宝
+if (order.payType === 1) {
+  showWechatIcon();
+} else if (order.payType === 2) {
+  showAlipayIcon();
+}
+```
+
+**为什么错**：
+- 同一 `payType` 字段在不同 endpoint 取值可能不同
+- 没有看 OAS/字典文件就假设方向
+- code-reviewer 看到 `=== 1` `=== 2` 没有引用应判 Critical
+
+#### 正例：先对账，再实现
+
+```typescript
+// ✅ 步骤 1：grep 已上线代码
+// $ grep -rn "payType" --include="*.vue" --include="*.ts"
+// → src/shared/constants/payType.js:3
+//
+// 步骤 2：读字典
+// export const PAY_TYPE = {
+//   ALIPAY: 1,        // 注意：支付宝是 1，不是 2
+//   WECHAT: 2,
+//   APPLE_PAY: 3,
+// } as const;
+//
+// 步骤 3：引用常量，不用 magic number
+
+import { PAY_TYPE } from '@/shared/constants/payType';
+
+if (order.payType === PAY_TYPE.WECHAT) {
+  showWechatIcon();
+} else if (order.payType === PAY_TYPE.ALIPAY) {
+  showAlipayIcon();
+}
+```
+
+#### 反例：同名不同义陷阱
+
+```typescript
+// ❌ 错误：在 /order/detail 和 /order/list 共用 status 判断
+function isCompleted(order) {
+  return order.status === 3;  // 危险：两个 endpoint 的 3 含义不同
+}
+```
+
+```typescript
+// ✅ 正确：明确 endpoint 上下文
+import { ORDER_DETAIL_STATUS, ORDER_LIST_STATUS } from '@/types/order';
+
+function isCompletedInDetail(order: OrderDetailResponse) {
+  return order.status === ORDER_DETAIL_STATUS.COMPLETED;
+}
+function isCompletedInList(order: OrderListItem) {
+  return order.status === ORDER_LIST_STATUS.DONE;  // list 用的是 'DONE' 不是 'COMPLETED'
+}
+```
+
+#### code-reviewer 审查模板
+
+```markdown
+## 接口字段对账审查
+
+| 字段 | 用法 | 引用证据 | 判定 |
+|:--|:--|:--|:--|
+| order.payType | === PAY_TYPE.WECHAT | shared/constants/payType.js:3 | ✅ |
+| order.status | === 3 | （无引用） | ❌ Critical：magic number 无证据 |
+```
+
+无证据的枚举判断 = Critical，退回 implementer 重做。
