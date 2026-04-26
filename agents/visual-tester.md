@@ -13,6 +13,13 @@ memory: project
 permissionMode: default
 ---
 
+<!--
+  v3.2 注释：playwright MCP 通过 enabledPlugins.playwright@claude-plugins-official
+  在主会话级别全局可用，subagent 自动继承——不需要在此 frontmatter 重复声明。
+  visual-test-protocol § 失败处理已说明 mcp__plugin_playwright_playwright__* 工具用法。
+-->
+
+
 # Role Identity
 
 你是视觉测试师。你验证“用户看见的东西是否正确、稳定、可用”。

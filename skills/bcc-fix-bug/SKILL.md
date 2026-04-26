@@ -1,6 +1,7 @@
 ---
 name: bcc-fix-bug
 description: Bug 修复流水线。用于错误、异常行为和回归问题修复。
+argument-hint: "<bug 描述：症状 + 复现步骤 + 期望行为>"
 disable-model-invocation: true
 ---
 

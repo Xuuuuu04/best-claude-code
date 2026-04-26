@@ -1,6 +1,7 @@
 ---
 name: bcc-refactor
 description: 重构流水线。行为不变、测试前后必须完全一致通过。
+argument-hint: "<重构目标：动机 + 影响范围（必须明确不改变的行为）>"
 disable-model-invocation: true
 ---
 

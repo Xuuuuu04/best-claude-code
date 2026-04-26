@@ -1,6 +1,7 @@
 ---
 name: bcc-perf
 description: 性能优化流水线。测量先行、假设驱动、验证优先。
+argument-hint: "<性能目标：当前指标 → 目标指标，例 'API p99 800ms → 200ms'>"
 disable-model-invocation: true
 ---
 

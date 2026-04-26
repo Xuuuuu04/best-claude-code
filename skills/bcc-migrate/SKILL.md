@@ -1,6 +1,7 @@
 ---
 name: bcc-migrate
 description: 迁移流水线。适用于 schema 变更、框架/库大版本升级和大型数据迁移。
+argument-hint: "<迁移目标：schema 改动 | 框架升级 | 数据迁移 + 影响面>"
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,7 @@
 ---
 name: bcc-quick-fix
 description: 轻量级快速修复流水线。用于 <20 行、单文件、无架构影响的小改动——typo、注释笔误、显然的单点 bug、小样式调整。默认由主会话直接完成，必要时再派遣 implementer。
+argument-hint: "<具体小修描述：文件 + 改动 + 一句话理由>"
 disable-model-invocation: true
 ---
 

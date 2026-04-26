@@ -6,6 +6,7 @@ description: >
 tools: Read, Edit, Write, Grep, Glob
 model: opus
 color: red
+effort: xhigh
 skills:
   - quality-verdict
 memory: project

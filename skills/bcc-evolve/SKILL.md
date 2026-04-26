@@ -1,6 +1,7 @@
 ---
 name: bcc-evolve
 description: 系统进化引擎。分析 Auto Memory 和 Agent Memory，将经验固化为 Rules、Skills 或 Agent 改进。
+argument-hint: "[focus?: rules | skills | agents | hooks]"
 disable-model-invocation: true
 ---
 

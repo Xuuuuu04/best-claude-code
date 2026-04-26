@@ -1,6 +1,7 @@
 ---
 name: bcc-update-project
 description: 扫描代码库当前状态，更新项目级 CLAUDE.md 索引和 project-knowledge Skill。
+argument-hint: "[focus?: structure | dependencies | conventions]"
 disable-model-invocation: true
 ---
 

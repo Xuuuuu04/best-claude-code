@@ -1,6 +1,7 @@
 ---
 name: bcc-reflect
 description: 当前会话学习总结。在重要工作会话结束时手动触发，将值得记忆的发现写入 Auto Memory。
+argument-hint: "[focus-topic?: bug-pattern | architecture-decision | tooling-tip]"
 disable-model-invocation: true
 ---
 

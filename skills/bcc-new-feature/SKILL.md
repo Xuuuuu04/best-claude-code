@@ -1,6 +1,7 @@
 ---
 name: bcc-new-feature
 description: 完整的新功能开发流水线，从需求分析到代码提交。适用于新功能、新页面、新接口和新模块。
+argument-hint: "<功能描述：用户故事 + 验收标准 + 关键约束>"
 disable-model-invocation: true
 ---
 

@@ -6,6 +6,7 @@ description: >
 tools: Read, Edit, Write, Grep, Glob
 model: opus
 color: purple
+effort: high
 skills:
   - meta-prompt-governance
   - agent-guardrails-protocol

@@ -1,6 +1,7 @@
 ---
 name: bcc-doctor
 description: Agent Legion 系统健康检查。扫描配置合法性、hook 可执行性、Agent/Skill/Rule 一致性、Memory 容量、artifact 堆积、日志大小、近期错误。建议每周跑一次。
+argument-hint: "[--strict | --quick | <section?>]"
 disable-model-invocation: true
 ---
 

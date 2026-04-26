@@ -6,6 +6,7 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash, WebFetch, WebSearch
 model: opus
 color: purple
+effort: high
 skills:
   - architecture-patterns
 memory: project

@@ -1,6 +1,7 @@
 ---
 name: bcc-init-project
 description: 首次进入新项目时初始化 Claude Code 配置，生成项目级 CLAUDE.md 与知识索引。
+argument-hint: "[项目简介？] (留空时由 repo-researcher 自动扫描)"
 disable-model-invocation: true
 ---
 

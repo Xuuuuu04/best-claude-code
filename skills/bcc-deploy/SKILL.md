@@ -1,6 +1,7 @@
 ---
 name: bcc-deploy
 description: 部署流水线。用于发布、上线、打 tag 和回滚。
+argument-hint: "[target?: staging | production | rollback]"
 disable-model-invocation: true
 ---
 

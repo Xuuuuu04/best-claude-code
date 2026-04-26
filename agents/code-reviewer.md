@@ -6,6 +6,7 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: opus
 color: yellow
+effort: high
 skills:
   - code-review-protocol
 memory: project
