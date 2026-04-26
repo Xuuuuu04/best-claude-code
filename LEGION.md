@@ -592,6 +592,87 @@ cache_read_tokens ≈ input_tokens × 10~20
 
 ---
 
+## 七续、v3.x 进化历史
+
+### v3.1.3（2026-04-23，首次 evolve）
+
+- 47 个 Skill 全部加 `when_to_use` frontmatter，解决自动触发误匹配
+- 47 条 Rule 补齐 `paths` frontmatter（`_lang/17` + `_framework/17` + `_global/9` + `_infra/3`）
+- `UserPromptSubmit` 三级 hook 链落地（intent-classify / clarification-gate / review-gate），Router 正式投产
+- 接口字段对账 few-shot 写入调度表（`dispatch-table.md`），封堵枚举方向翻转 bug
+- 5 个高优先 references 完成实质内容填充（implementation-protocol / visual-tester / security-auditor / agent-guardrails-protocol / failure-taxonomy）
+- `bin/skill-audit.sh` 新增，可自检 Skill 描述覆盖率
+- Artifact Schema 校验器 `bin/validate-artifacts.sh` 落地，`bin/doctor.sh` §15 汇总
+
+### v3.2（2026-04-27）
+
+#### 1. 4.7 自适应推理 effort 配置
+
+7 个高决策风险 Agent 加 `effort` frontmatter，覆盖会话级默认值：
+
+| Agent | effort | 理由 |
+|:--|:--|:--|
+| `test-lead` | xhigh | 最终放行裁决，错误代价最高 |
+| `architect` | high | 架构方案影响后续所有 scope-lock |
+| `architecture-reviewer` | high | 审查架构方案 |
+| `code-reviewer` | high | 代码审查深度直接影响上线质量 |
+| `security-auditor` | high | 安全漏洞漏审代价不可逆 |
+| `scope-planner` | high | scope 不精确导致 implementer 反复（§3.12.2） |
+| `prompt-engineer` | high | 元治理变更影响全系统 |
+
+其余 18 个 Agent 继承会话默认值（通常 `medium`）。
+
+**何时升级**：若某 Agent 在实战中频繁出现"漏项"或"误判"，且 turn 数正常（scope 无问题），可考虑将其 effort 上调。
+
+#### 2. 13 个 bcc-* Skill argument-hint
+
+所有 `bcc-*` 流水线 Skill 补充 argument-hint，格式：
+- `<必填参数>`：尖括号，用户必须提供
+- `[可选参数?]`：方括号 + 问号，可省略
+
+与现有 `bcc-route` 示例风格一致。目的：Claude Code CLI 可在输入时展示提示，降低用户遗漏参数的概率。
+
+#### 3. 9 个 references 实质内容填充（+1106 行）
+
+| Reference | 新增主要内容 |
+|:--|:--|
+| `frontend-design` | A11y 量化基线（WCAG 2.1 AA）、具体反例代码 |
+| `docx-workflow` | Word/DOCX 12 类保真陷阱（style inheritance / Track Changes / comment ID 等） |
+| `pdf-workflow` | OCR 置信度判断、表单字段处理 |
+| `xlsx-workflow` | Show Your Work 原则（每个数都是公式）、颜色编码规范 |
+| `pptx-workflow` | slide master 配齐 5 项、字号 floor、AI slop 避免清单 |
+| `mcp-workflow` | MCP 连接可靠性陷阱、Tool Search 机制、Subagent 中内联 MCP |
+| `webapp-workflow` | 跨文件引用规范、前后端接口字段对账 |
+
+**为什么填充 references 而非直接写 Skill 主文件**：主 `SKILL.md` 应作为短协议（导航 + 核心约束），长资料通过 `references/` 按需加载，遵循 §3.3 Skill 上下文预算原则。
+
+#### 4. PermissionRequest 自动批准 ExitPlanMode
+
+新 hook `permissionrequest-exit-plan-allow.sh`：
+
+- 触发事件：`PermissionRequest`，matcher 限定 `ExitPlanMode`
+- 效果：plan mode 完成后自动批准退出，无需人工确认
+- wrapper：走 `run-with-logging.sh`，在 `hook-flags.sh` 登记为 `minimal` profile
+- 不影响其他 PermissionRequest（write / execute / deploy 等仍需确认）
+
+**设计决策**：`ExitPlanMode` 本身无破坏性（仅切换模式，不执行操作），人工确认是纯摩擦，用 hook 自动批准属于"确定性需求用 Hook"原则的典型应用（§七设计原则 4）。
+
+#### 5. CLAUDE.md HTML 注释维护备注
+
+利用 CLAUDE.md 的 HTML 注释剥离机制（`<!-- -->` 在注入时被移除），在 CLAUDE.md 中加入维护者备注，不占运行时 token。
+
+### 维护节奏建议
+
+| 节奏 | 操作 | 目的 |
+|:--|:--|:--|
+| 每周 | `/bcc-doctor` | 检查 hook 漂移、artifact 命名违规、Rule paths 误匹配 |
+| 每 1-2 周 | `/bcc-reflect` + `/bcc-evolve` | 把 Memory 积累固化为 Rule/Skill |
+| 每个 Claude Code 大版本 | 读 CHANGELOG，更新 §三 | 确认扩展机制未变化 |
+| 有新技术栈需求 | 新增 `_lang/` 或 `_framework/` Rule | 通常不需要新 Agent |
+| 有新认知模式缺口 | 谨慎评估是否新增 Agent | 几年一次，轻易不加 |
+
+---
+
 ## 八、参考
 
 外部 Prompt/Skill 素材分级使用：官方文档与官方开源 Skill 可作为实现参考；普通开源仓库需检查许可证和质量；泄漏/复刻提示词仓库只能用于结构研究，不得逐字复制到 Agent/Skill/Rule。
@@ -602,3 +683,4 @@ Claude Code 官方文档是最终真理来源。本文基于撰写时的 Claude 
 - 运行 `/bcc-evolve` 评估系统是否需要调整
 
 本文档由 Agent Legion 系统的初版建造者与 Claude Opus 4.7（1M context）合作完成于 2026-04-23。
+v3.2 章节由 doc-writer subagent 补充于 2026-04-27。
