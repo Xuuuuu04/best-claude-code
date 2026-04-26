@@ -6,6 +6,8 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: opus
 color: purple
+effort: high
+maxTurns: 150
 skills:
   - ml-engineering
   - implementation-protocol

@@ -6,6 +6,8 @@ description: >
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: opus
 color: green
+effort: high
+maxTurns: 100
 skills:
   - devops-protocol
   - mcp-builder-protocol

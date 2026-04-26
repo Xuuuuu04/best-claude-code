@@ -6,6 +6,8 @@ description: >
 tools: Read, Edit, Write, Grep, Glob
 model: sonnet
 color: pink
+effort: low
+maxTurns: 80
 skills:
   - documentation-protocol
   - docx-workflow

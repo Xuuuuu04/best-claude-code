@@ -6,6 +6,8 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash, WebFetch, WebSearch, AskUserQuestion
 model: opus
 color: cyan
+effort: high
+maxTurns: 100
 skills:
   - requirements-review-protocol
   - client-intake

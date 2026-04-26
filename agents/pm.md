@@ -6,6 +6,8 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: opus
 color: orange
+effort: medium
+maxTurns: 80
 skills:
   - project-management-protocol
 memory: project

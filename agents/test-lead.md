@@ -7,6 +7,7 @@ tools: Read, Edit, Write, Grep, Glob
 model: opus
 color: red
 effort: xhigh
+maxTurns: 60
 skills:
   - quality-verdict
 memory: project

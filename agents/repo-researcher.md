@@ -6,6 +6,8 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: sonnet
 color: blue
+effort: low
+maxTurns: 100
 skills:
   - remote-diag-protocol
 memory: project

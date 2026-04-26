@@ -7,6 +7,7 @@ tools: Read, Edit, Write, Grep, Glob, Bash
 model: opus
 color: yellow
 effort: high
+maxTurns: 100
 skills:
   - code-review-protocol
   - security-checklist

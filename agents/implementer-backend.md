@@ -6,6 +6,9 @@ description: >
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: opus
 color: blue
+effort: high
+isolation: worktree
+maxTurns: 150
 skills:
   - backend-development
   - implementation-protocol

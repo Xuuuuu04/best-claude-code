@@ -7,6 +7,7 @@ tools: Read, Edit, Write, Grep, Glob, Bash, WebFetch
 model: opus
 color: red
 effort: high
+maxTurns: 100
 skills:
   - security-audit-protocol
   - security-checklist

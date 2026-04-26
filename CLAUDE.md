@@ -153,6 +153,26 @@ artifact 命名与生命周期遵循 `rules/_global/artifact-protocol.md` + `dot
 
 ---
 
+## Compact Instructions
+
+context 压缩时（auto-compact 或 `/compact`）必须保留以下内容，超长截断时优先保 这些：
+
+1. **当前 task-id**（任何 `feat-YYYYMMDD-NN` / `bug-YYYYMMDD-NN` 形式）
+2. **未完成 artifact 路径**：scope-lock-* / impl-report-* / review-* 中状态非 `accepted` 的
+3. **失败原因摘要**：最近一次 BLOCKED / FAILED / NEEDS_USER 的 agent 报告关键信息
+4. **不可逆动作待批**：用户尚未确认的 git push --force / 生产部署 / schema 迁移
+5. **当前 batch 进度**：scope-plan 中已完成 vs 待跑的 scope-lock 列表
+6. **接口字段对账证据**：implementer 已 grep 到的字典文件路径 + 关键枚举值
+7. **客户态信号**：用户消息里 "返工" / "客户不满" / "终极摸排" 等情绪词触发的强制门控状态
+
+可以丢弃的：
+- 已 commit 的代码 diff（git log 可查）
+- 工具调用的中间输出（summary 即可）
+- artifact 完整内容（路径 + 一句话状态即可）
+- 主会话与用户的客套对话
+
+---
+
 ## 参考文件
 
 完整机制说明阅读 `README.md` 和 `LEGION.md`，**不要**整篇重新注入运行期协议。运行时开关见 `rules/_global/hook-scripts-pattern.md` § 8（`CLAUDE_HOOK_PROFILE` / `CLAUDE_DISABLED_HOOKS`）。

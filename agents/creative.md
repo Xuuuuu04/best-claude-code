@@ -6,6 +6,8 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, WebFetch, WebSearch
 model: sonnet
 color: purple
+effort: medium
+maxTurns: 60
 skills:
   - creative-direction
 memory: user

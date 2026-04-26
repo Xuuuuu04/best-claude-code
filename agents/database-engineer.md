@@ -6,6 +6,9 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: opus
 color: blue
+effort: high
+isolation: worktree
+maxTurns: 100
 skills:
   - db-patterns
 memory: project

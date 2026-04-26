@@ -7,6 +7,8 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash, WebFetch, WebSearch
 model: opus
 color: cyan
+effort: low
+maxTurns: 100
 skills:
   - remote-diag-protocol
   - mcp-builder-protocol

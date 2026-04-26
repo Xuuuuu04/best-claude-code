@@ -6,6 +6,8 @@ description: >
 tools: Read, Edit, Write, Grep, Glob
 model: sonnet
 color: purple
+effort: medium
+maxTurns: 80
 skills:
   - design-system-protocol
   - frontend-design-protocol

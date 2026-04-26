@@ -31,6 +31,7 @@ _HOOK_MIN_PROFILE=(
   "subagent-start-mark:minimal"
   "intent-classify:minimal"
   "permissionrequest-exit-plan-allow:minimal"
+  "tool-failure-audit:minimal"
   "scope-lock-guard:standard"
   "artifact-write-guard:standard"
   "post-edit-lint:standard"

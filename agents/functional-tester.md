@@ -6,6 +6,8 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: opus
 color: green
+effort: medium
+maxTurns: 120
 skills:
   - functional-test-protocol
   - webapp-testing-protocol

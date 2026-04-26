@@ -6,6 +6,9 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: opus
 color: cyan
+effort: medium
+isolation: worktree
+maxTurns: 150
 skills:
   - implementation-protocol
   - mobile-development

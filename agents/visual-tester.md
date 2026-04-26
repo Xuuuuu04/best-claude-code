@@ -6,6 +6,8 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: sonnet
 color: green
+effort: medium
+maxTurns: 120
 skills:
   - visual-test-protocol
   - webapp-testing-protocol

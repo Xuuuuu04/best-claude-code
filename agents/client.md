@@ -6,6 +6,8 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, WebFetch, WebSearch
 model: sonnet
 color: pink
+effort: medium
+maxTurns: 60
 skills:
   - client-intake
 memory: user
