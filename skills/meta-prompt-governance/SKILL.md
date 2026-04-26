@@ -1,6 +1,7 @@
 ---
 name: meta-prompt-governance
 description: 元提示词治理协议。为 prompt-engineer 提供 drift 诊断、边界冲突分析和新增 agent 审批标准。
+when_to_use: 仅当 prompt-engineer Agent 在改 agent / skill / rule / output-style / hook 或诊断职责重叠 / dispatch 跑偏时加载。日常需求审查 / 代码审查 / 实现工作不应触发。
 ---
 
 # 元提示词治理协议

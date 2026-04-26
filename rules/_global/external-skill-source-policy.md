@@ -1,3 +1,11 @@
+---
+name: external-skill-source-policy
+description: 引用外部 Skill / Prompt / Agent 模板时的来源分级、可吸收内容、禁止内容和记录要求。
+type: meta-rule
+scope: global
+applies-to: skills/**, agents/**, rules/**, output-styles/**
+---
+
 # 外部 Skill / Prompt 来源策略
 
 ## 来源分级

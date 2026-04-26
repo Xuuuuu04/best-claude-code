@@ -1,6 +1,7 @@
 ---
 name: code-review-protocol
 description: 代码审查协议。为 code-reviewer 提供 scope 合规、契约一致性和可维护性检查清单。
+when_to_use: 仅当 code-reviewer Agent 在审查 implementer 产出的 impl-report 与 diff 时加载。implementer 自审、安全专项审查、架构审查不应触发。
 ---
 
 # 代码审查协议
@@ -28,6 +29,20 @@ description: 代码审查协议。为 code-reviewer 提供 scope 合规、契约
 - [ ] 错误处理完备，无空 catch
 - [ ] 命名清晰，结构可维护
 - [ ] 无明显性能反模式
+
+### 枚举/状态机字段方向核对（必查）
+
+涉及枚举判断（`payType` / `orderStatus` / `payStatus` / `ticketStatus` / `paySource` / `authenticate` 等）的代码，**禁止凭印象核对方向**：
+
+1. grep 项目内已上线 work 的同字段使用点：
+   ```bash
+   grep -rn "{fieldName}" --include="*.vue" --include="*.ts" --include="*.js"
+   ```
+2. 找到常量定义或参考实现（如 `const PAY_TYPE = {...}` / `shared/constants/enums.js`），以**参考代码 + apifox/OpenAPI 真值**为准
+3. 当心"同名不同义"陷阱：同一字段在不同 endpoint/上下文取值可能完全不同
+   （如 `OrderPayDTO.payType` 是 int `1=微信`，`OrderDetailVO.payType` 是 string `"2"=微信`）
+4. 任何凭直觉写的 `=== 1`、`=== '2'` 都视为**可疑**，必须有参考代码或 OAS 真值证据
+5. 报告中明确标注：每条枚举判断的依据来自哪份 artifact / 哪个文件:行号
 
 ### 测试
 - [ ] 覆盖 scope-lock 指定场景

@@ -1,6 +1,7 @@
 ---
 name: architecture-review-protocol
 description: 架构审查协议。为 architecture-reviewer 提供 design 与 scope-lock 的可执行性审查清单。
+when_to_use: 仅当 architecture-reviewer Agent 在审查 architecture-* 或 scope-lock-* artifact 时加载。架构方案产出阶段（architect 在写）、代码审查阶段不应触发。
 ---
 
 # 架构审查协议

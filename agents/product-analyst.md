@@ -4,8 +4,11 @@ description: >
   产品分析专家。在接收到新需求、功能迭代或客户反馈时使用。
   负责需求拆分、验收标准定义和风险识别。Use proactively for any requirement analysis.
 tools: Read, Edit, Write, Grep, Glob, Bash, WebFetch, WebSearch, AskUserQuestion
-model: inherit
+model: opus
 color: cyan
+skills:
+  - requirements-review-protocol
+  - client-intake
 memory: project
 permissionMode: default
 ---

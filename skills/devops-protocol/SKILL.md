@@ -1,6 +1,7 @@
 ---
 name: devops-protocol
 description: 运维工作协议。覆盖构建、部署、CI/CD、发布、回滚、监控的方法论。
+when_to_use: 仅当 devops Agent 处理构建 / 部署 / CI/CD 配置 / 发布 / 回滚 / 事故响应任务时加载。日常代码实现、本地调试、文档撰写不应触发。
 ---
 
 # 运维工作协议

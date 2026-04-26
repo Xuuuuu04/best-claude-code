@@ -1,6 +1,7 @@
 ---
 name: project-management-protocol
 description: 项目管理协议。为 pm 提供单跳调度、返工升级、阻塞判定和任务状态机的方法。
+when_to_use: 仅当 pm Agent 在做"下一跳判断 / 返工升级 / 阻塞处理 / 多阶段任务推进"时加载。单一 Agent 自身工作流不应触发。
 ---
 
 # 项目管理协议

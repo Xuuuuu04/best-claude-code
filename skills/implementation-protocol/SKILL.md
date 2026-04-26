@@ -1,6 +1,7 @@
 ---
 name: implementation-protocol
 description: 实现工作纪律协议。定义所有 implementer Agent 的 scope-lock 执行流程、越界处理和完成报告要求。
+when_to_use: 仅当 implementer-frontend / implementer-backend / implementer-mobile / miniprogram-dev / database-engineer 接到 scope-lock 任务时加载。code-reviewer / tester / 主会话调度阶段不应触发。
 ---
 
 # 实现工作纪律协议

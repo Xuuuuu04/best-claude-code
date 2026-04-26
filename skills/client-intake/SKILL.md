@@ -1,6 +1,7 @@
 ---
 name: client-intake
 description: 客户需求整理协议。为 client 提供原话消歧、brief 结构化、售后问题分类和提案前置判断方法。
+when_to_use: 仅当 client Agent 在处理客户原话 / 聊天记录 / 售后反馈 / 提案需求时加载。内部需求拆分（product-analyst）不应触发。
 ---
 
 # 客户需求整理协议

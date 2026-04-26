@@ -1,3 +1,11 @@
+---
+name: skill-architecture-standard
+description: Skill 目录结构、frontmatter、长度上限和 progressive disclosure 规范。所有 Skill 创建/审查时遵守。
+type: meta-rule
+scope: global
+applies-to: skills/**/SKILL.md
+---
+
 # Skill 架构规范
 
 ## 官方兼容

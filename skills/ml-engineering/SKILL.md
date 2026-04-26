@@ -1,6 +1,7 @@
 ---
 name: ml-engineering
 description: 机器学习工程协议。为 ml-engineer 提供 baseline、评估、可复现性、失败分析和推理性能交付标准。
+when_to_use: 仅当 ml-engineer Agent 在做训练 / fine-tune / 评估 / 推理服务部署（ONNX / vLLM / TensorRT）时加载。普通后端 / API 实现不应触发。
 ---
 
 # 机器学习工程协议

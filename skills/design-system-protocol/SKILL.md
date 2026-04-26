@@ -1,6 +1,7 @@
 ---
 name: design-system-protocol
 description: 设计系统协议。为 visual-designer 提供 token 体系、组件状态矩阵、布局规则和 A11y 校验框架。
+when_to_use: 仅当 visual-designer Agent 在做 design tokens / 组件规范 / 布局规则 / 暗色模式 / A11y 设计基线时加载。视觉测试（visual-tester）和前端实现（implementer-frontend）不应触发。
 ---
 
 # 设计系统协议

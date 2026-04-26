@@ -1,6 +1,7 @@
 ---
 name: quality-verdict
 description: 最终质量裁决协议。为 test-lead 提供功能 / 视觉 / 安全三证据流的综合判断方法。
+when_to_use: 仅当 test-lead Agent 在里程碑 / 上线前裁决（PASS / CONDITIONAL PASS / BLOCKED）时加载。单一阶段测试报告产出（functional-tester / visual-tester / security-auditor）不应触发。
 ---
 
 # 最终质量裁决协议
