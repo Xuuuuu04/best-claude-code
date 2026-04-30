@@ -77,7 +77,8 @@ fi
 # ── 3. 会话级成本累加（项目级 TSV，用户可读） ────────────────────────────────
 PROJ_DIR="${CLAUDE_PROJECT_DIR:-}"
 if [ -n "$PROJ_DIR" ] && [ -d "$PROJ_DIR/.claude" ]; then
-  COST_LOG="$PROJ_DIR/.claude/cost-log.txt"
+  mkdir -p "$PROJ_DIR/.claude/logs" 2>/dev/null || true
+  COST_LOG="$PROJ_DIR/.claude/logs/cost-log.txt"
 
   if [ ! -f "$COST_LOG" ]; then
     printf "# timestamp\tagent\tmodel\tturns\tinput\toutput\tcache_cr\tcache_rd\n" > "$COST_LOG"

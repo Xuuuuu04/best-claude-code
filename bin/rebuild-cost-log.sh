@@ -13,7 +13,7 @@ if [ -z "$PROJ" ] || [ ! -d "$PROJ/.claude" ]; then
   exit 1
 fi
 
-COST_LOG="$PROJ/.claude/cost-log.txt"
+COST_LOG="$PROJ/.claude/logs/cost-log.txt"
 BACKUP="$COST_LOG.broken.$(date +%s)"
 EVENTS_LOG="$HOME/.claude/logs/subagent-events.jsonl"
 

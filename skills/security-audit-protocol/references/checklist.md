@@ -1,12 +1,7 @@
----
-name: security-checklist
-description: 安全审查清单。为 security-auditor 和 code-reviewer 提供系统化的安全检查方法，覆盖 OWASP Top 10 和常见漏洞模式。
-when_to_use: 当 security-auditor / code-reviewer 审查认证、授权、输入验证、注入、敏感数据处理、依赖风险时；用户提"安全审查"、"OWASP"、"漏洞"、"鉴权"、"权限"、"SQL 注入"、"XSS"、"CSRF" 时自动加载。
----
+# 安全审查清单（OWASP Top 10 + 常见漏洞模式）
 
-# 安全审查清单
-
-审查代码时的对抗性思维框架：**假设攻击者会做 X，代码能抵御吗？**
+> 原 `skills/security-checklist` 内容，已合并入 `security-audit-protocol` 的 references。
+> 审查代码时的对抗性思维框架：**假设攻击者会做 X，代码能抵御吗？**
 
 ---
 

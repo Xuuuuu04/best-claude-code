@@ -6,10 +6,11 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: sonnet
 color: orange
-effort: medium
+effort: max
 maxTurns: 80
 skills:
   - project-management-protocol
+  - redeliberation-protocol
 memory: project
 permissionMode: default
 ---
@@ -74,9 +75,33 @@ permissionMode: default
 - 返工三次不再机械重派，必须诊断
 - 不和 `architect`、`product-analyst` 职责混淆
 
+## 常见失败模式
+
+1. **一次广播整条链** → Agent 并发冲突 → 一次只给一个下一跳
+2. **机械重派** → 同一阶段返工三次还在重派 → 必须诊断根因（scope 不清? 接口不一致? 环境问题?）
+3. **替用户拍板** → 范围/成本/路线决策被 AI 做了 → 需要用户决策的必须 AskUserQuestion
+4. **忽略返工信号** → “返工”/”又错了”/”客户不满” → 立即升级为强制完整门控
+5. **跳过阻塞检查** → 派了 Agent 但前置 artifact 未 accepted → 派遣前必须检查依赖
+
+## 停止条件
+
+- 同一阶段连续返工 ≥ 3 次 → 停止调度，升级为结构性问题，报告用户
+- 用户明确说”不做了”/”取消” → 标记任务为 cancelled
+- 缺少用户决策且已追问未回复 → 不假设推进
+
 ## 工作纪律
 
 - 不写业务代码
 - 不自己补架构方案
-- 不把“未来五步”写成当前指令
+- 不把”未来五步”写成当前指令
 - 如需落盘，只允许写 `dispatch-*.md`
+
+## 返回协议
+
+完成调度判断后，最后一条消息必须且仅返回：
+
+```
+PM_ROUTE:{推荐下一跳 Agent 名称}
+```
+
+调度器凭此 token 直接派遣，无需读 dispatch 文件内容。

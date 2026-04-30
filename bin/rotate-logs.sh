@@ -25,9 +25,9 @@ declare -A TARGETS=(
 
 # 项目级日志（如果在项目里）
 if [ -n "${CLAUDE_PROJECT_DIR:-}" ] && [ -d "${CLAUDE_PROJECT_DIR}/.claude" ]; then
-  TARGETS["${CLAUDE_PROJECT_DIR}/.claude/cost-log.txt"]=10485760            # 10 MB
-  TARGETS["${CLAUDE_PROJECT_DIR}/.claude/hook-errors.log"]=5242880          # 5 MB
-  TARGETS["${CLAUDE_PROJECT_DIR}/.claude/instructions-log.txt"]=20971520    # 20 MB
+  TARGETS["${CLAUDE_PROJECT_DIR}/.claude/logs/cost-log.txt"]=10485760            # 10 MB
+  TARGETS["${CLAUDE_PROJECT_DIR}/.claude/logs/hook-errors.log"]=5242880          # 5 MB
+  TARGETS["${CLAUDE_PROJECT_DIR}/.claude/logs/instructions-log.txt"]=20971520    # 20 MB
 fi
 
 MAX_KEEP=5

@@ -49,13 +49,58 @@ if [ -n "$PENDING_ARTIFACTS" ]; then
   CONTEXT+="\n### 进行中的交接文件\n${PENDING_ARTIFACTS}\n"
 fi
 
+# ── 续传状态摘要（resume / clear / compact 时从 artifact 提取） ──────────────
+if [ "$SOURCE" != "startup" ] && [ -d ".claude/artifacts" ]; then
+  RESUMECTX=""
+
+  # 最新 verdict
+  LATEST_VERDICT=$(ls -t .claude/artifacts/verdict-*.md 2>/dev/null | head -1)
+  if [ -n "$LATEST_VERDICT" ]; then
+    VERDICT_LINE=$(grep -m1 "PASS\|CONDITIONAL PASS\|BLOCKED" "$LATEST_VERDICT" 2>/dev/null | head -1 | xargs)
+    [ -n "$VERDICT_LINE" ] && RESUMECTX="${RESUMECTX}- 最近裁决：${VERDICT_LINE}\n"
+    BLOCK_REASON=$(grep -A1 "## Blocking Items" "$LATEST_VERDICT" 2>/dev/null | tail -1 | xargs)
+    [ -n "$BLOCK_REASON" ] && [ "$BLOCK_REASON" != "1." ] && RESUMECTX="${RESUMECTX}- 阻塞原因：${BLOCK_REASON}\n"
+  fi
+
+  # scope-lock 进度
+  TOTAL_LOCKS=$(ls .claude/artifacts/scope-lock-*.md 2>/dev/null | wc -l | tr -d ' ')
+  if [ "${TOTAL_LOCKS:-0}" -gt 0 ]; then
+    ACCEPTED=$(grep -l "accepted\|**状态**: accepted" .claude/artifacts/scope-lock-*.md 2>/dev/null | wc -l | tr -d ' ')
+    PENDING_LOCKS=$((TOTAL_LOCKS - ACCEPTED))
+    RESUMECTX="${RESUMECTX}- scope-lock 进度：${ACCEPTED}/${TOTAL_LOCKS} accepted，${PENDING_LOCKS} 待完成\n"
+  fi
+
+  # impl-report 进度
+  TOTAL_IMPLS=$(ls .claude/artifacts/impl-report-*.md 2>/dev/null | wc -l | tr -d ' ')
+  [ "${TOTAL_IMPLS:-0}" -gt 0 ] && RESUMECTX="${RESUMECTX}- impl-report：${TOTAL_IMPLS} 个\n"
+
+  if [ -n "$RESUMECTX" ]; then
+    CONTEXT+="\n### 续传状态摘要\n${RESUMECTX}\n"
+  fi
+fi
+
+# ── 健康脉冲（仅 startup，resume/clear/compact 跳过） ────────────────────────
+if [ "$SOURCE" = "startup" ]; then
+  HEALTH_NOTE=""
+  if ! python3 -c "import json; json.load(open('$HOME/.claude/settings.json'))" 2>/dev/null; then
+    HEALTH_NOTE="${HEALTH_NOTE}\n- ⚠ settings.json JSON 损坏——下次启动可能失败。运行 bash ~/.claude/bin/doctor.sh 修复。"
+  fi
+  HOOK_COUNT=$(ls "$HOME/.claude/hooks/"*.sh 2>/dev/null | grep -v "_lib/" | wc -l | tr -d ' ')
+  if [ "${HOOK_COUNT:-0}" -lt 10 ]; then
+    HEALTH_NOTE="${HEALTH_NOTE}\n- ⚠ hook 脚本仅 ${HOOK_COUNT} 个（预期 ≥14）——检查 hooks/ 目录是否完整。"
+  fi
+  if [ -n "$HEALTH_NOTE" ]; then
+    CONTEXT="${CONTEXT}\n### 系统健康\n${HEALTH_NOTE}\n"
+  fi
+fi
+
 # 如无有效上下文，不注入
 if [ -z "$CONTEXT" ]; then
   exit 0
 fi
 
 # 输出 JSON，供 Claude 注入为 additionalContext（jq 失败也不炸）
-jq -n --arg ctx "$CONTEXT" '{
+jq -c -n --arg ctx "$CONTEXT" '{
   hookSpecificOutput: {
     hookEventName: "SessionStart",
     additionalContext: $ctx

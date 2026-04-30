@@ -227,12 +227,12 @@ fi
 
 # ── 6. Project cost aggregate (only if cost-log.txt exists in cwd/.claude) ──
 COST_SEG=""
-if [ -n "$CWD" ] && [ -f "$CWD/.claude/cost-log.txt" ]; then
+if [ -n "$CWD" ] && [ -f "$CWD/.claude/logs/cost-log.txt" ]; then
   COST_LINE="$(awk -F'\t' '
     NR==1 {next}
     {c++; in_t+=$5; out_t+=$6; cr+=$7; rd+=$8}
     END {printf "%d %d %d %d %d", c+0, in_t+0, out_t+0, cr+0, rd+0}
-  ' "$CWD/.claude/cost-log.txt" 2>/dev/null)"
+  ' "$CWD/.claude/logs/cost-log.txt" 2>/dev/null)"
 
   CALLS="$(echo "$COST_LINE" | awk '{print $1}')"
   IN_TOK="$(echo "$COST_LINE" | awk '{print $2}')"
@@ -275,7 +275,7 @@ if [ -n "$NOW" ]; then
   TIME_SEG="${C_TOKEN}时间${RESET} ${C_TIME}${ICO_CLOCK} ${NOW}${RESET}"
 fi
 
-# ── Router tier (v3.1: 显示最近一次 intent-classify 结果) ───────────────────
+# ── Router tier (v3.9: 模型自判，intent-classify 已退役) ────────────────────
 TIER_SEG=""
 TIER_LOG="$HOME/.claude/logs/intent-classify.jsonl"
 if [ -r "$TIER_LOG" ] && command -v jq >/dev/null 2>&1; then
@@ -289,9 +289,11 @@ if [ -r "$TIER_LOG" ] && command -v jq >/dev/null 2>&1; then
       unclear)  C_TIER="\033[38;2;248;113;113m"; ICO_TIER="?"  ;;  # red
       *)        C_TIER="\033[38;2;148;163;184m"; ICO_TIER="·" ;;
     esac
-    # v3.4：明示这是 hook 参考分类（非 AI 实际决策档位），用 ITALIC + "提示" 标签
-    TIER_SEG="${C_TOKEN}提示${RESET} ${ITALIC}${C_TIER}${ICO_TIER} ${TIER}${RESET}"
+    TIER_SEG="${C_TOKEN}档位${RESET} ${ITALIC}${C_TIER}${ICO_TIER} ${TIER}${RESET}"
   fi
+else
+  # v3.9：无 intent-classify 日志 → 模型自判模式
+  TIER_SEG="${C_TOKEN}档位${RESET} ${ITALIC}\033[38;2;167;139;250m◈ auto${RESET}"
 fi
 
 # ── Assemble (两行布局) ──────────────────────────────────────────────────────

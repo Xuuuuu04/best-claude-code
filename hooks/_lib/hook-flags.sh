@@ -26,10 +26,10 @@ set -uo pipefail
 # 格式："hook_id:min_profile"
 _HOOK_MIN_PROFILE=(
   "session-start:minimal"
+  "session-stop-remind:minimal"
   "pre-compact:minimal"
   "post-compact:minimal"
   "subagent-start-mark:minimal"
-  "intent-classify:minimal"
   "permissionrequest-exit-plan-allow:minimal"
   "tool-failure-audit:minimal"
   "scope-lock-guard:standard"

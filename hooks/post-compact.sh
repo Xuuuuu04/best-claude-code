@@ -27,7 +27,7 @@ if [ -n "$ARTIFACTS" ]; then
   CONTEXT+="请查看 .claude/artifacts/ 目录了解当前工作进度。\n"
 fi
 
-jq -n --arg ctx "$CONTEXT" '{
+jq -c -n --arg ctx "$CONTEXT" '{
   hookSpecificOutput: {
     hookEventName: "PostCompact",
     additionalContext: $ctx

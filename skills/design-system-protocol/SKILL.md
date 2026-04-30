@@ -6,6 +6,8 @@ when_to_use: 仅当 visual-designer Agent 在做 design tokens / 组件规范 / 
 
 # 设计系统协议
 
+> **与本目录 `visual-design-protocol` 的关系**：本协议负责**token 工程**（数学关系、A11y 对比度、组件状态矩阵）。审美方向（气质、情绪、差异化）由 `visual-design-protocol` 负责。两者互补：visual-design-protocol 定调子，本协议定数值。前端实现时，implementer-frontend 加载 visual-design-protocol，visual-designer 加载本协议。
+
 ## Token 层级
 
 - Primitive

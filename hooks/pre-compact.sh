@@ -13,7 +13,7 @@ if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
 fi
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BACKUP_DIR="${CLAUDE_PROJECT_DIR:-.}/.claude/backups"
+BACKUP_DIR="${CLAUDE_PROJECT_DIR:-.}/.claude/logs/backups"
 mkdir -p "$BACKUP_DIR"
 
 # 保存当前 git diff

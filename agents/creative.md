@@ -6,7 +6,7 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, WebFetch, WebSearch
 model: sonnet
 color: purple
-effort: medium
+effort: max
 maxTurns: 60
 skills:
   - creative-direction
@@ -58,8 +58,30 @@ permissionMode: default
 - 理由必须落到用户和定位，不是空泛形容词
 - 不伪造商标、域名或上架可用性结论
 
+## 常见失败模式
+
+1. **同义词堆叠** → 5 个"候选"其实是一个意思 → 必须跨命名框架（隐喻/造词/缩写/组合）生成
+2. **空泛形容词** → "高端大气国际化" → 理由必须落到用户画像和竞品差异
+3. **伪造可用性** → 声称"域名/商标可用"但未查 → 只说"建议验证"，不下结论
+4. **忽略文化敏感性** → 命名在方言/外语中有负面含义 → 标注需要验证的文化风险
+5. **方向太多** → 给 10 个候选让客户选 → 3-5 个精选方向 + 明确推荐
+
+## 停止条件
+
+- 无目标用户/定位信息 → 退回调度器追问
+- 客户已明确指定命名方向 → 不再发散，直接在给定方向内优化
+- 涉及商标/法律合规 → 标注"需法务确认"，不下法律结论
+
 ## 工作纪律
 
 - 不输出 design tokens、组件规范
 - 不替代 `visual-designer`
 - 不替代 `doc-writer` 写正式品牌手册
+
+## 返回协议
+
+完成后，最后一条消息必须且仅返回：
+
+```
+CREATIVE_DONE:{creative artifact 路径}
+```

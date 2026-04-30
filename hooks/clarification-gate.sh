@@ -21,26 +21,54 @@ set -uo pipefail
 INPUT="$(cat || true)"
 [ -z "$INPUT" ] && exit 0
 
-# 提取 prompt
+# 提取 prompt 和 session_id
 PROMPT=""
+SESSION_ID=""
 if command -v jq >/dev/null 2>&1; then
   PROMPT="$(echo "$INPUT" | jq -r '.prompt // empty' 2>/dev/null || echo "")"
+  SESSION_ID="$(echo "$INPUT" | jq -r '.session_id // empty' 2>/dev/null || echo "")"
 fi
 [ -z "$PROMPT" ] && exit 0
 
 NORMALIZED="$(echo "$PROMPT" | tr '[:upper:]' '[:lower:]' | tr -s '[:space:]' ' ')"
 LEN="${#PROMPT}"
 
+# ─── Pending state（block 时保存原 prompt，bypass 时回放给 AI） ───────────
+STATE_DIR="$HOME/.claude/state"
+mkdir -p "$STATE_DIR" 2>/dev/null || true
+SESSION_KEY="${SESSION_ID:-default}"
+# sanitize（只留字母数字 _ -）
+SESSION_KEY="$(echo "$SESSION_KEY" | tr -cd 'A-Za-z0-9_-' | head -c 64)"
+PENDING_FILE="$STATE_DIR/clarification-pending-${SESSION_KEY}.json"
+PENDING_TTL=600  # 10 分钟
+
 # ─── Bypass 关键词（用户明确表示跳过追问） ────────────────────────────────
 BYPASS_PATTERNS=(
   '直接做' '就这样' '按你.*想' '按你.*来' '随便.*做' '你看着办'
   '不用.*问' '不要.*问' '别问了' 'skip.*clarif' 'bypass'
   '就是这.*意思' '我说了' '上面.*说了' '刚.*说'
+  '^skip$' '^skip[[:space:]]'
 )
 
 for p in "${BYPASS_PATTERNS[@]}"; do
   if echo "$NORMALIZED" | grep -qE "$p"; then
-    exit 0  # 放行
+    # 尝试读出上一次被拦的原 prompt，注入回会话
+    if command -v jq >/dev/null 2>&1 && [ -f "$PENDING_FILE" ]; then
+      ORIGINAL_PROMPT="$(jq -r '.prompt // empty' "$PENDING_FILE" 2>/dev/null || echo "")"
+      PENDING_TS="$(jq -r '.timestamp // 0' "$PENDING_FILE" 2>/dev/null || echo 0)"
+      NOW_TS="$(date +%s)"
+      AGE=$((NOW_TS - PENDING_TS))
+
+      if [ -n "$ORIGINAL_PROMPT" ] && [ "$AGE" -lt "$PENDING_TTL" ]; then
+        rm -f "$PENDING_FILE" 2>/dev/null || true
+        CTX=$'[CLARIFICATION-BYPASS] 用户已通过 bypass 关键词跳过 clarification-gate。\n以下是上一次被拦截的原始请求，请按此处理（用户当前消息只是 bypass 信号，不是新需求）：\n\n---\n'"$ORIGINAL_PROMPT"$'\n---'
+        jq -c -n --arg ctx "$CTX" \
+          '{hookSpecificOutput:{hookEventName:"UserPromptSubmit", additionalContext:$ctx}}' 2>/dev/null || true
+        exit 0
+      fi
+      rm -f "$PENDING_FILE" 2>/dev/null || true
+    fi
+    exit 0  # 放行（无 pending 或已过期）
   fi
 done
 
@@ -140,7 +168,7 @@ if [ -n "$Q_DOMAIN" ]; then
 fi
 REASON+="$Q_COMMON"$'\n\n'
 REASON+=$'━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n'
-REASON+=$'回答后重发请求即可继续。\n如确认不需澄清，回复中包含 "直接做" / "按你想的来" / "skip" 任一即自动通过。'
+REASON+=$'回答后重发请求即可继续。\n如确认不需澄清，回复 "直接做" / "按你想的来" / "skip" 即可——\n原始请求会自动带回给 AI（10 分钟内有效），无需重新输入。'
 
 # ─── 日志 ──────────────────────────────────────────────────────────────────
 LOG_DIR="$HOME/.claude/logs"
@@ -154,6 +182,10 @@ if command -v jq >/dev/null 2>&1; then
            --arg preview "$PROMPT_PREVIEW" --argjson hits "$UNCLEAR_HIT" \
     '{timestamp:$ts, action:"block", signal:$sig, domain:$dom, hits:$hits, preview:$preview}' \
     >> "$LOG_FILE" 2>/dev/null || true
+
+  # 落盘 pending：bypass 时回放给 AI
+  jq -c -n --arg p "$PROMPT" --argjson ts "$(date +%s)" \
+    '{prompt:$p, timestamp:$ts}' > "$PENDING_FILE" 2>/dev/null || true
 fi
 
 # ─── 返回 block 决策 ───────────────────────────────────────────────────────

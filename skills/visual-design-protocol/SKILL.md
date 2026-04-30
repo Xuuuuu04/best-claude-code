@@ -1,10 +1,12 @@
 ---
-name: frontend-design-protocol
-description: 前端视觉设计协议。用于高质量 Web/UI 设计、组件视觉优化、landing page、dashboard 和设计系统落地，强调非模板化审美、可访问性和实现可行性。
+name: visual-design-protocol
+description: 视觉设计协议。用于高质量 Web/UI 设计、组件视觉优化、landing page、dashboard 和设计系统落地，强调非模板化审美、可访问性和实现可行性。
 when_to_use: 当用户要求设计系统、UI 美化、landing page、dashboard、组件视觉、响应式布局、暗色模式或前端审美提升时使用。
 ---
 
-# Frontend Design 协议
+# Visual Design 协议
+
+> **与本目录 `design-system-protocol` 的关系**：本协议负责**审美方向**（气质、情绪、差异化、非模板化）。token 工程（数学关系、A11y 对比度、组件状态矩阵）由 `design-system-protocol` 负责。两者互补：本协议定调子，design-system-protocol 定数值。
 
 ## 工作流
 

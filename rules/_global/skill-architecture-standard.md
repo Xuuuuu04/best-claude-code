@@ -16,6 +16,17 @@ applies-to: skills/**/SKILL.md
 - 长参考、模板、示例和脚本放到 supporting files，如 `references/`、`examples/`、`scripts/`。
 - 主 `SKILL.md` 应作为导航和短协议，避免超过 500 行。
 
+## 命名约定
+
+| 后缀 | 含义 | 适用场景 |
+|:--|:--|:--|
+| `*-protocol` | 流程协议 | reviewer / tester 的审查流程 |
+| `*-checklist` | 检查清单 | 合并进对应 protocol 的 `references/` |
+| `*-patterns` | 知识参考 | 设计 / 架构类 agent 的模式库 |
+| `*-development` | 领域知识 | implementer 的技术栈知识 |
+| `*-intake` | 输入整理 | intake 类 agent 的整理方法 |
+| `bcc-*` | 调度命令 | 主会话流水线入口（disable-model-invocation） |
+
 ## Agent Legion 约束
 
 - 用户级 Skill 不得包含具体项目事实；项目事实写入项目级 `.claude/skills/project-knowledge/`。

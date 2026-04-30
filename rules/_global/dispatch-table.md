@@ -80,11 +80,46 @@ client（如有客户原话）
 → architecture-reviewer
 → implementer / 专项域（同 Batch 可并发）
 → code-reviewer（可按 impl-report 并发）
-→ security-auditor（如适用）
-→ functional-tester
+→ security-auditor（见下方强制条件）
+→ functional-tester（medium 以上必须）
 → visual-tester（如有 UI）
-→ test-lead（里程碑 / 上线前）
+→ test-lead（见下方强制条件）
 ```
+
+#### 门控强制条件（基于实战数据 v3.8 新增）
+
+**以下条件命中任一，对应 agent 必须执行，不得跳过：**
+
+| Agent | 强制触发条件 | 数据依据 |
+|:--|:--|:--|
+| `security-auditor` | 涉及后端 API / 认证 / 支付 / 数据库迁移 / 环境变量 / 敏感数据 | 实战 0 次调用但角色关键 |
+| `functional-tester` | 任务档位 medium 或以上 | 4/5 项目无 verdict |
+| `test-lead` | scope-lock 总数 ≥ 3，或涉及上线/交付/里程碑 | 4/5 项目无最终裁决 |
+| `test-lead`（跨 scope 一致性） | scope-lock 总数 ≥ 3 → 裁决前强制执行跨 scope 接口契约交叉比对 | v3.10 新增：跨 scope 签名不一致是最隐蔽的集成 bug |
+| `visual-tester` | 涉及用户可见 UI 变更（页面/组件/样式） | 仅 1/5 项目有视觉测试 |
+
+**不触发的唯一理由**：用户显式说"跳过 XX 测试"。AI 不得自行判断"不适用"而省略。
+
+#### 问题分级标准（v3.9 新增，所有 reviewer/tester 统一使用）
+
+**每个 reviewer/tester 必须按此三级框架判定，不得自定义分级体系：**
+
+| 级别 | 含义 | 对通过的影响 | 示例 |
+|:--|:--|:--|:--|
+| **严重（Blocker）** | 不可行、不可上线、安全漏洞、scope 越界、关键证据缺失 | **任何 1 项 → 驳回** | SQL 注入、密钥泄露、scope 白名单外修改、无截图证据给 PASS |
+| **一般（Issue）** | 设计缺陷、逻辑矛盾、关键遗漏、契约不一致 | **累计 ≥3 项 → 驳回** | 接口字段类型不匹配、缺错误处理、验收标准不可测 |
+| **轻微（Nit）** | 可改进但不阻塞 | 不阻塞通过 | 命名建议、注释补充、代码风格优化 |
+
+**判定规则**：
+- `APPROVED / PASS`：无严重 AND 一般 < 3
+- `REJECTED / BLOCKED`：存在严重 OR 一般 ≥ 3
+- 各 reviewer 的审查维度中使用 `[严重]` / `[一般]` / `[轻微]` 标记，不得使用旧的 `Critical` / `Warning` 等模糊标签
+- test-lead 最终裁决时，累计所有 reviewer 的严重和一般数量作为裁决依据
+
+**与返回 token 的映射**：
+- `REVIEW_REJECT:...:{严重数}blocker:{一般数}issue` — 驳回时附带计数
+- `SECURITY_REJECT:...:{严重数}blocker:{一般数}issue` — 安全驳回附带计数
+- test-lead 收到 `REVIEW_REJECT` 且 blocker≥1 时直接 BLOCKED，无需再读文件
 
 ### Bug 修复
 
@@ -95,7 +130,7 @@ repo-researcher
 → scope-planner（小 bug 可跳过 architect）
 → implementer / 专项域
 → code-reviewer
-→ security-auditor（安全相关才强制）
+→ security-auditor（涉及认证/权限/数据/支付时强制）
 → functional-tester
 → visual-tester（UI bug）
 ```
@@ -146,6 +181,16 @@ tech-researcher（方法 / 框架调研，按需）
 
 ---
 
+## 中断恢复
+
+| 用户信号 | 首调 Agent | Artifact | 下一跳 | 并发 |
+|:--|:--|:--|:--|:--|
+| 恢复 / 续跑 / resume / 中断了 | 调度器读 artifact 状态 | 同原流水线 | 从断点续跑 | S0 |
+
+使用 `/bcc-resume {task-id}` 自动执行断点检测和续跑。
+
+---
+
 ## 并发模板
 
 并发前，调度器输出：
@@ -176,6 +221,12 @@ Batch {n} 回收：{完成数}/{总数}
 - 仓库事实不明 → `repo-researcher`
 - 质量是否能放行不明 → `test-lead`
 - Agent 边界冲突 → `prompt-engineer`
+
+## 跨子项目任务
+
+| 用户信号 | 首调 Agent | Artifact | 下一跳 | 并发 |
+|:--|:--|:--|:--|:--|
+| 跨子项目 / monorepo 多服务 | `product-analyst`（拆子项目边界） | `requirements-*` | `architect`（跨模块设计）→ 按子项目分别 scope-lock | S0 |
 
 ---
 

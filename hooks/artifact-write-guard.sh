@@ -18,7 +18,7 @@ esac
 
 REASON="artifact-only violation: 当前 Agent 只允许写入 .claude/artifacts/*.md，不能修改业务文件 '$FILE_PATH'。请把发现写入 artifact 并交回调度器。"
 
-jq -n --arg reason "$REASON" '{
+jq -c -n --arg reason "$REASON" '{
   hookSpecificOutput: {
     hookEventName: "PreToolUse",
     permissionDecision: "deny",

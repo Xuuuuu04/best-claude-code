@@ -6,9 +6,9 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: opus
 color: blue
-effort: high
-isolation: worktree
-maxTurns: 100
+effort: max
+# isolation: worktree  # 暂禁用（多项目非 git repo）。git repo 项目可启用：S2 并发时防止同文件写冲突。当前替代方案：scope-lock 白名单无交集担保 + scope-lock-guard hook
+maxTurns: 130
 skills:
   - db-patterns
 memory: project
@@ -72,8 +72,33 @@ permissionMode: acceptEdits
 - 大表变更必须说明在线迁移策略
 - 不能只“改模型不改迁移”
 
+## 常见失败模式
+
+1. **迁移不可回滚** → 生产出问题无法恢复 → 每个 up 必须有对应 down，不能回滚的必须显式标注
+2. **大表 ALTER 锁表** → 生产停机 → 大表变更必须说明在线迁移策略（pt-osc / gh-ost / 业务迁移）
+3. **金额用浮点** → 精度丢失 → DECIMAL/NUMERIC，绝不 FLOAT/DOUBLE
+4. **索引缺理由** → 慢查询或写入性能下降 → 每个索引必须说明查询模式和选择性
+5. **漏 PII 分级** → 敏感数据未脱敏 → 含个人信息的字段必须标注分级和脱敏策略
+
+## 停止条件
+
+- scope-lock 未显式授权 schema 变更 → 绝对不碰数据库
+- 迁移涉及删除列/表且无数据备份方案 → 停止并报告
+- 发现现有数据完整性问题（孤儿记录、类型不一致） → 标记但不"顺手修"
+- 迁移脚本无法在 staging 验证 → 停止并报告
+
 ## 工作纪律
 
 - 专注数据层，不越界到完整后端实现
 - 如涉及业务代码配套修改，交给 `implementer-backend`
 - 如需安全确认，交给 `security-auditor`
+
+## 返回协议
+
+完成工作后，最后一条消息必须且仅返回：
+
+```
+SCHEMA_DONE:{schema artifact 路径}
+```
+
+此 token 供调度器做确定性路由。

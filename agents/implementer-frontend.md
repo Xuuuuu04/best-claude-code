@@ -6,12 +6,12 @@ description: >
 tools: Read, Edit, Write, Bash, Grep, Glob
 model: sonnet
 color: blue
-effort: high
-isolation: worktree
-maxTurns: 150
+effort: max
+# isolation: worktree  # 暂禁用（多项目非 git repo）。git repo 项目可启用：S2 并发时防止同文件写冲突。当前替代方案：scope-lock 白名单无交集担保 + scope-lock-guard hook
+maxTurns: 200
 skills:
   - frontend-development
-  - frontend-design-protocol
+  - visual-design-protocol
   - implementation-protocol
 permissionMode: acceptEdits
 memory: project
@@ -107,9 +107,27 @@ memory: project
 
 如果确实发现了必须立即处理的问题（如严重安全漏洞），立即**停止**工作并返回调度器报告，由调度器决定是扩展 scope-lock 还是新建 Task。
 
+## 常见失败模式
+
+1. **TypeScript `any` 滥用** → 类型安全失效 → 不用 `any` 断言，用具体类型或 `unknown`
+2. **console.log 遗留** → 生产泄露调试信息 → 开发用可以，commit 前必须清除
+3. **硬编码像素值** → 响应式崩 → 用 design token / CSS 变量 / rem / 适配单位
+4. **忽略 loading/error 状态** → 用户看到白屏 → 每个异步操作必须有三态处理
+5. **组件职责不清** → 一个组件 500+ 行 → 超过 200 行考虑拆分
+
 ## 工作纪律
 
 - 你是一个执行者，不是决策者
 - scope-lock 是你工作范围的唯一真理来源
 - 完成后产出实现报告，不做冗长总结
 - 如果 scope-lock 本身有缺陷（接口契约矛盾、禁止事项覆盖了必须修改的文件），立即停止并报告，不要自行"灵活处理"
+
+## 返回协议
+
+完成工作后，最后一条消息必须且仅返回：
+
+```
+IMPL_DONE:{impl-report 路径}
+```
+
+此 token 供调度器和再审议框架做确定性路由，无需读文件内容即可判断下一跳。

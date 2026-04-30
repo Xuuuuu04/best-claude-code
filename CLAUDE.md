@@ -1,18 +1,16 @@
 <!--
   CLAUDE.md 维护者备注（HTML 注释，注入前剥离，不消耗 context tokens）
-  最近升级：2026-04-27（v3.2，本次会话改动）
-  - 7 个核心 agent 加 effort: high/xhigh（test-lead / architect / reviewer 类，4.7 自适应推理）
-  - 13 个 bcc-* 流水线全加 argument-hint（disable-model-invocation 在更早会话已加）
-  - 9 个薄 references（≤10 行）填充实质内容
-  - PermissionRequest hook 自动批准 ExitPlanMode（按官方推荐 + 走 run-with-logging wrapper）
-  - HTML 注释机制（剥离前不进 context）
+  最近升级：2026-05-01（v3.9）
+  - 入口分类改革：bash 分类器退场，模型自判 → 删除 intent-classify.sh（169 行）
+  - 返回 token 协议：17 个 Agent 新增固定格式返回 token（吸收 Cangjie Harness 设计）
+  - 三级问题分级统一：严重/一般/轻微，弃用 Critical/Warning
+  - 再审议协议 Skill：redeliberation-protocol（Agent 自动触发，A-B-judge 循环）
+  - 增量修改模式：驳回问题集中 ≤2 文件时仅修改问题文件
+  - 数字对齐：Skill 47→48、Hook 15→14、版本 v3.8→v3.9
 
-  历史成果（最近一次 audit：2026-04-27 上午）：
-  - 47 Skills：全部领域协议类已加 when_to_use；bcc-* 全部 disable-model-invocation
-  - 47 Rules：rules/_lang/_framework 17+17 个全部有 paths frontmatter（已抽查）
-  - 25 agents 全部有 color + skills
-
-  保持 ≤150 行；新增机制相关说明请放 LEGION.md。
+  历史成果：
+  - 39 Skills / 47 Rules / 25 Agents / 15 Hooks
+  - 保持 ≤200 行；新增机制相关说明请放 LEGION.md。
 -->
 
 # Agent Legion — 调度元协议
@@ -23,7 +21,7 @@
 
 ## 项目身份
 
-Agent Legion — Claude Code 多 Agent 协作调度系统。25 个专职 Subagent + 47 个 Skill + 47 条 Rule + Router（UserPromptSubmit hook 五档分类）组成分层门控流水线，从需求分析推进到最终交付。
+Agent Legion — Claude Code 多 Agent 协作调度系统。25 个专职 Subagent + 39 个 Skill + 47 条 Rule + Router（clarification-gate + review-gate）组成分层门控流水线，从需求分析推进到最终交付。
 
 运行环境：Claude Code CLI v2.1.59+；脚本：Bash；数据：jq。
 
@@ -34,10 +32,10 @@ Agent Legion — Claude Code 多 Agent 协作调度系统。25 个专职 Subagen
 | 模块 | 路径 | 用途 |
 |:--|:--|:--|
 | Agent 定义 | `agents/` | 25 个 Subagent 角色 |
-| Skill 定义 | `skills/` | 47 个 Skill |
+| Skill 定义 | `skills/` | 39 个 Skill |
 | Rule 定义 | `rules/` | 47 条规则（global / framework / lang / infra） |
 | **调度真源** | `rules/_global/dispatch-table.md` | 用户信号 → Agent → artifact → 下一跳 → 并发等级 |
-| Hook 脚本 | `hooks/` | 8 个生命周期 hook + `_lib/` |
+| Hook 脚本 | `hooks/` | 15 个 hook 脚本 + `_lib/` |
 | Output Style | `output-styles/legion-dispatch.md` | 主会话调度器行为协议 |
 | 诊断工具 | `bin/doctor.sh` `bin/skill-audit.sh` | 系统健康自检 |
 
@@ -51,19 +49,17 @@ Agent Legion — Claude Code 多 Agent 协作调度系统。25 个专职 Subagen
 
 ---
 
-## 流水线命令
+## 系统运维命令
 
 | 命令 | 何时使用 |
 |:--|:--|
-| `/bcc-new-feature {需求}` | 新功能、新页面、新接口 |
-| `/bcc-fix-bug {描述}` | Bug 报告、异常行为 |
-| `/bcc-quick-fix {描述}` | ≤20 行单文件小改动 |
-| `/bcc-refactor {目标}` | 结构改进（行为不变） |
-| `/bcc-migrate {描述}` | schema 变更、框架升级、数据迁移 |
-| `/bcc-perf {目标}` | 性能优化（需量化指标） |
-| `/bcc-deploy` | 部署、发布、上线 |
-| `/bcc-init-project` `/bcc-update-project` | 项目知识初始化 / 刷新 |
-| `/bcc-evolve` `/bcc-reflect` `/bcc-doctor` | 进化 / 学习 / 健康检查 |
+| `/bcc-init-project {简介}` | 首次进入新项目——深度递归探索 + 为每个目录生成 CLAUDE.md + 根 CLAUDE.md 汇总 |
+| `/bcc-update-memory` | 会话结束时——汇总 Agent 学习 + 更新 Memory + 递归更新 CLAUDE.md 变更日志。Memory 临界时提议架构进化 |
+| `/bcc-doctor` | 每周——系统健康检查（配置/Agent/Skill/Rule/Hook 漂移） |
+| `/bcc-loop-dev {任务}` | 顶级自主开发模式——全部 Agent 团队自动循环迭代，人工仅在安全+不可逆时介入 |
+| `/bcc-fast-fix {文件+改动}` | 极速修复——主会话直接改、验、交，不派任何 Agent |
+
+业务流水线（新功能/Bug修复/重构/迁移/性能优化/部署/续跑）通过**自然语言直接描述**触发，无需显式命令。
 
 ---
 
@@ -77,13 +73,13 @@ Agent 选择规则、流水线模板、并发硬规则、Rule 层叠处理、Rou
 
 ---
 
-## 调度纪律（判据，不可省）
+## 调度纪律
 
 ### 核心原则
 - **默认调度** — 中高复杂度任务交给 Subagent
 - **分层门控** — 需求审查 → 架构审查 → 代码审查 → 安全审计 → 功能/视觉测试 → 最终裁决
 - **文件交接** — Agent 间通过 `.claude/artifacts/` 结构化文件交接
-- **并行审慎** — 默认串行；符合调度表硬规则才并行
+- **并行审慎** — 默认串行；并发等级 S0-S3、门控强制条件、用户态信号详见 dispatch-table.md
 
 ### 快路径边界
 
@@ -106,18 +102,7 @@ Agent 选择规则、流水线模板、并发硬规则、Rule 层叠处理、Rou
 
 ### 前台优先
 
-**默认前台（阻塞）**派遣 Subagent，让用户实时看进度。后台仅用于：用户明确要求 / 真正无依赖批量并行（同 Batch scope-lock） / 长耗时只读扫描。
-
-并发启动前必须声明：并发对象、互不冲突依据、输出 artifact、回收顺序。并发完成后统一回收再进入下一跳。
-
-### 工具优先级（v3.4：自然语言优先）
-
-- **自然语言驱动**：用户用普通话描述任务时，你内化流水线步骤推进，不必显式调用 `/bcc-*` skill
-- `/bcc-*` 是**显式入口**——用户主动打时按 SKILL 完整执行；否则按上下文灵活简化
-- Hook `[LEGION-INTENT-HINT]` 是**参考**而非指令，AI 综合语义自行判断（详见 output-style/legion-dispatch.md）
-- 模糊问询 → 先回应再决定
-- 对话性询问 → 直接答，不走流水线
-- 中高复杂度 / 跨文件 / 高风险 → 走流水线（精神不是命令）
+**默认前台（阻塞）**派遣 Subagent。后台仅用于：用户明确要求 / 同 Batch scope-lock 无依赖并行 / 长耗时只读扫描。
 
 ---
 
@@ -129,10 +114,23 @@ artifact 命名与生命周期遵循 `rules/_global/artifact-protocol.md` + `dot
 
 ## 进化协议
 
-观察 → 反思 → 进化：
-- 重要会话结束 → `/bcc-reflect`
-- 每 1-2 周或 Memory 充足 → `/bcc-evolve`
-- 进化产出**必须经你审批**才生效，绝不自动修改配置
+会话结束 → `/bcc-update-memory` 自动汇总 Agent 学习 + 更新 Memory + 递归更新所有 CLAUDE.md 变更日志。Memory 临界时（≥180 行 / ≥15 条 agent-memory / ≥14 天未进化 / 同一 pattern ≥3 次）→ 向用户提议架构进化升级。升级前**必须**完整阅读所有 `.claude/` 下文档，确保理解全局设计。进化产出**必须经你审批**才生效。
+
+### Memory 触发（每次流水线完成时）
+
+**不靠 Agent 自觉**。每次流水线到达 verdict（PASS / CONDITIONAL PASS / BLOCKED）后，调度器主动向参与该流水线的 implementer 和 reviewer 追问：
+
+```
+"本轮是否产生了跨任务可复用的知识？只答有/没有。"
+```
+
+回答有 → 追问"一句说清" → 写入对应 Agent 的 agent-memory 路径。回答没有 → 跳过。每条 memory ≤30 行，3 句话能说清。
+
+**必须追问的场景**（硬触发）：
+- 同一 scope-lock 被驳回 ≥2 次 → 追问 code-reviewer：驳回根因是否可复用
+- implementer turns >50 → 追问 implementer：摸索时间是否源于 scope-lock 不精确
+- 接口字段方向被 reviewer 揪出过 → 追问 implementer：是否已内化为检查项
+- test-lead 判定 reviewer 漏审（reviewer PASS 但 tester 仍发现 [严重] 或 [一般]≥3）→ 追问该 reviewer：漏审原因，写入 agent-memory 防重复
 
 ---
 
@@ -145,11 +143,28 @@ artifact 命名与生命周期遵循 `rules/_global/artifact-protocol.md` + `dot
 - 读 artifact 摘要，不读原始文件
 - 长会话后 `/bcc-reflect` 再开新会话
 
+### 上下文读取权限表
+
+| 文件类型 | 主会话可读 | 依赖 token 路由 |
+|:--|:--|:--|
+| `requirements-*.md` | 全文 | — |
+| `architecture-*.md` | 仅 ADR 摘要段 | `ARCH_DONE:{path}` |
+| `scope-lock-*.md` | 仅白名单段 | `SCOPE_DONE:{path}` |
+| `scope-plan-*.md` | 执行批次段 | — |
+| `impl-report-*.md` | **不读** | `IMPL_DONE:{path}` |
+| `review-code-*.md` | **不读** | `REVIEW_PASS/REJECT:{path}` |
+| `review-security-*.md` | 仅严重问题列表 | `SECURITY_PASS/REJECT:{path}` |
+| `review-functional-*.md` | **不读** | `TEST_PASS/BLOCKED:{path}` |
+| `review-visual-*.md` | **不读** | `VISUAL_PASS/BLOCKED:{path}` |
+| `verdict-*.md` | 仅最终结论段 | `VERDICT_PASS/CONDITIONAL/BLOCKED:{path}` |
+
+**核心原则**：有 token 可路由时，不读文件内容。子 Agent 返回的 `XXX_DONE` / `XXX_PASS` / `XXX_REJECT` token 即足够判断下一跳。需要详情时才打开文件。
+
 ---
 
 ## 模型意识
 
-运行在 sonnet 级或更小模型时：**架构优势是你的弥补**。干净上下文 + 精确 Skill/Rule + 精确 scope-lock 让你在单点任务上不输给更强模型。**不靠脑力顶，靠机制撑**。
+运行在第三方模型（非 Claude 原生）时：**架构优势是你的弥补**。干净上下文 + 精确 Skill/Rule + 精确 scope-lock 让你在单点任务上稳定发挥。**不靠脑力顶，靠机制撑**。
 
 ---
 
@@ -165,22 +180,11 @@ context 压缩时（auto-compact 或 `/compact`）必须保留以下内容，超
 6. **接口字段对账证据**：implementer 已 grep 到的字典文件路径 + 关键枚举值
 7. **客户态信号**：用户消息里 "返工" / "客户不满" / "终极摸排" 等情绪词触发的强制门控状态
 
-可以丢弃的：
-- 已 commit 的代码 diff（git log 可查）
-- 工具调用的中间输出（summary 即可）
-- artifact 完整内容（路径 + 一句话状态即可）
-- 主会话与用户的客套对话
+可丢弃：已 commit 的 diff（git log 可查）、工具调用中间输出、artifact 完整内容（路径+状态即可）、主会话客套对话
 
 ---
 
 ## 参考文件
 
-完整机制说明阅读 `README.md` 和 `LEGION.md`，**不要**整篇重新注入运行期协议。运行时开关见 `rules/_global/hook-scripts-pattern.md` § 8（`CLAUDE_HOOK_PROFILE` / `CLAUDE_DISABLED_HOOKS`）。
-
-<!--
-  4.7 时代提示：
-  - 不要在 prompt 中加 "double-check" / "always remember" / 全大写 ALWAYS——4.7 字面化下会反噬
-  - 高频违规事项用 few-shot 反例代码（dispatch-table 接口字段对账已示例）
-  - effort 字段配置见各 agent frontmatter（reviewer/test-lead 已配 high/xhigh）
--->
+完整机制说明阅读 `README.md` 和 `LEGION.md`，**不要**整篇重新注入运行期协议。运行时开关见 `rules/_global/hook-scripts-pattern.md` § 8（`CLAUDE_HOOK_PROFILE` / `CLAUDE_DISABLED_HOOKS`）。改完 settings.json 后跑 `bash ~/.claude/bin/doctor.sh` 验证 JSON 合法——格式错误会导致 Claude Code 静默不启动。
 

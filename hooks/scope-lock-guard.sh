@@ -119,7 +119,7 @@ fi
 REASON="scope-lock violation: 尝试写入 '$FILE_PATH'，但它不在当前任务的白名单中。"
 REASON+="请只修改 scope-lock 列出的文件。如确需扩展范围，停止并向调度器汇报。"
 
-jq -n --arg reason "$REASON" '{
+jq -c -n --arg reason "$REASON" '{
   hookSpecificOutput: {
     hookEventName: "PreToolUse",
     permissionDecision: "deny",

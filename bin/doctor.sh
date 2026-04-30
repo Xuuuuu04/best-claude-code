@@ -383,9 +383,9 @@ check_log_size() {
 
 check_log_size "$HOME/.claude/logs/subagent-events.jsonl" 50 "subagent-events.jsonl"
 check_log_size "$HOME/.claude/logs/hook-errors.log" 5 "hook-errors.log（全局）"
-check_log_size "$PROJ_DIR/.claude/cost-log.txt" 10 "cost-log.txt（项目）"
-check_log_size "$PROJ_DIR/.claude/hook-errors.log" 5 "hook-errors.log（项目）"
-check_log_size "$PROJ_DIR/.claude/instructions-log.txt" 20 "instructions-log.txt（项目）"
+check_log_size "$PROJ_DIR/.claude/logs/cost-log.txt" 10 "cost-log.txt（项目）"
+check_log_size "$PROJ_DIR/.claude/logs/hook-errors.log" 5 "hook-errors.log（项目）"
+check_log_size "$PROJ_DIR/.claude/logs/instructions-log.txt" 20 "instructions-log.txt（项目）"
 
 # ── 9. Recent Hook Errors ──────────────────────────────────────────────────
 section "9. Recent Hook Errors (近 5 条)"
@@ -612,17 +612,17 @@ import json
 d = json.load(open('$SETTINGS_PATH'))
 print(len(d.get('hooks', {}).get('UserPromptSubmit', [{}])[0].get('hooks', [])))
 " 2>/dev/null || echo 0)"
-  if [ "$UPS_COUNT" -ge 3 ]; then
-    pass "UserPromptSubmit 注册了 $UPS_COUNT 个 hook（Router 链完整）"
+  if [ "$UPS_COUNT" -ge 2 ]; then
+    pass "UserPromptSubmit 注册了 $UPS_COUNT 个 hook（clarification-gate / review-gate）"
   elif [ "$UPS_COUNT" -ge 1 ]; then
-    warn "UserPromptSubmit 只注册了 $UPS_COUNT 个 hook（期待 3：intent-classify / clarification-gate / review-gate）"
+    warn "UserPromptSubmit 只注册了 $UPS_COUNT 个 hook（期待 2：clarification-gate / review-gate）"
   else
     fail "UserPromptSubmit 未注册任何 hook（Router 不生效）"
   fi
 fi
 
-# 检查三个 hook 脚本
-for h in intent-classify.sh clarification-gate.sh review-gate.sh; do
+# 检查 hook 脚本（v3.9：intent-classify 已退役，档位由模型自判）
+for h in clarification-gate.sh review-gate.sh; do
   p="$LEGION_DIR/hooks/$h"
   if [ -x "$p" ] && bash -n "$p" 2>/dev/null; then
     pass "hooks/$h 可执行 + 语法正确"
@@ -633,15 +633,95 @@ for h in intent-classify.sh clarification-gate.sh review-gate.sh; do
   fi
 done
 
-# 近期 intent-classify 分类分布
-if [ -f "$LEGION_DIR/logs/intent-classify.jsonl" ]; then
-  RECENT="$(tail -50 "$LEGION_DIR/logs/intent-classify.jsonl" 2>/dev/null)"
-  if [ -n "$RECENT" ] && command -v jq >/dev/null 2>&1; then
-    echo "$RECENT" | jq -r '.tier' 2>/dev/null | sort | uniq -c | awk '{printf "    %-10s %s\n", $2, $1}' \
-      | while read line; do
-        [ -n "$line" ] && info "近 50 次分类：$line"
-      done
+# v3.9：档位改为模型自判，不再依赖 intent-classify
+info "任务档位：模型自判（v3.9），hook 仅保留 clarification-gate + review-gate"
   fi
+fi
+
+# ── 18. Unfinished Tasks ────────────────────────────────────────────────────
+section "18. Unfinished Tasks"
+
+# 扫描 artifacts 目录，找出断点任务
+ARTIFACT_DIR=""
+if [ -n "${CLAUDE_PROJECT_DIR:-}" ] && [ -d "$CLAUDE_PROJECT_DIR/.claude/artifacts" ]; then
+  ARTIFACT_DIR="$CLAUDE_PROJECT_DIR/.claude/artifacts"
+elif [ -d "$PWD/.claude/artifacts" ]; then
+  ARTIFACT_DIR="$PWD/.claude/artifacts"
+fi
+
+if [ -n "$ARTIFACT_DIR" ] && [ -d "$ARTIFACT_DIR" ]; then
+  # 提取所有 task-id
+  TASK_IDS="$(find "$ARTIFACT_DIR" -maxdepth 1 -name '*.md' -type f 2>/dev/null \
+    | xargs grep -l 'Task ID' 2>/dev/null \
+    | xargs grep -oE '(feat|bug|hotfix|chore|refactor|migration|deploy|audit|research)-[0-9]{8}-[0-9a-zA-Z-]+' 2>/dev/null \
+    | sort -u || true)"
+
+  if [ -n "$TASK_IDS" ]; then
+    UNFINISHED=0
+    while IFS= read -r tid; do
+      [ -z "$tid" ] && continue
+      # 检查是否有 scope-lock accepted 但无 impl-report
+      HAS_SCOPELOCK="$(find "$ARTIFACT_DIR" -name "scope-lock-${tid}*.md" -type f 2>/dev/null | head -1)"
+      HAS_IMPL="$(find "$ARTIFACT_DIR" -name "impl-report-${tid}*.md" -type f 2>/dev/null | head -1)"
+      HAS_REVIEW="$(find "$ARTIFACT_DIR" -name "review-code-${tid}*.md" -type f 2>/dev/null | head -1)"
+      HAS_VERDICT="$(find "$ARTIFACT_DIR" -name "verdict-${tid}*.md" -type f 2>/dev/null | head -1)"
+
+      if [ -n "$HAS_SCOPELOCK" ] && [ -z "$HAS_IMPL" ]; then
+        warn "断点: $tid — scope-lock 有但 impl-report 缺失（从实现阶段续跑）"
+        UNFINISHED=$((UNFINISHED + 1))
+      elif [ -n "$HAS_IMPL" ] && [ -z "$HAS_REVIEW" ]; then
+        warn "断点: $tid — impl-report 有但 review-code 缺失（从代码审查续跑）"
+        UNFINISHED=$((UNFINISHED + 1))
+      elif [ -n "$HAS_REVIEW" ] && [ -z "$HAS_VERDICT" ]; then
+        info "断点: $tid — review-code 有但 verdict 缺失（可续跑最终裁决）"
+        UNFINISHED=$((UNFINISHED + 1))
+      fi
+    done <<< "$TASK_IDS"
+
+    if [ "$UNFINISHED" -eq 0 ]; then
+      pass "所有 task 无断点"
+    else
+      info "发现 $UNFINISHED 个断点任务，可用 /bcc-resume {task-id} 续跑"
+    fi
+  else
+    pass "artifacts 目录无 task-id"
+  fi
+else
+  info "artifacts 目录不存在（跳过）"
+fi
+
+# ── 19. Hook False-Positive Analysis ────────────────────────────────────────
+section "19. Hook False-Positive Analysis"
+
+# Clarification gate bypass 率
+CLARIFY_FILE="$LEGION_DIR/logs/clarification-gate.jsonl"
+if [ -f "$CLARIFY_FILE" ] && command -v jq >/dev/null 2>&1; then
+  TOTAL_BLOCKS=$(jq -r '.action' "$CLARIFY_FILE" 2>/dev/null | grep -c "block" || echo 0)
+  # 检查 state 目录中残留的 pending 文件（未被 bypass 的）
+  PENDING_DIR="$LEGION_DIR/state"
+  STALE_PENDING=$(find "$PENDING_DIR" -name 'clarification-pending-*.json' -mmin -1440 2>/dev/null | wc -l | tr -d ' ')
+
+  if [ "$TOTAL_BLOCKS" -gt 0 ]; then
+    if [ "$STALE_PENDING" -eq 0 ]; then
+      pass "Clarification gate: $TOTAL_BLOCKS 次 block，全部被 bypass（gate 可能偏严）"
+    else
+      info "Clarification gate: $TOTAL_BLOCKS 次 block，$STALE_PENDING 个未 bypass"
+    fi
+  else
+    pass "Clarification gate: 无 block 记录"
+  fi
+fi
+
+# Review gate 漏审检测
+REVIEW_FILE="$LEGION_DIR/logs/review-gate.jsonl"
+if [ -f "$REVIEW_FILE" ] && command -v jq >/dev/null 2>&1; then
+  HIGH_PENDING=$(jq -r 'select(.pending >= 3) | .session_id' "$REVIEW_FILE" 2>/dev/null | sort -u | wc -l | tr -d ' ')
+  if [ "$HIGH_PENDING" -gt 0 ]; then
+    warn "Review gate: $HIGH_PENDING 个 session 有 ≥3 个未 review 的实现（可能漏审）"
+  else
+    pass "Review gate: 无高 pending session"
+  fi
+fi
 fi
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────

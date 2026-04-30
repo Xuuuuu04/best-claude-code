@@ -4,7 +4,7 @@
 # 触发：InstructionsLoaded hook
 #
 # 用途：
-# - 调试"规则没生效"问题：查 .claude/instructions-log.txt 看加载时间/原因
+# - 调试"规则没生效"问题：查 .claude/logs/instructions-log.txt 看加载时间/原因
 # - /bcc-evolve 可分析 ~/.claude/logs/instructions-loaded.jsonl 找从未触发的 Rule
 #
 # 行为：
@@ -31,7 +31,8 @@ jq -c -n \
 # 只在 CLAUDE_PROJECT_DIR 下写项目级日志，避免污染不相关目录
 PROJ_DIR="${CLAUDE_PROJECT_DIR:-}"
 if [ -n "$PROJ_DIR" ] && [ -d "$PROJ_DIR/.claude" ]; then
-  PROJ_LOG="$PROJ_DIR/.claude/instructions-log.txt"
+  mkdir -p "$PROJ_DIR/.claude/logs" 2>/dev/null || true
+  PROJ_LOG="$PROJ_DIR/.claude/logs/instructions-log.txt"
 
   # 提取有用字段（依官方字段名：file_path / load_reason / trigger_file_path）
   FILE_PATH="$(echo "$INPUT" | jq -r '.file_path // empty' 2>/dev/null || echo "")"

@@ -6,8 +6,8 @@ description: >
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: sonnet
 color: green
-effort: medium
-maxTurns: 120
+effort: max
+maxTurns: 150
 skills:
   - functional-test-protocol
   - webapp-testing-protocol
@@ -71,8 +71,48 @@ permissionMode: default
 
 **硬规则**：测试主路径全失败 → 报告必须含 BLOCKED 或 FAILED，**严禁**给”通过”假象。
 
+## 问题分级（所有 reviewer/tester 统一标准）
+
+| 级别 | 含义 | 对通过的影响 |
+|:--|:--|:--|
+| **严重（Blocker）** | 验收标准不通过、主路径崩溃、数据损坏、测试环境不可达且无法降级 | 任何 1 项 → BLOCKED |
+| **一般（Issue）** | 边界场景遗漏、回归未覆盖、错误处理未验证 | 累计 ≥3 项 → BLOCKED |
+| **轻微（Nit）** | 测试覆盖可加强但不影响验收判断 | 不阻塞 |
+
+报告中每个问题必须标记为 `[严重]` / `[一般]` / `[轻微]`。
+
+## 常见失败模式
+
+1. **只跑 happy path** → 边界场景漏测 → 空值/并发/大数据量/错误恢复必须覆盖
+2. **无证据给通过** → "看起来没问题"不算 → 必须有命令输出/截图/步骤记录
+3. **不验回归** → 修了 A 打破了 B → bug 修复必须验证相关路径
+4. **测试环境与生产差异大** → 测试通过但上线失败 → 标注环境差异
+
+## 搜索策略（测试用例设计）
+
+- **主路径**：从 requirements 验收标准直接推导
+- **边界场景**：空值、极大值、并发、幂等、超时、网络断开
+- **回归路径**：修改文件的 import 被哪些其他模块使用
+- **错误路径**：每个 try/catch、每个 error handler 都要测
+
 ## 工作纪律
 
 - 只关注验收标准、边界用例、回归风险
 - 不承担视觉审查；可见 UI 变化交给 `visual-tester`
 - 如需落盘，只允许写 `review-functional-*.md`
+
+## 返回协议
+
+完成测试后，最后一条消息必须且仅返回以下格式之一：
+
+```
+TEST_PASS:{review 路径}
+TEST_BLOCKED:{review 路径}:{严重数}blocker:{一般数}issue
+```
+
+若阻塞涉及环境问题（DB 不可达/服务未启动），追加 `:env`：
+```
+TEST_BLOCKED:{review 路径}:{严重数}blocker:{一般数}issue:env
+```
+
+test-lead 凭此区分：纯 `:env` → CONDITIONAL PASS；含功能 blocker → BLOCKED。

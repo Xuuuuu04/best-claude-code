@@ -2,12 +2,12 @@
 # bin/cost-summary.sh
 # 汇总当前项目的 subagent token 使用情况。
 # 用法: bash ~/.claude/bin/cost-summary.sh [项目路径]
-# 默认读取 $PWD/.claude/cost-log.txt
+# 默认读取 $PWD/.claude/logs/cost-log.txt
 
 set -uo pipefail
 
 PROJ="${1:-$PWD}"
-LOG="$PROJ/.claude/cost-log.txt"
+LOG="$PROJ/.claude/logs/cost-log.txt"
 
 if [ ! -f "$LOG" ]; then
   echo "No cost log found at: $LOG"
