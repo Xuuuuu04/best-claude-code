@@ -70,6 +70,7 @@
     <route signal="技术调研/仓库研究审查" agent="research-reviewer" artifact="review-research-*" next="architect 或调度器" concurrency="S1"/>
     <route signal="接单报价 / 外包项目评估" agent="freelance-bidder" artifact="bid-proposal-*" next="用户确认" concurrency="S0"/>
     <route signal="简历优化 / 面试准备 / 薪资谈判" agent="career-coach" artifact="career-*" next="用户确认" concurrency="S0"/>
+    <route signal="论文写作 / 学术研究 / 毕业论文 / 期刊投稿 / rebuttal" agent="academic-paper-writer" artifact="paper-plan-*, paper-*, audit-*" next="academic-paper-reviewer 或 audit agents" concurrency="S0"/>
   </section>
 
   <section id="standard-pipelines">
@@ -101,6 +102,9 @@
 
         <gate-condition agent="test-lead（assurance submission）" trigger="assurance = submission 时，所有强制 reviewer 必须发出六级裁决（PASS/WARN/FAIL/NOT_APPLICABLE/BLOCKED/ERROR）之一" basis="ARIS 吸收：draft vs submission 动态门控"/>
         <gate-condition agent="test-lead（artifact 完整性）" trigger="assurance = submission 时，裁决前必须调用 verify-artifacts.sh 验证必需 artifact 存在且无 STALE" basis="ARIS 吸收：外部 verifier 阻塞机制"/>
+        <gate-condition agent="paper-claim-auditor" trigger="assurance = submission 且论文含实验数字" basis="ARIS L3 审计：论文数字 vs 原始结果"/>
+        <gate-condition agent="citation-auditor" trigger="assurance = submission 且论文含引用" basis="ARIS L4 审计：引用完整性"/>
+        <gate-condition agent="proof-checker" trigger="assurance = submission 且 .tex 含 theorem/lemma/proof 环境" basis="ARIS L3+ 审计：定理严谨性"/>
 
         <note>**不触发的唯一理由**：用户显式说"跳过 XX 测试"。AI 不得自行判断"不适用"而省略。</note>
       </constraint>
@@ -223,6 +227,35 @@
         <step agent="用户确认 / 投递"/>
       </pipeline>
     </subsection>
+
+    <subsection id="pipeline-academic-paper">
+      <pipeline id="academic-paper">
+        <step agent="tech-researcher" note="Stage 1: 文献调研，按需" optional="true"/>
+        <step agent="academic-paper-reviewer" note="Stage 1: 新颖性验证（nightmare 预审），按需" optional="true"/>
+        <step agent="ml-engineer" note="Stage 2: 实验实现，按需" optional="true"/>
+        <step agent="code-reviewer" note="Stage 2: 实验审计（L1），按需" optional="true"/>
+        <step agent="academic-paper-writer" note="Stage 3: Phase 0-4 论文写作"/>
+        <step agent="paper-claim-auditor" note="Phase 5: L3 数字审计，assurance=submission 时强制" optional="true"/>
+        <step agent="citation-auditor" note="Phase 5: L4 引用审计，assurance=submission 时强制" optional="true"/>
+        <step agent="proof-checker" note="Phase 5: 定理审计，assurance=submission 且含定理时强制" optional="true"/>
+        <step agent="academic-paper-reviewer" note="Stage 3: 5 维审查 + Debate"/>
+        <step agent="test-lead" note="Stage 3: 最终裁决"/>
+        <step agent="academic-paper-writer" note="Stage 4: Rebuttal，按需" optional="true"/>
+      </pipeline>
+    </subsection>
+  </section>
+
+  <section id="academic-audit-concurrency">
+    <requirement>
+      Phase 5 学术审计 Agent 并发规则：
+      <list>
+        <item><agent>paper-claim-auditor</agent> / <agent>citation-auditor</agent> / <agent>proof-checker</agent> 并发等级 <concurrency-level>S1</concurrency-level></item>
+        <item>输入：同一 .tex 文件（只读），审计员互不修改</item>
+        <item>输出：<path>audit-paper-claim-*.json</path> / <path>audit-citation-*.json</path> / <path>audit-proof-*.json</path>（路径唯一）</item>
+        <item>全部审计 PASS/WARN/NOT_APPLICABLE 后进入 <agent>academic-paper-reviewer</agent></item>
+        <item>任一审计 FAIL/BLOCKED/ERROR → 阻塞进入审稿阶段，退回 <agent>academic-paper-writer</agent> 修正</item>
+      </list>
+    </requirement>
   </section>
 
   <section id="resume">

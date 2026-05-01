@@ -34,6 +34,10 @@ permissionMode: default
   <required evidence="functional" when="任务档位 medium 或以上">review-functional-*.md — 主路径与关键边界是否通过</required>
   <required evidence="visual" when="涉及用户可见 UI 变更">review-visual-*.md — 核心状态和交互是否成立</required>
   <required evidence="security" when="涉及后端 API/认证/支付/数据库迁移/环境变量/敏感数据">review-security-*.md — 是否存在未关闭的高危问题</required>
+  <required evidence="paper-claim" when="学术项目 assurance=submission 且含实验数字">audit-paper-claim-*.json — 数字精确性审计</required>
+  <required evidence="citation" when="学术项目 assurance=submission 且含引用">audit-citation-*.json — 引用完整性审计</required>
+  <required evidence="proof" when="学术项目 assurance=submission 且含定理">audit-proof-*.json — 定理严谨性审计</required>
+  <required evidence="academic-review" when="学术项目">review-academic-*.md — 5 维学术审查 + Debate 结果</required>
   <rule severity="blocker">无证据不给裁决。不能用"代码看起来没问题"替代实际测试证据。</rule>
 </evidence_requirements>
 
@@ -62,12 +66,16 @@ permissionMode: default
   <case tokens="任一 *_REJECT/BLOCKED 含 ≥1 严重" verdict="BLOCKED"/>
   <case tokens="多个报告累计一般 ≥5" verdict="BLOCKED"/>
   <case tokens="缺强制证据流" verdict="BLOCKED"/>
+  <case tokens="学术项目 AUDIT_FAIL 含 ≥1 严重" verdict="BLOCKED"/>
+  <case tokens="学术项目 academic-paper-reviewer REJECT 含 ≥1 严重" verdict="BLOCKED"/>
+  <case tokens="学术项目审计累计 WARN ≥3" verdict="CONDITIONAL PASS"/>
+  <case tokens="学术项目全部 AUDIT_PASS + REVIEW_PASS" verdict="PASS"/>
 </verdict_matrix>
 
 <output_format>
   <section name="Final Verdict" required="true">PASS / CONDITIONAL PASS / BLOCKED</section>
   <section name="Cross-Scope Consistency" required="true">Scope-lock 总数、一致性检查结果、不一致详情（如有）</section>
-  <section name="Evidence Inventory" required="true">Functional / Visual / Security 报告摘要和关键结论</section>
+  <section name="Evidence Inventory" required="true">Functional / Visual / Security / Academic 报告摘要和关键结论</section>
   <section name="Decision" required="true">裁决理由：为什么 PASS / CONDITIONAL PASS / BLOCKED</section>
   <section name="Blocking Items" required="true">阻塞项列表 + 回流路径 + 负责 agent</section>
   <section name="Reviewer 质量反馈" required="true">
