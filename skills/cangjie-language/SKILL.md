@@ -9,64 +9,54 @@ when_to_use: 当用户提到仓颉/CangJie、仓颉代码、仓颉项目、cjpm 
 ## 语言速查
 
 ### 类型系统
-
-| 类型 | 值/引用 | 关键特性 |
-|:--|:--|:--|
-| `struct` | 值类型（传参复制） | 不支持继承，轻量数据 |
-| `class` | 引用类型 | 单继承（Object），OOP |
-| `enum` | ADT | 代数数据类型，支持递归 |
-| `interface` | — | 多继承，所有类型默认实现 Any |
-| `Option<T>` | — | Some/None，空值安全，替代 null |
-
-基础类型：`Int8-64/UInt8-64/IntNative/UIntNative` `Float16-64` `Bool` `Rune` `String` `Array<T>` `Tuple` `Range` `Unit` `Nothing`
+- **struct** (值类型/传参复制/不支持继承) · **class** (引用类型/单继承Object) · **enum** (ADT/支持递归) · **interface** (多继承)
+- **Option\<T\>** (Some/None, 替代null) · **Any** (所有类型默认实现)
+- 基础: `Int8-64/UInt8-64` `Float16-64` `Bool` `Rune` `String` `Array<T>` `Tuple` `Range` `Unit` `Nothing`
 
 ### 并发
-- M:N 用户态轻量级线程（原生协程），抢占式调度
-- `spawn { ... }` 启动协程，返回 `Future<T>`
-- `Atomic<T>` `Mutex<T>` `synchronized` `Condition` `ThreadLocal`
-
-### 关键语法
-- 插值字符串：`"hello ${name}"`
-- 主构造函数：`class Foo(prop: Type) { ... }`
-- 模式匹配：`match (x) { case pattern => expr }`
-- 尾随 lambda、操作符重载、函数一等公民
-- 宏系统：词法宏（macro package），编译时代码变换
+- M:N 用户态协程, `spawn {}` → `Future<T>`, `Atomic<T>` `Mutex<T>` `synchronized` `Condition`
 
 ### C 互操作
-- `foreign func` / `@C` 声明外部 C 函数
-- `CPointer<T>` `CString` `VArray<T>` `CFunc`
-- `inout` 参数修饰符对应 C 指针语义
-- `unsafe` 块包裹所有 FFI 调用
+- `foreign func` / `@C` / `CPointer<T>` `CString` `VArray<T>` `CFunc` / `unsafe` 块包裹
 
-### 网络
-- TCP/UDP/UnixDomain Socket（`net/socket.md`）
-- HTTP 1.0/2.0 Client（`net/net_http.md`）
-- WebSocket（`net/net_websocket.md`）
-- TLS 支持
+### 编译
+- `cjc` (优化/LTO/PGO/交叉编译) · `cjpm` 包管理
 
-### 编译构建
-- `cjc` 编译器，支持优化/LTO/PGO/交叉编译/条件编译
-- `cjpm` 包管理器
+## 完整文档索引（按需读取 references/ 下对应文件）
 
-### 标准库（std）
-30+ 模块：`std/collection` `std/io` `std/fs` `std/os` `std/math` `std/time` `std/json` `std/regex` 等
+### 语言手册（user_manual/）
+| 主题 | 参考文件 |
+|:--|:--|
+| 语言基础 | `user_manual/first_understanding/basic.md` |
+| 整数类型 | `user_manual/basic_data_type/integer.md` |
+| 字符串 | `user_manual/basic_data_type/strings.md` |
+| 数组 | `user_manual/basic_data_type/array.md` |
+| 元组 | `user_manual/basic_data_type/tuple.md` |
+| struct 定义 | `user_manual/struct/define_struct.md` |
+| class 与 OOP | `user_manual/class_and_interface/class.md` |
+| enum 与模式匹配 | `user_manual/enum_and_pattern_match/enum.md` |
+| Option 类型 | `user_manual/enum_and_pattern_match/option_type.md` |
+| interface | `user_manual/class_and_interface/interface.md` |
+| 函数 | `user_manual/function/` (全部子文件) |
+| 宏系统 | `user_manual/macro/` |
+| 并发 | `user_manual/concurrency/` |
+| 网络编程 | `user_manual/Net/net_overview.md`, `net_http.md`, `net_socket.md`, `net_websocket.md` |
+| C 互操作 | `user_manual/interop_c/` |
+| 扩展 | `user_manual/extension/` |
+| 附录 | `user_manual/Appendix/` (关键词/编译选项/操作符/运行时环境) |
 
-### 扩展库（stdx）
-`crypto` `encoding` `net` `compression` `logger` `serialization` `fuzz` `aspectCJ` `log` 等
+### 标准库（libs/）
+- `libs/index.md` — std 30+ 模块清单
 
-## 完整参考
+### 扩展库（libs_stdx/）
+- `libs_stdx/libs_overview.md` — 16 个扩展包 (crypto/encoding/net/compression/logger/serialization/fuzz/aspectCJ/log 等)
 
-详细文档位于 `/Users/mumuxsy/Desktop/文档资料/cangJie_docs/`：
-- `user_manual/` — 22 个子目录的完整语言手册
-- `libs/` — 标准库文档
-- `libs_stdx/` — 扩展库文档
-
-知识点结构化摘要：`/tmp/cangjie-knowledge.md`（400 行，12 个知识域）
+### 知识摘要
+- `references/knowledge-summary.md` — 全语言 12 域结构化摘要 (400 行)
 
 ## 开发铁律
-
-1. 空值用 `Option<T>` 的 Some/None 而非 null
-2. 网络/IO 用协程 `spawn` 而非系统线程
-3. FFI 必须 `unsafe` 包裹，`CPointer` 使用后手动管理生命周期
-4. struct 赋值即复制，class 赋值共享引用——注意选择正确的类型形态
-5. 模式匹配必须穷尽，否则编译错误
+1. 空值用 `Option<T>` 而非 null
+2. 网络/IO 用 `spawn` 协程
+3. FFI 必须 `unsafe` 包裹
+4. struct 赋值即复制, class 赋值共享引用
+5. match 必须穷尽, 否则编译错误
