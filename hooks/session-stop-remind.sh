@@ -23,12 +23,9 @@ PRODUCER_COUNT=$(grep "$SESSION_ID" "$EVENTS_LOG" 2>/dev/null | \
 PRODUCER_COUNT=$(echo "$PRODUCER_COUNT" | tr -d ' \n')
 [ "${PRODUCER_COUNT:-0}" -lt 3 ] && exit 0
 
-# 注入提醒
-jq -c -n --arg count "$PRODUCER_COUNT" '{
-  hookSpecificOutput: {
-    hookEventName: "Stop",
-    additionalContext: ("本次会话有 \($count) 次 Agent 调用。建议执行 /bcc-update-memory 记录可复用经验——避免知识丢失。")
-  }
+# 注入提醒（Stop 事件不支持 hookSpecificOutput，用 systemMessage）
+jq -c -n --arg count "$PRODUCER_COUNT" --arg msg "本次会话有 $PRODUCER_COUNT 次 Agent 调用。建议执行 /bcc-update-memory 记录可复用经验——避免知识丢失。" '{
+  systemMessage: $msg
 }' 2>/dev/null || true
 
 exit 0

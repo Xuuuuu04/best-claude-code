@@ -68,6 +68,8 @@
     <route signal="构建 / CI / 部署 / 回滚" agent="devops" artifact="deploy-report-* 或 incident-*" next="test-lead 或完成" concurrency="S0"/>
     <route signal="文档/创意内容审查" agent="content-reviewer" artifact="review-content-*" next="用户确认 / 下游消费" concurrency="S1"/>
     <route signal="技术调研/仓库研究审查" agent="research-reviewer" artifact="review-research-*" next="architect 或调度器" concurrency="S1"/>
+    <route signal="接单报价 / 外包项目评估" agent="freelance-bidder" artifact="bid-proposal-*" next="用户确认" concurrency="S0"/>
+    <route signal="简历优化 / 面试准备 / 薪资谈判" agent="career-coach" artifact="career-*" next="用户确认" concurrency="S0"/>
   </section>
 
   <section id="standard-pipelines">
@@ -202,6 +204,20 @@
         <step agent="tech-researcher 或 repo-researcher"/>
         <step agent="research-reviewer"/>
         <step agent="architect 或调度器"/>
+      </pipeline>
+    </subsection>
+
+    <subsection id="pipeline-freelance">
+      <pipeline id="freelance">
+        <step agent="freelance-bidder" note="需求澄清 → 工时估算 → 风险评估 → 报价计算"/>
+        <step agent="用户确认 / 签约"/>
+      </pipeline>
+    </subsection>
+
+    <subsection id="pipeline-career">
+      <pipeline id="career">
+        <step agent="career-coach" note="岗位分析 → 背景评估 → 简历优化 → 面试准备 → 薪资建议"/>
+        <step agent="用户确认 / 投递"/>
       </pipeline>
     </subsection>
   </section>

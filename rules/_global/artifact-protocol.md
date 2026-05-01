@@ -52,6 +52,8 @@
 | `evolve-log` | 调度器 | 进化历史累积文件 |
 | `review-content` | content-reviewer | 文档/创意内容审查 |
 | `review-research` | research-reviewer | 技术调研/仓库研究审查 |
+| `bid-proposal` | freelance-bidder | 外包项目报价提案 |
+| `career` | career-coach | 就业辅导产出（简历/面试/薪资） |
       </table>
     </subsection>
 
