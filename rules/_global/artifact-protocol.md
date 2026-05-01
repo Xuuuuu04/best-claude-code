@@ -56,6 +56,7 @@
 | `career` | career-coach | 就业辅导产出（简历/面试/薪资） |
 | `audit-paper-claim` | paper-claim-auditor | L3 论文数字审计 |
 | `audit-citation` | citation-auditor | L4 引用审计 |
+| `audit-proof` | proof-checker | 定理与证明审计 |
       </table>
     </subsection>
 
