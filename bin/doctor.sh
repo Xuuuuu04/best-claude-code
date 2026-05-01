@@ -192,10 +192,10 @@ for f in "$LEGION_DIR"/agents/*.md; do
 
   case "$BASENAME" in
     client|creative|visual-designer|prompt-engineer)
-      [ "$MEMORY_SCOPE" != "user" ] && warn "agents/$BASENAME.md memory=$MEMORY_SCOPE（按 LEGION 应为 user）" && MEMORY_DRIFT=$((MEMORY_DRIFT + 1))
+      [ "${MEMORY_SCOPE:-}" != "user" ] && warn "agents/$BASENAME.md memory=${MEMORY_SCOPE:-} (expected user per LEGION)" && MEMORY_DRIFT=$((MEMORY_DRIFT + 1))
       ;;
     *)
-      [ "$MEMORY_SCOPE" != "project" ] && warn "agents/$BASENAME.md memory=$MEMORY_SCOPE（按 LEGION 应为 project）" && MEMORY_DRIFT=$((MEMORY_DRIFT + 1))
+      [ "${MEMORY_SCOPE:-}" != "project" ] && warn "agents/$BASENAME.md memory=${MEMORY_SCOPE:-} (expected project per LEGION)" && MEMORY_DRIFT=$((MEMORY_DRIFT + 1))
       ;;
   esac
 

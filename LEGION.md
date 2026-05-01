@@ -846,12 +846,49 @@ providers 配置规范化，清理冗余字段。
 - `client`：依赖客户聊天记录/售后反馈等原始数据，企业项目少见
 - `creative`：命名/Slogan 场景，仅在品牌建设阶段用到
 
+### v4.0–v4.4（2026-05-01）
+
+#### v4.0 命令体系重构 + 全链路对抗审查 + AgentLoop 深度强化
+- 14→5 bcc 命令精简（自然语言优先完整落地）
+- bcc-init-project / bcc-update-memory / bcc-loop-dev / bcc-fast-fix 全面重写
+- 入口分类改革：删除 intent-classify.sh，模型自判替代
+- 全 Agent 返回 token 协议（25→29 全覆盖）
+- 全链路对抗审查：7 层（需求→架构→scope→代码→安全→跨scope→漏审反馈）
+- 再审议协议 + 增量修改 + 定向修订 + 不确定项标记
+- prompt-engineer 升级为 Claude Code 工作流与提示词设计大师
+
+#### v4.1 中文 Agent 重命名 + 昇腾/仓颉/论文专家
+- 25 Agent 中文职能名重命名 + 全局引用同步
+- 华为昇腾专家 Skill（2883 文件本地化）
+- 仓颉语言专家 Skill（415 文件本地化）
+- 学术论文写作专家 + 顶会顶刊审稿专家 Agent（5 维学术审计）
+- LaTeX Rule 新增
+
+#### v4.2 全 Agent XML 标签结构化
+- 29/29 Agent 全部深度 XML 内容级标签化
+- scope-lock 模板 XML 化（`<task> <constraints> <premortem> <interface>` 等）
+- 4 个新增 Agent（仓颉开发/昇腾开发/论文写作/论文审稿）
+
+#### v4.3 文档本地化 + LaTeX Rule + 论文 Skill 升级
+- 仓颉/昇腾文档全量本地化（415+2883 文件）
+- academic-paper Skill 升级（5 维审计 + LaTeX 自动激活）
+- Rules 48 条（+LaTeX）
+
+#### v4.4 全系统 XML 深度结构化
+- 29 Agent 全部深度内容级 XML（`<step priority="N">` `<constraint severity="blocker">` 等）
+- 48 Rule 全量 XML 结构化（`<example type="good|bad">` `<convention>` 等）
+- 42 Skill 全量 XML 结构化（`<knowledge domain="">` `<checklist>` 等）
+- output-style 深度 XML 重写（`<thinking_protocol>` `<tier_assessment>` 等）
+- bcc-update-memory 新增 README/级联索引/交叉引用更新
+- Anthropic 官方 XML 标签最佳实践（+23% 准确率）全系统落地
+- ai-terminal-manager effortLevel 修复 + 智枢.app 构建
+
 ### 维护节奏建议
 
 | 节奏 | 操作 | 目的 |
 |:--|:--|:--|
 | 每周 | `/bcc-doctor` | 检查 hook 漂移、artifact 命名违规、Rule paths 误匹配 |
-| 每 1-2 周 | `/bcc-update-memory` + `/bcc-update-memory` | 把 Memory 积累固化为 Rule/Skill |
+| 每 1-2 周 | `/bcc-update-memory` | 把 Memory 积累固化为 Rule/Skill |
 | 每个 Claude Code 大版本 | 读 CHANGELOG，更新 §三 | 确认扩展机制未变化 |
 | 有新技术栈需求 | 新增 `_lang/` 或 `_framework/` Rule | 通常不需要新 Agent |
 | 有新认知模式缺口 | 谨慎评估是否新增 Agent | 几年一次，轻易不加 |
