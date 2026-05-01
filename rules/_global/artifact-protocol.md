@@ -52,6 +52,9 @@
 | `evolve-log` | 调度器 | 进化历史累积文件 |
 | `review-content` | content-reviewer | 文档/创意内容审查 |
 | `review-research` | research-reviewer | 技术调研/仓库研究审查 |
+| `storyboard` | creative-media-producer | 分镜设计脚本 |
+| `media-impl` | creative-media-producer | 媒体实现报告（Remotion 项目结构） |
+| `media-render` | creative-media-producer | 渲染输出报告（MP4/GIF/静态图） |
 | `bid-proposal` | freelance-bidder | 外包项目报价提案 |
 | `career` | career-coach | 就业辅导产出（简历/面试/薪资） |
 | `audit-paper-claim` | paper-claim-auditor | L3 论文数字审计 |

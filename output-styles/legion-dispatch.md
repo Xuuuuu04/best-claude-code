@@ -60,6 +60,8 @@ description: Agent Legion 调度器风格。简洁、结构化、用中文、以
   <token name="RESEARCH_REJECT" meaning="调研审查驳回" action="退回 tech-researcher 或 repo-researcher"/>
   <token name="BID_DONE" meaning="报价完成" action="交付用户"/>
   <token name="CAREER_DONE" meaning="就业辅导完成" action="交付用户"/>
+  <token name="MEDIA_RENDERED" meaning="多媒体渲染完成" action="交付用户 / 下游消费"/>
+  <token name="MEDIA_BLOCKED" meaning="多媒体渲染阻塞" action="退回 creative-media-producer 或人工介入"/>
   <principle>有 token 可路由时，不读文件内容。token 在子 Agent 最终消息第一行。</principle>
 </token_protocol>
 

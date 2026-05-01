@@ -71,6 +71,7 @@
     <route signal="接单报价 / 外包项目评估" agent="freelance-bidder" artifact="bid-proposal-*" next="用户确认" concurrency="S0"/>
     <route signal="简历优化 / 面试准备 / 薪资谈判" agent="career-coach" artifact="career-*" next="用户确认" concurrency="S0"/>
     <route signal="论文写作 / 学术研究 / 毕业论文 / 期刊投稿 / rebuttal" agent="academic-paper-writer" artifact="paper-plan-*, paper-*, audit-*" next="academic-paper-reviewer 或 audit agents" concurrency="S0"/>
+    <route signal="宣传视频 / 产品动画 / 品牌推广 / 幻灯片演示 / 社交媒体视频" agent="creative-media-producer" artifact="storyboard-*, media-impl-*, media-render-*" next="用户确认 / 下游消费" concurrency="S0"/>
   </section>
 
   <section id="standard-pipelines">
@@ -135,6 +136,7 @@
             <item>test-lead 收到 <token>REVIEW_REJECT</token> 且 blocker≥1 时直接 BLOCKED，无需再读文件</item>
             <item><token>CONTENT_REJECT:...:{严重数}blocker:{一般数}issue</token> — 内容审查驳回附带计数</item>
             <item><token>RESEARCH_REJECT:...:{严重数}blocker:{一般数}issue</token> — 调研审查驳回附带计数</item>
+            <item><token>MEDIA_BLOCKED:...:{阻塞项数}blocker</token> — 多媒体渲染阻塞</item>
           </list>
         </token-mapping>
       </constraint>
@@ -225,6 +227,15 @@
       <pipeline id="career">
         <step agent="career-coach" note="岗位分析 → 背景评估 → 简历优化 → 面试准备 → 薪资建议"/>
         <step agent="用户确认 / 投递"/>
+      </pipeline>
+    </subsection>
+
+    <subsection id="pipeline-creative-media">
+      <pipeline id="creative-media">
+        <step agent="creative" note="创意方向 + 品牌调性确认" optional="true"/>
+        <step agent="visual-designer" note="视觉系统 / tokens / 品牌规范" optional="true"/>
+        <step agent="creative-media-producer" note="分镜 → 代码实现 → 渲染导出"/>
+        <step agent="用户确认 / 下游消费"/>
       </pipeline>
     </subsection>
 

@@ -1,15 +1,12 @@
 <!--
   CLAUDE.md 维护者备注（HTML 注释，注入前剥离，不消耗 context tokens）
-  最近升级：2026-05-01（v3.9）
-  - 入口分类改革：bash 分类器退场，模型自判 → 删除 intent-classify.sh（169 行）
-  - 返回 token 协议：17 个 Agent 新增固定格式返回 token（吸收 Cangjie Harness 设计）
-  - 三级问题分级统一：严重/一般/轻微，弃用 Critical/Warning
-  - 再审议协议 Skill：redeliberation-protocol（Agent 自动触发，A-B-judge 循环）
-  - 增量修改模式：驳回问题集中 ≤2 文件时仅修改问题文件
-  - 数字对齐：Skill 47→48、Hook 15→14、版本 v3.8→v3.9
+  最近升级：2026-05-01（v4.6）
+  - 新增 creative-media-producer Agent + 4 个配套 Skill：代码驱动视频/动画生成
+  - ARIS 全吸收：Reviewer Independence、assurance-contract、6 级 verdict、学术审计 Agent×3
+  - 数字对齐：Skill 48→57、Rules 48→50、Agents 29→38、版本 v3.9→v4.6
 
   历史成果：
-  - 42 Skills / 48 Rules / 29 Agents / 15 Hooks
+  - 57 Skills / 50 Rules / 38 Agents / 14 Hooks
   - 保持 ≤200 行；新增机制相关说明请放 LEGION.md。
 -->
 
@@ -21,7 +18,7 @@
 
 ## 项目身份
 
-Agent Legion — Claude Code 多 Agent 协作调度系统。29 个专职 Subagent + 42 个 Skill + 48 条 Rule + Router 组成分层门控流水线，从需求分析推进到最终交付。
+Agent Legion — Claude Code 多 Agent 协作调度系统。38 个专职 Subagent + 57 个 Skill + 50 条 Rule + Router 组成分层门控流水线，从需求分析推进到最终交付。
 
 运行环境：Claude Code CLI v2.1.59+；脚本：Bash；数据：jq。
 
