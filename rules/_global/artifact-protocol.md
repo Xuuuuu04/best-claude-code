@@ -54,6 +54,8 @@
 | `review-research` | research-reviewer | 技术调研/仓库研究审查 |
 | `bid-proposal` | freelance-bidder | 外包项目报价提案 |
 | `career` | career-coach | 就业辅导产出（简历/面试/薪资） |
+| `audit-paper-claim` | paper-claim-auditor | L3 论文数字审计 |
+| `audit-citation` | citation-auditor | L4 引用审计 |
       </table>
     </subsection>
 
