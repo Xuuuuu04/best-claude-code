@@ -1,5 +1,5 @@
 ---
-name: security-auditor
+name: 高级安全审计师
 description: >
   安全审计师。负责认证授权、输入验证、敏感数据、依赖风险和日志泄露等专项安全审查。
   Use proactively for backend, auth, config, deployment, and data-sensitive changes.

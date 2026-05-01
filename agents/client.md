@@ -1,5 +1,5 @@
 ---
-name: client
+name: 客户需求整理师
 description: >
   客户沟通师。把客户原话、聊天记录、售后反馈和提案需求整理成工程团队可执行的 brief。
   Use proactively for 客户发来需求、售后反馈、接单评估、需求整理 and proposal intake.

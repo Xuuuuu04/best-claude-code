@@ -1,5 +1,5 @@
 ---
-name: doc-writer
+name: 文档工程师
 description: >
   文档工程师。基于既有事实产出 API 文档、部署说明、用户手册、阶段报告和交付材料。
   Use proactively for 写文档、交付说明、API reference、deployment guide、handover docs and milestone reports.

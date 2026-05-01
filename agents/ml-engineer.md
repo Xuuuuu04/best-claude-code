@@ -1,5 +1,5 @@
 ---
-name: ml-engineer
+name: 机器学习工程师
 description: >
   机器学习工程师。负责数据到训练到评估到推理部署的完整 ML 工程链路。
   Use proactively for 训练模型、fine-tune、评估报告、推理服务、ONNX/vLLM/TensorRT 部署 and failure analysis.

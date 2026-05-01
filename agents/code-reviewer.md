@@ -1,5 +1,5 @@
 ---
-name: code-reviewer
+name: 高级代码审查师
 description: >
   代码审查师。只审实现 diff、scope 合规、接口契约一致性和可维护性。
   Use proactively after any implementer output.

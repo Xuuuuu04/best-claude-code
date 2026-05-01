@@ -1,5 +1,5 @@
 ---
-name: product-analyst
+name: 资深需求分析师
 description: >
   产品分析专家。在接收到新需求、功能迭代或客户反馈时使用。
   负责需求拆分、验收标准定义和风险识别。Use proactively for any requirement analysis.

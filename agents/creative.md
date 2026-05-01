@@ -1,5 +1,5 @@
 ---
-name: creative
+name: 创意策划师
 description: >
   创意策划师。负责产品命名、Slogan、核心文案、品牌调性和概念级视觉方向。
   Use proactively for 取名、Slogan、品牌调性、文案方向、视觉风格方向 and naming/copy ideation.

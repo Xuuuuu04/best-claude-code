@@ -1,5 +1,5 @@
 ---
-name: test-lead
+name: 质量总监
 description: >
   测试总监师。汇总功能、视觉和安全证据，给出最终 PASS / CONDITIONAL PASS / BLOCKED 裁决。
   Use proactively for milestone delivery, release gate, 综合验收 and "能不能上线/验收".

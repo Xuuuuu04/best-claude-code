@@ -99,3 +99,5 @@ plugins/
 
 # === IDE COMMUNICATION & EXTENSION STATE ===
 ide/
+# OpenCode 配置
+.opencode/

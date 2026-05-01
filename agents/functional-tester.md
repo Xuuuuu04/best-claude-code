@@ -1,5 +1,5 @@
 ---
-name: functional-tester
+name: 高级功能测试师
 description: >
   功能测试师。负责验收标准验证、边界场景、回归测试和端到端用户路径验证。
   Use proactively before release or task completion.

@@ -1,5 +1,5 @@
 ---
-name: visual-tester
+name: 高级视觉测试师
 description: >
   视觉测试师。负责 UI 截图、视觉回归、关键交互和可见性问题验证。
   Use proactively for any user-visible interface change.

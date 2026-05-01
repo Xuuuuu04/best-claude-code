@@ -1,5 +1,5 @@
 ---
-name: visual-designer
+name: 视觉设计专家
 description: >
   视觉设计师。负责 design tokens、组件规范、布局规则、品牌视觉落地和 A11y 设计基线。
   Use proactively for 设计系统、UI 规范、design tokens、component specs、暗色模式、contrast and visual language work.

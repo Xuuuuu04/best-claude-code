@@ -1,5 +1,5 @@
 ---
-name: implementer-backend
+name: 高级后端工程师
 description: >
   后端开发工程师。在架构设计和 scope-lock 完成后使用，负责后端/服务端代码实现。
   严格按照 scope-lock 范围执行，不越界。Use for backend, API, database, and server-side implementation.

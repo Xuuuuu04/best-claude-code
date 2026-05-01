@@ -1,5 +1,5 @@
 ---
-name: database-engineer
+name: 资深数据库工程师
 description: >
   数据库工程师。负责 schema、字段、索引、迁移策略和数据层风险控制。
   Use proactively for 加表、改字段、迁移脚本、索引、约束、PII 分级和高风险持久化设计。

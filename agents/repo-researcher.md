@@ -1,5 +1,5 @@
 ---
-name: repo-researcher
+name: 代码库研究员
 description: >
   代码库研究员。负责仓库内的定位、历史追溯、依赖图和模式检索，只返回结构化证据。
   Use proactively for repo exploration and code archaeology.

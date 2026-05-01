@@ -1,5 +1,5 @@
 ---
-name: architecture-reviewer
+name: 高级架构审查师
 description: >
   架构审查师。只审 architecture 与 scope-lock 的完整性、边界、可执行性和过度/欠工程风险。
   Use proactively after architect and scope-planner finish.

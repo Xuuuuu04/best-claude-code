@@ -1,5 +1,5 @@
 ---
-name: scope-planner
+name: 资深范围规划师
 description: >
   范围规划师。在需求和架构明确后使用，专职把设计拆成可执行的 scope-lock 和依赖图。
   Use proactively after architecture is accepted.
