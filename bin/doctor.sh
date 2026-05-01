@@ -635,8 +635,6 @@ done
 
 # v3.9：档位改为模型自判，不再依赖 intent-classify
 info "任务档位：模型自判（v3.9），hook 仅保留 clarification-gate + review-gate"
-  fi
-fi
 
 # ── 18. Unfinished Tasks ────────────────────────────────────────────────────
 section "18. Unfinished Tasks"
@@ -721,7 +719,6 @@ if [ -f "$REVIEW_FILE" ] && command -v jq >/dev/null 2>&1; then
   else
     pass "Review gate: 无高 pending session"
   fi
-fi
 fi
 
 # ── 汇总 ────────────────────────────────────────────────────────────────────
