@@ -4,35 +4,35 @@ description: 功能测试协议。为 functional-tester 提供验收标准验证
 when_to_use: 仅当 functional-tester Agent 在执行验收标准验证 / 边界场景 / 回归测试 / 端到端用户路径时加载。视觉测试 / 安全审查 / 代码审查不应触发。
 ---
 
-# 功能测试协议
+<skill name="functional-test-protocol">
 
-## 目标
-
+<overview>
 验证实现满足 requirements 中的验收标准，并且没有引入明显回归。
+</overview>
 
-## 通用原则
+<principles>
+  <principle priority="1">以验收标准为准，而不是以实现者报告为准</principle>
+  <principle priority="2">边界场景必须主动构造</principle>
+  <principle priority="3">回归验证不可省略</principle>
+</principles>
 
-1. **以验收标准为准，而不是以实现者报告为准**
-2. **边界场景必须主动构造**
-3. **回归验证不可省略**
+<instructions>
+  <step priority="1">运行项目测试套件与必要的集成命令</step>
+  <step priority="2">逐条对照 requirements 的验收标准</step>
+  <step priority="3">构造空输入、极限输入、失败路径、权限不足等边界场景</step>
+  <step priority="4">对 bug 修复验证回归场景，对重构验证行为等价性</step>
+</instructions>
 
-## 执行步骤
+<examples>
+  <example type="critical" reason="测试套件失败"/>
+  <example type="critical" reason="关键验收标准未被验证"/>
+  <example type="critical" reason="回归场景未覆盖"/>
+</examples>
 
-1. 运行项目测试套件与必要的集成命令
-2. 逐条对照 requirements 的验收标准
-3. 构造空输入、极限输入、失败路径、权限不足等边界场景
-4. 对 bug 修复验证回归场景，对重构验证行为等价性
+<output path=".claude/artifacts/review-functional-{task-id}.md"/>
 
-## Critical 示例
+<references>
+  <reference path="examples/sample-review-functional.md" purpose="并发 bug 修复的功能验证样品（验收标准矩阵 / 边界场景表 / 回归历史复现 / 验收建议）"/>
+</references>
 
-- ✗ 测试套件失败
-- ✗ 关键验收标准未被验证
-- ✗ 回归场景未覆盖
-
-## 输出
-
-写入 `.claude/artifacts/review-functional-{task-id}.md`。
-
-## 参考样品
-
-- `examples/sample-review-functional.md` — 并发 bug 修复的功能验证样品（验收标准矩阵 / 边界场景表 / 回归历史复现 / 验收建议）
+</skill>

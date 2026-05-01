@@ -1,25 +1,24 @@
-# Artifact 交接文件规范
+<rule id="artifact-protocol" severity="blocker">
+  <rationale>
+    Agent 之间通过 <path>.claude/artifacts/</path> 目录中的结构化 Markdown 文件进行交接。此规则定义文件命名、内容结构、生命周期与审查归属。
+  </rationale>
 
-Agent 之间通过 `.claude/artifacts/` 目录中的结构化 Markdown 文件进行交接。此规则定义文件命名、内容结构、生命周期与审查归属。
+  <section id="directory">
+    <requirement>
+      所有交接文件位于项目根目录的 <path>.claude/artifacts/</path>。此目录默认应加入 <path>.gitignore</path>。如团队需要复盘，可选择提交关键 artifact 快照。
+    </requirement>
+  </section>
 
----
+  <section id="naming">
+    <subsection id="naming-format">
+      <requirement severity="blocker">
+        格式：
+        <code-block language="text"><![CDATA[{type}-{task-id}[-{sequence}].md]]></code-block>
+      </requirement>
+    </subsection>
 
-## 目录
-
-所有交接文件位于项目根目录的 `.claude/artifacts/`。此目录默认应加入 `.gitignore`。如团队需要复盘，可选择提交关键 artifact 快照。
-
----
-
-## 命名规范
-
-### 格式
-
-```text
-{type}-{task-id}[-{sequence}].md
-```
-
-### Type 枚举
-
+    <subsection id="naming-type-enum">
+      <table>
 | Type | 产出者 | 用途 |
 |:--|:--|:--|
 | `requirements` | product-analyst | 需求分析与 Task 拆分 |
@@ -47,31 +46,39 @@ Agent 之间通过 `.claude/artifacts/` 目录中的结构化 Markdown 文件进
 | `repo-research` | repo-researcher | 仓库研究报告 |
 | `tech-research` | tech-researcher | 技术调研报告 |
 | `init-analysis` | repo-researcher | `/bcc-init-project` 初始扫描 |
-| `update-analysis` | repo-researcher | `/bcc-update-memory` 差异扫描 |
-| `evolve-audit` | repo-researcher / tech-researcher | `/bcc-update-memory` 系统审计 |
-| `evolve-proposals` | 调度器 | `/bcc-update-memory` 进化提案 |
+| `update-analysis` | repo-researcher | `/bcc-update-project` 差异扫描 |
+| `evolve-audit` | repo-researcher / tech-researcher | `/bcc-evolve` 系统审计 |
+| `evolve-proposals` | 调度器 | `/bcc-evolve` 进化提案 |
 | `evolve-log` | 调度器 | 进化历史累积文件 |
+      </table>
+    </subsection>
 
-### Task ID
+    <subsection id="naming-task-id">
+      <requirement>
+        形如 <pattern>feat-20260423-01</pattern> / <pattern>bug-20260423-03</pattern>。由类型前缀 + 日期 + 当日序号组成。
+      </requirement>
+    </subsection>
 
-形如 `feat-20260423-01` / `bug-20260423-03`。由类型前缀 + 日期 + 当日序号组成。
+    <subsection id="naming-sequence">
+      <requirement>
+        多 scope-lock / 多 impl-report 场景使用序号，例如：
+        <list>
+          <item><path>scope-lock-feat-20260423-01-1.md</path></item>
+          <item><path>impl-report-feat-20260423-01-2.md</path></item>
+        </list>
+      </requirement>
+    </subsection>
+  </section>
 
-### Sequence（可选）
+  <section id="content-structure">
+    <requirement>
+      每个 Type 的具体结构在对应 Agent / Skill 定义中规定。通用要求如下：
+    </requirement>
 
-多 scope-lock / 多 impl-report 场景使用序号，例如：
-
-- `scope-lock-feat-20260423-01-1.md`
-- `impl-report-feat-20260423-01-2.md`
-
----
-
-## 内容结构
-
-每个 Type 的具体结构在对应 Agent / Skill 定义中规定。通用要求如下：
-
-### 必须有的头部
-
-```markdown
+    <subsection id="content-header">
+      <constraint severity="blocker">
+        必须有的头部：
+        <code-block language="markdown"><![CDATA[
 # {Type}: {一句话标题}
 
 **Task ID**: {task-id}[-{seq}]
@@ -79,78 +86,95 @@ Agent 之间通过 `.claude/artifacts/` 目录中的结构化 Markdown 文件进
 **产出者**: {agent-name}
 **状态**: draft / accepted / rejected / superseded
 **关联**: {其他 artifact 路径列表}
-```
+        ]]></code-block>
+      </constraint>
+    </subsection>
 
-### 状态字段（支持续传）
-
+    <subsection id="content-status">
+      <table>
 | 状态 | 含义 | 何时设 |
 |:--|:--|:--|
 | `draft` | 刚产出，未经审查 | Agent 写入时 |
 | `accepted` | 已通过对应 reviewer/tester 审查 / 用户确认 | 审查通过后由调度器更新 |
 | `rejected` | 审查驳回，需要重做 | 审查驳回后由调度器更新 |
 | `superseded` | 被后续版本替代 | 新版产出后由调度器更新 |
+      </table>
 
-续传判断示例：
+      <note>
+        续传判断示例：
+        <list>
+          <item>只有 <status>requirements</status> 且 accepted → 从架构阶段开始</item>
+          <item>有 <status>architecture</status> 但无 <status>scope-lock</status> → 从范围规划阶段开始</item>
+          <item><status>scope-lock</status> accepted 但无 <status>impl-report</status> → 从实现阶段开始</item>
+          <item>有 <status>impl-report</status> 但无 <status>review-code</status> → 从代码审查开始</item>
+          <item>有 <status>review-code</status> 但无 <status>review-security</status> / <status>review-functional</status> → 继续后续门控</item>
+        </list>
+      </note>
+    </subsection>
 
-- 只有 `requirements` 且 accepted → 从架构阶段开始
-- 有 `architecture` 但无 `scope-lock` → 从范围规划阶段开始
-- `scope-lock` accepted 但无 `impl-report` → 从实现阶段开始
-- 有 `impl-report` 但无 `review-code` → 从代码审查开始
-- 有 `review-code` 但无 `review-security` / `review-functional` → 继续后续门控
+    <subsection id="content-structured-over-prose">
+      <requirement>
+        <list>
+          <item>用表格、列表、小标题</item>
+          <item>避免长段落</item>
+          <item>代码块要标注语言</item>
+          <item>结论、证据、未覆盖项优先置顶</item>
+        </list>
+      </requirement>
+    </subsection>
+  </section>
 
-### 结构化优于散文
+  <section id="lifecycle">
+    <subsection id="lifecycle-create">
+      <requirement>产出 Agent 写入 artifact。</requirement>
+    </subsection>
+    <subsection id="lifecycle-consume">
+      <requirement>下一阶段 Agent 读取 artifact 作为输入。</requirement>
+    </subsection>
+    <subsection id="lifecycle-archive">
+      <requirement>任务完成后，可移入 <path>.claude/artifacts/archive/{year-month}/</path>。</requirement>
+    </subsection>
+    <subsection id="lifecycle-cleanup">
+      <requirement>
+        调度器可在以下情况清理：
+        <list>
+          <item>同一 task-id 的流程已完成并提交</item>
+          <item>超过保留期（默认 30 天）</item>
+          <item>用户明确要求</item>
+        </list>
+      </requirement>
+    </subsection>
+  </section>
 
-- 用表格、列表、小标题
-- 避免长段落
-- 代码块要标注语言
-- 结论、证据、未覆盖项优先置顶
+  <section id="read-write">
+    <list>
+      <item>Agent **可读** 其他 Agent 的 artifact 作为输入</item>
+      <item>Agent **不应修改** 其他 Agent 的 artifact</item>
+      <item>如需修订，优先由原角色重产，或产出新版本（如 <pattern>-v2</pattern>）</item>
+    </list>
+    <note>例外：调度器可以持续追加 <path>evolve-log.md</path></note>
+  </section>
 
----
+  <section id="sensitive-info">
+    <constraint severity="blocker">
+      artifact 中不得出现：
+      <list>
+        <item>密钥、token、密码</item>
+        <item>完整个人信息（PII）</item>
+      </list>
+      如涉及敏感信息，使用占位符，例如 <token>{REDACTED_TOKEN}</token>、<token>{USER_PII}</token>。
+    </constraint>
+  </section>
 
-## 生命周期
-
-### 创建
-产出 Agent 写入 artifact。
-
-### 消费
-下一阶段 Agent 读取 artifact 作为输入。
-
-### 归档（可选）
-任务完成后，可移入 `.claude/artifacts/archive/{year-month}/`。
-
-### 清理
-调度器可在以下情况清理：
-- 同一 task-id 的流程已完成并提交
-- 超过保留期（默认 30 天）
-- 用户明确要求
-
----
-
-## 读取与修改
-
-- Agent **可读** 其他 Agent 的 artifact 作为输入
-- Agent **不应修改** 其他 Agent 的 artifact
-- 如需修订，优先由原角色重产，或产出新版本（如 `-v2`）
-
-例外：调度器可以持续追加 `evolve-log.md`
-
----
-
-## 敏感信息
-
-artifact 中不得出现：
-- 密钥、token、密码
-- 完整个人信息（PII）
-
-如涉及敏感信息，使用占位符，例如 `{REDACTED_TOKEN}`、`{USER_PII}`。
-
----
-
-## 审查视角
-
-对应 reviewer / tester 审查 artifact 时：
-
-- 结构合规（头部字段完整）
-- 内容充分（足够给下游使用）
-- 精确具体（带路径、行号、证据）
-- 无敏感泄露
+  <section id="review-perspective">
+    <requirement>
+      对应 reviewer / tester 审查 artifact 时：
+      <checklist>
+        <check id="review-structure">结构合规（头部字段完整）</check>
+        <check id="review-content">内容充分（足够给下游使用）</check>
+        <check id="review-precision">精确具体（带路径、行号、证据）</check>
+        <check id="review-no-leak">无敏感泄露</check>
+      </checklist>
+    </requirement>
+  </section>
+</rule>

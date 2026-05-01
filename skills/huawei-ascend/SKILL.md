@@ -4,11 +4,14 @@ description: 华为昇腾 NPU 生态开发专家。覆盖 Ascend NPU 架构、CA
 when_to_use: 当用户提到华为昇腾/Ascend/CANN/NPU/Ascend C/PyPTO/PyAsc/鸿蒙AI推理/atb Models/大模型芯片部署时自动加载。
 ---
 
-# 华为昇腾 NPU 生态开发专家
+<skill name="huawei-ascend" domain="华为昇腾 NPU 生态开发">
 
+<knowledge type="environment" id="dev-env">
 ## 环境
 华为云 ModelArts Notebook (1 NPU, CANN 8.5.2, EulerOS aarch64), `~/work` 唯一持久化目录。
+</knowledge>
 
+<knowledge type="architecture" id="software-stack">
 ## 软件栈
 ```
 MindSpore/PyTorch(torch_npu)/ONNX Runtime → CANN
@@ -18,20 +21,30 @@ MindSpore/PyTorch(torch_npu)/ONNX Runtime → CANN
   └── GE (图引擎)
     → Ascend NPU (Da Vinci: Cube+Vector)
 ```
+</knowledge>
 
+<knowledge type="api-reference" id="ascend-c-api">
 ## Ascend C API (6 类)
 基础数据结构 (LocalTensor/GlobalTensor) · 语言扩展层 C API · 基础 API · 高阶 API (Matmul/Conv) · SIMT API · Utils API
+</knowledge>
 
+<knowledge type="toolchain" id="python-frontend">
 ## Python 前端
 - **PyPTO** v0.2.0: DeepSeek V3.2/GLM V4.5/Qwen3 Next/Arctic 大模型算子
 - **PyAsc**: MLIR 架构 (Python AST → ASC-IR → Ascend C), 与 Ascend C 1:1 对应
+</knowledge>
 
+<knowledge type="workflow" id="inference-pipeline">
 ## 推理部署
 `PyTorch→torch_npu→ATC→om→ACL→NPU` · 鸿蒙端侧: 支付宝/QQ音乐/智谱/悟空/CV 5 个商业案例
+</knowledge>
 
+<knowledge type="debug" id="npu-check">
 ## npu_check (15 类错误码)
 `ErrorRead(1-4) ErrorWrite(1-4) ErrorSync(1-4) ErrorLeak ErrorFree ErrorBuffer(0-4)` — CPU 模式同步检测
+</knowledge>
 
+<index id="subrepo-index" base="references/">
 ## 完整文档索引（按需读取 references/）
 
 ### 子仓库概要
@@ -48,13 +61,20 @@ MindSpore/PyTorch(torch_npu)/ONNX Runtime → CANN
 | cann-cmake | `cann-cmake-README.md` |
 | community | `community-README.md` |
 | ClaudeCodeWorkflow | `ClaudeCodeWorkflow-CLAUDE.md` `ClaudeCodeWorkflow-README.md` |
+</index>
 
+<resources id="knowledge-digest" format="structured-summary" size="298-lines">
 ### 知识摘要
 - `references/knowledge-summary.md` — 全生态 9 章结构化摘要 (298 行)
+</resources>
 
+<checklist id="dev-rules" type="iron-laws">
 ## 开发铁律
 1. `~/work` 唯一持久化——所有产出写到这里
 2. 算子优先 Ascend C (原生性能), PyAsc 用于快速原型
 3. 模型部署前必过 ATC 转换检查
 4. NPU 显存有限, 大模型需分片/量化
 5. 调试先用 CPU 模式 npu_check, 通过后再上 NPU
+</checklist>
+
+</skill>

@@ -4,8 +4,9 @@ description: 学术论文撰写与审查协议。覆盖 LaTeX 撰写、文献管
 when_to_use: 当用户提到论文/paper/学术写作/毕业论文/期刊/会议/LaTeX/审稿/文献综述时自动加载。
 ---
 
-# 学术论文撰写与审查协议
+<skill name="academic-paper" domain="学术论文撰写与审查" max-review-rounds="3">
 
+<knowledge type="workflow" id="paper-review-loop">
 ## 论文撰写-审查闭环
 
 ```
@@ -15,7 +16,9 @@ when_to_use: 当用户提到论文/paper/学术写作/毕业论文/期刊/会议
   ↓ REVIEW_REJECT → 修订 → 再审查（max 3 轮）
 REVIEW_PASS → 交付
 ```
+</knowledge>
 
+<knowledge type="scoring" id="conference-review-standards">
 ## 顶会顶刊审稿标准
 
 | 分数 | 含义 | 推荐 |
@@ -25,7 +28,9 @@ REVIEW_PASS → 交付
 | 5-6 | 合格但有不足 | Borderline |
 | 3-4 | 需重大修改 | Reject |
 | 1-2 | 根本缺陷 | Strong Reject |
+</knowledge>
 
+<checklist type="audit" id="5-dim-academic-audit" problem-tags="严重,一般,轻微">
 ### 5 维学术审计
 
 | 维度 | 权重 | 关键检查 |
@@ -37,7 +42,9 @@ REVIEW_PASS → 交付
 | 文献覆盖 | 15% | 关键相关工作、最新进展 |
 
 每个问题标记 `[严重]`/`[一般]`/`[轻微]`。
+</checklist>
 
+<reference type="latex-norms" id="latex-standards" activates="rules/_lang/latex.md">
 ## LaTeX 规范
 
 编辑 .tex 文件时自动激活 `rules/_lang/latex.md` Rule。核心要求：
@@ -51,7 +58,9 @@ REVIEW_PASS → 交付
 - **编译**：`latexmk -pdf main.tex`
 - **盲审**：删除 `\author{}`、致谢、机构信息
 - **页数**：严格遵守目标会议/期刊限制
+</reference>
 
+<reference type="paper-templates" id="paper-type-matrix">
 ## 论文类型与模板
 
 | 类型 | 模板 | 页数 |
@@ -61,3 +70,6 @@ REVIEW_PASS → 交付
 | NLP 顶会 | ACL/EMNLP 官方模板 | 8 |
 | 毕业论文 | 学校模板 | 按学校要求 |
 | 课程论文 | IEEE/ACM 通用 | 4-6 |
+</reference>
+
+</skill>

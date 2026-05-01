@@ -4,45 +4,47 @@ description: 创意方向协议。为 creative 提供命名框架、品牌调性
 when_to_use: 当 creative 做产品命名 / Slogan / 品牌调性 / 文案方向 / 概念级视觉 DNA 时；用户提"取名"、"slogan"、"品牌调性"、"文案方向"、"创意"、"naming"、"copy ideation" 时自动加载。
 ---
 
-# 创意方向协议
+<skill name="creative-direction">
 
-## 三个前置坐标
+<knowledge domain="pre-flight">
+<principle>在产出任何命名或文案前，必须先明确三个前置坐标</principle>
+<checklist name="three-coordinates">
+  <item>目标用户是谁</item>
+  <item>用户的情绪/认同诉求是什么</item>
+  <item>希望与竞品拉开什么差异</item>
+</checklist>
+<rule>缺任一项就先阻塞。</rule>
+</knowledge>
 
-在产出任何命名或文案前，必须先明确：
+<knowledge domain="naming-framework">
+<principle>至少覆盖 5 个不同框架</principle>
+<checklist>
+  <item>描述型</item>
+  <item>暗示型</item>
+  <item>造词型</item>
+  <item>压缩拼接型</item>
+  <item>人格/角色型</item>
+  <item>诗性表达型</item>
+</checklist>
+</knowledge>
 
-- 目标用户是谁
-- 用户的情绪/认同诉求是什么
-- 希望与竞品拉开什么差异
+<knowledge domain="tonality-axes">
+<principle>每次都给出四条轴，而不是形容词堆叠</principle>
+<convention name="formal-casual">Formal ↔ Casual</convention>
+<convention name="serious-playful">Serious ↔ Playful</convention>
+<convention name="reserved-expressive">Reserved ↔ Expressive</convention>
+<convention name="premium-accessible">Premium ↔ Accessible</convention>
+</knowledge>
 
-缺任一项就先阻塞。
+<knowledge domain="visual-dna">
+<principle>只输出概念层方向</principle>
+<checklist>
+  <item>色彩气质</item>
+  <item>字体人格</item>
+  <item>版式感受</item>
+  <item>参考品牌</item>
+</checklist>
+<rule>不要输出 token、hex、组件规范。</rule>
+</knowledge>
 
-## 命名框架
-
-至少覆盖 5 个不同框架：
-
-- 描述型
-- 暗示型
-- 造词型
-- 压缩拼接型
-- 人格/角色型
-- 诗性表达型
-
-## 调性四轴
-
-每次都给出四条轴，而不是形容词堆叠：
-
-- Formal ↔ Casual
-- Serious ↔ Playful
-- Reserved ↔ Expressive
-- Premium ↔ Accessible
-
-## 视觉 DNA
-
-只输出概念层方向：
-
-- 色彩气质
-- 字体人格
-- 版式感受
-- 参考品牌
-
-不要输出 token、hex、组件规范。
+</skill>
