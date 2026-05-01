@@ -99,6 +99,9 @@
         <gate-condition agent="test-lead（跨 scope 一致性）" trigger="scope-lock 总数 ≥ 3 → 裁决前强制执行跨 scope 接口契约交叉比对" basis="v3.10 新增：跨 scope 签名不一致是最隐蔽的集成 bug"/>
         <gate-condition agent="visual-tester" trigger="涉及用户可见 UI 变更（页面/组件/样式）" basis="仅 1/5 项目有视觉测试"/>
 
+        <gate-condition agent="test-lead（assurance submission）" trigger="assurance = submission 时，所有强制 reviewer 必须发出六级裁决（PASS/WARN/FAIL/NOT_APPLICABLE/BLOCKED/ERROR）之一" basis="ARIS 吸收：draft vs submission 动态门控"/>
+        <gate-condition agent="test-lead（artifact 完整性）" trigger="assurance = submission 时，裁决前必须调用 verify-artifacts.sh 验证必需 artifact 存在且无 STALE" basis="ARIS 吸收：外部 verifier 阻塞机制"/>
+
         <note>**不触发的唯一理由**：用户显式说"跳过 XX 测试"。AI 不得自行判断"不适用"而省略。</note>
       </constraint>
     </subsection>

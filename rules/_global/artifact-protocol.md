@@ -150,6 +150,42 @@
     </subsection>
   </section>
 
+  <section id="versioning">
+    <subsection id="versioning-timestamped">
+      <requirement>
+        覆盖写入 artifact 时，使用 timestamped 文件名 + fixed-name 最新副本双写：
+        <list>
+          <item>写入 timestamped 文件：<pattern>{FILENAME}_{YYYYMMDD_HHmmss}.md</pattern>（秒级精度）</item>
+          <item>复制相同内容到 fixed-name 文件：<pattern>{FILENAME}.md</pattern>（覆盖上一版）</item>
+          <item>下游 Agent 始终读取 fixed-name 文件</item>
+          <item>永不删除 timestamped 文件 — 它们是永久历史</item>
+        </list>
+      </requirement>
+    </subsection>
+
+    <subsection id="versioning-not-timestamped">
+      <requirement>
+        以下文件<strong>不</strong>需要 timestamped 版本：
+        <list>
+          <item>Append-only 文件：<pattern>findings.md</pattern>、<pattern>MANIFEST.md</pattern></item>
+          <item>Per-round 文件：已有 seq 编号的 artifact（如 <pattern>scope-lock-feat-20260425-01-1.md</pattern>）</item>
+          <item>Dashboard 类：<pattern>CLAUDE.md</pattern></item>
+        </list>
+      </requirement>
+    </subsection>
+
+    <subsection id="versioning-stale-state">
+      <requirement>
+        读取状态文件（如 <pattern>REVIEW_STATE.json</pattern>）前检查修改时间：
+        <list>
+          <item>默认过期阈值：<strong>24 小时</strong></item>
+          <item>超过阈值则提示用户："⚠️ 状态文件 {filename} 已 {N} 小时未更新。继续此状态，还是重新开始？"</item>
+          <item>用户选择重新开始时，写 timestamped 归档副本后清空状态</item>
+        </list>
+      </requirement>
+    </subsection>
+  </section>
+
   <section id="read-write">
     <list>
       <item>Agent **可读** 其他 Agent 的 artifact 作为输入</item>

@@ -19,11 +19,11 @@
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-v2.1.59+-7c3aed?style=flat-square&logo=anthropic)](https://claude.com/claude-code)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](./LICENSE)
-[![Status: v4.3](https://img.shields.io/badge/Status-v4.3-f59e0b?style=flat-square)](#)
+[![Status: v4.5](https://img.shields.io/badge/Status-v4.5-f59e0b?style=flat-square)](#)
 [![Chinese First](https://img.shields.io/badge/Language-中文优先-ef4444?style=flat-square)](#)
 [![Agents](https://img.shields.io/badge/Agents-34-3b82f6?style=flat-square)](#二十九-subagent-角色)
-[![Rules](https://img.shields.io/badge/Rules-48-8b5cf6?style=flat-square)](#支持的技术栈)
-[![Skills](https://img.shields.io/badge/Skills-47-06b6d4?style=flat-square)](#系统架构)
+[![Rules](https://img.shields.io/badge/Rules-50-8b5cf6?style=flat-square)](#支持的技术栈)
+[![Skills](https://img.shields.io/badge/Skills-50-06b6d4?style=flat-square)](#系统架构)
 
 <br>
 
