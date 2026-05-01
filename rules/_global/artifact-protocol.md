@@ -50,6 +50,8 @@
 | `evolve-audit` | repo-researcher / tech-researcher | `/bcc-evolve` 系统审计 |
 | `evolve-proposals` | 调度器 | `/bcc-evolve` 进化提案 |
 | `evolve-log` | 调度器 | 进化历史累积文件 |
+| `review-content` | content-reviewer | 文档/创意内容审查 |
+| `review-research` | research-reviewer | 技术调研/仓库研究审查 |
       </table>
     </subsection>
 

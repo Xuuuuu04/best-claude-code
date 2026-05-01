@@ -41,18 +41,19 @@
 
   <section id="routing-table">
     <route signal="客户聊天记录 / 售后反馈 / 接单整理" agent="client" artifact="client-brief-*" next="product-analyst 或 pm" concurrency="S0"/>
-    <route signal="取名 / Slogan / 品牌调性 / 文案方向" agent="creative" artifact="creative-*" next="visual-designer 或 doc-writer" concurrency="S1"/>
+    <route signal="取名 / Slogan / 品牌调性 / 文案方向" agent="creative" artifact="creative-*" next="content-reviewer" concurrency="S1"/>
     <route signal="新功能 / 新页面 / 新接口" agent="product-analyst" artifact="requirements-*" next="requirements-reviewer" concurrency="S0"/>
     <route signal="需求是否完整 / 能不能开发" agent="requirements-reviewer" artifact="review-requirements-*" next="architect" concurrency="S0"/>
     <route signal="下一步 / 推进到哪 / 多阶段调度" agent="pm" artifact="dispatch-*" next="单一推荐 Agent" concurrency="S0"/>
     <route signal="整体架构 / 技术方案 / 跨模块重构" agent="architect" artifact="architecture-*" next="scope-planner" concurrency="S0"/>
     <route signal="范围锁定 / 拆 scope / 执行批次" agent="scope-planner" artifact="scope-lock-*, scope-plan-*" next="architecture-reviewer" concurrency="S0"/>
     <route signal="架构方案审查 / scope 是否可执行" agent="architecture-reviewer" artifact="review-architecture-*" next="implementer / 专项域" concurrency="S0"/>
-    <route signal="仓库内定位 / 调用点 / 历史追溯" agent="repo-researcher" artifact="repo-research-*" next="调度器判断" concurrency="S1"/>
-    <route signal="外部库 / API / 价格 / 兼容性调研" agent="tech-researcher" artifact="tech-research-*" next="architect 或调度器" concurrency="S1"/>
+    <route signal="仓库内定位 / 调用点 / 历史追溯" agent="repo-researcher" artifact="repo-research-*" next="research-reviewer" concurrency="S1"/>
+    <route signal="外部库 / API / 价格 / 兼容性调研" agent="tech-researcher" artifact="tech-research-*" next="research-reviewer" concurrency="S1"/>
     <route signal="Web 前端 / UI 代码实现" agent="implementer-frontend" artifact="impl-report-*" next="code-reviewer" concurrency="S2"/>
     <route signal="后端 / API / 服务端逻辑实现" agent="implementer-backend" artifact="impl-report-*" next="code-reviewer" concurrency="S2"/>
     <route signal="iOS / Android / Flutter / RN" agent="implementer-mobile" artifact="impl-report-*" next="code-reviewer" concurrency="S2"/>
+    <route signal="桌面应用 / Electron / Tauri / Qt / SwiftUI macOS" agent="implementer-desktop" artifact="impl-report-*" next="code-reviewer" concurrency="S2"/>
     <route signal="微信小程序 / uni-app / 微信登录支付" agent="miniprogram-dev" artifact="impl-report-*" next="code-reviewer" concurrency="S2"/>
     <route signal="加表 / 改字段 / 迁移 / 索引" agent="database-engineer" artifact="schema-*" next="code-reviewer + security-auditor" concurrency="S0"/>
     <route signal="训练模型 / fine-tune / 推理服务" agent="ml-engineer" artifact="ml-report-*" next="code-reviewer 或 devops" concurrency="S0"/>
@@ -61,10 +62,12 @@
     <route signal="功能测试 / 回归验证" agent="functional-tester" artifact="review-functional-*" next="visual-tester 或 test-lead" concurrency="S3"/>
     <route signal="UI 截图 / 视觉回归 / 交互可用性" agent="visual-tester" artifact="review-visual-*" next="test-lead" concurrency="S3"/>
     <route signal="能不能验收 / 能不能上线 / 最终裁决" agent="test-lead" artifact="verdict-*" next="devops 或完成" concurrency="S0"/>
-    <route signal="API 文档 / 部署说明 / 用户手册" agent="doc-writer" artifact="doc-*" next="用户确认 / 归档" concurrency="S1"/>
+    <route signal="API 文档 / 部署说明 / 用户手册" agent="doc-writer" artifact="doc-*" next="content-reviewer" concurrency="S1"/>
     <route signal="设计系统 / tokens / UI 规范" agent="visual-designer" artifact="design-*" next="implementer-frontend 或 visual-tester" concurrency="S0"/>
     <route signal="改 agent / 改规则 / 调度跑偏" agent="prompt-engineer" artifact="prompt-governance-*" next="用户确认 / 调度器执行" concurrency="S0"/>
     <route signal="构建 / CI / 部署 / 回滚" agent="devops" artifact="deploy-report-* 或 incident-*" next="test-lead 或完成" concurrency="S0"/>
+    <route signal="文档/创意内容审查" agent="content-reviewer" artifact="review-content-*" next="用户确认 / 下游消费" concurrency="S1"/>
+    <route signal="技术调研/仓库研究审查" agent="research-reviewer" artifact="review-research-*" next="architect 或调度器" concurrency="S1"/>
   </section>
 
   <section id="standard-pipelines">
@@ -121,6 +124,8 @@
             <item><token>REVIEW_REJECT:...:{严重数}blocker:{一般数}issue</token> — 驳回时附带计数</item>
             <item><token>SECURITY_REJECT:...:{严重数}blocker:{一般数}issue</token> — 安全驳回附带计数</item>
             <item>test-lead 收到 <token>REVIEW_REJECT</token> 且 blocker≥1 时直接 BLOCKED，无需再读文件</item>
+            <item><token>CONTENT_REJECT:...:{严重数}blocker:{一般数}issue</token> — 内容审查驳回附带计数</item>
+            <item><token>RESEARCH_REJECT:...:{严重数}blocker:{一般数}issue</token> — 调研审查驳回附带计数</item>
           </list>
         </token-mapping>
       </constraint>
@@ -181,6 +186,22 @@
         <step agent="functional-tester"/>
         <step agent="devops" note="推理部署"/>
         <step agent="test-lead" note="上线前"/>
+      </pipeline>
+    </subsection>
+
+    <subsection id="pipeline-content">
+      <pipeline id="content-production">
+        <step agent="doc-writer 或 creative"/>
+        <step agent="content-reviewer"/>
+        <step agent="用户确认 / 下游消费"/>
+      </pipeline>
+    </subsection>
+
+    <subsection id="pipeline-research">
+      <pipeline id="research">
+        <step agent="tech-researcher 或 repo-researcher"/>
+        <step agent="research-reviewer"/>
+        <step agent="architect 或调度器"/>
       </pipeline>
     </subsection>
   </section>
