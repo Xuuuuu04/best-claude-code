@@ -47,9 +47,9 @@ Agent 之间通过 `.claude/artifacts/` 目录中的结构化 Markdown 文件进
 | `repo-research` | repo-researcher | 仓库研究报告 |
 | `tech-research` | tech-researcher | 技术调研报告 |
 | `init-analysis` | repo-researcher | `/bcc-init-project` 初始扫描 |
-| `update-analysis` | repo-researcher | `/bcc-update-project` 差异扫描 |
-| `evolve-audit` | repo-researcher / tech-researcher | `/bcc-evolve` 系统审计 |
-| `evolve-proposals` | 调度器 | `/bcc-evolve` 进化提案 |
+| `update-analysis` | repo-researcher | `/bcc-update-memory` 差异扫描 |
+| `evolve-audit` | repo-researcher / tech-researcher | `/bcc-update-memory` 系统审计 |
+| `evolve-proposals` | 调度器 | `/bcc-update-memory` 进化提案 |
 | `evolve-log` | 调度器 | 进化历史累积文件 |
 
 ### Task ID

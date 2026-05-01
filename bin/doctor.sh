@@ -326,7 +326,7 @@ AUTO_MEM_DIR="$(find "$HOME/.claude/projects" -type d -name memory 2>/dev/null |
 if [ -n "$AUTO_MEM_DIR" ] && [ -f "$AUTO_MEM_DIR/MEMORY.md" ]; then
   LINES="$(wc -l < "$AUTO_MEM_DIR/MEMORY.md" | tr -d ' ')"
   if [ "$LINES" -gt 180 ]; then
-    warn "Auto Memory MEMORY.md $LINES 行（接近 200 行上限，考虑 /bcc-evolve）"
+    warn "Auto Memory MEMORY.md $LINES 行（接近 200 行上限，考虑 /bcc-update-memory）"
   else
     pass "Auto Memory $LINES/200 行"
   fi
@@ -679,7 +679,7 @@ if [ -n "$ARTIFACT_DIR" ] && [ -d "$ARTIFACT_DIR" ]; then
     if [ "$UNFINISHED" -eq 0 ]; then
       pass "所有 task 无断点"
     else
-      info "发现 $UNFINISHED 个断点任务，可用 /bcc-resume {task-id} 续跑"
+      info "发现 $UNFINISHED 个断点任务，用自然语言描述任务即可续跑"
     fi
   else
     pass "artifacts 目录无 task-id"

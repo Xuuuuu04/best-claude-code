@@ -1,6 +1,6 @@
 ---
 name: project-knowledge-template
-description: 项目知识库模板。仅供 /bcc-init-project 和 /bcc-update-project 在具体项目的 .claude/skills/project-knowledge/ 中生成项目级知识，不应承载用户级具体项目事实。
+description: 项目知识库模板。仅供 /bcc-init-project 和 /bcc-update-memory 在具体项目的 .claude/skills/project-knowledge/ 中生成项目级知识，不应承载用户级具体项目事实。
 disable-model-invocation: true
 ---
 
@@ -17,7 +17,7 @@ disable-model-invocation: true
 ```markdown
 ---
 name: project-knowledge
-description: {项目名} 项目级知识库。包含技术栈、模块结构、关键命令、API/数据模型摘要和变更日志。由 /bcc-update-project 维护。
+description: {项目名} 项目级知识库。包含技术栈、模块结构、关键命令、API/数据模型摘要和变更日志。由 /bcc-update-memory 维护。
 ---
 
 # 项目知识库：{项目名}

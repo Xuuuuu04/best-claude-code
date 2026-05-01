@@ -9,7 +9,7 @@
   - 数字对齐：Skill 47→48、Hook 15→14、版本 v3.8→v3.9
 
   历史成果：
-  - 42 Skills / 47 Rules / 29 Agents / 15 Hooks
+  - 42 Skills / 48 Rules / 29 Agents / 15 Hooks
   - 保持 ≤200 行；新增机制相关说明请放 LEGION.md。
 -->
 
@@ -21,7 +21,7 @@
 
 ## 项目身份
 
-Agent Legion — Claude Code 多 Agent 协作调度系统。29 个专职 Subagent + 42 个 Skill + 47 条 Rule + Router 组成分层门控流水线，从需求分析推进到最终交付。
+Agent Legion — Claude Code 多 Agent 协作调度系统。29 个专职 Subagent + 42 个 Skill + 48 条 Rule + Router 组成分层门控流水线，从需求分析推进到最终交付。
 
 运行环境：Claude Code CLI v2.1.59+；脚本：Bash；数据：jq。
 
@@ -33,7 +33,7 @@ Agent Legion — Claude Code 多 Agent 协作调度系统。29 个专职 Subagen
 |:--|:--|:--|
 | Agent 定义 | `agents/` | 29 个 Subagent 角色 |
 | Skill 定义 | `skills/` | 42 个 Skill |
-| Rule 定义 | `rules/` | 47 条规则（global / framework / lang / infra） |
+| Rule 定义 | `rules/` | 48 条规则（global / framework / lang / infra） |
 | **调度真源** | `rules/_global/dispatch-table.md` | 用户信号 → Agent → artifact → 下一跳 → 并发等级 |
 | Hook 脚本 | `hooks/` | 15 个 hook 脚本 + `_lib/` |
 | Output Style | `output-styles/legion-dispatch.md` | 主会话调度器行为协议 |
@@ -141,7 +141,7 @@ artifact 命名与生命周期遵循 `rules/_global/artifact-protocol.md` + `dot
 - 外部资料 → `tech-researcher`
 - 实现细节让 implementer 在自己的上下文处理
 - 读 artifact 摘要，不读原始文件
-- 长会话后 `/bcc-reflect` 再开新会话
+- 长会话后 `/bcc-update-memory` 再开新会话
 
 ### 上下文读取权限表
 

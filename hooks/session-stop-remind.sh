@@ -1,6 +1,6 @@
 #!/bin/bash
 # session-stop-remind.sh
-# 目的：会话结束时，如有足够的 subagent 活动，提醒用户执行 /bcc-reflect
+# 目的：会话结束时，如有足够的 subagent 活动，提醒用户执行 /bcc-update-memory
 # 触发：Stop hook
 #
 # 判据：从 subagent-events.jsonl 中统计本会话的 agent 调用次数
@@ -27,7 +27,7 @@ PRODUCER_COUNT=$(echo "$PRODUCER_COUNT" | tr -d ' \n')
 jq -c -n --arg count "$PRODUCER_COUNT" '{
   hookSpecificOutput: {
     hookEventName: "Stop",
-    additionalContext: ("本次会话有 \($count) 次 Agent 调用。建议执行 /bcc-reflect 记录可复用经验——避免知识丢失。")
+    additionalContext: ("本次会话有 \($count) 次 Agent 调用。建议执行 /bcc-update-memory 记录可复用经验——避免知识丢失。")
   }
 }' 2>/dev/null || true
 

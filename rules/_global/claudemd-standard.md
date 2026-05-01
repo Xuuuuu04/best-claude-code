@@ -1,6 +1,6 @@
 # CLAUDE.md 内容规范
 
-项目中的 CLAUDE.md 文件必须符合以下规范。此规则由 `/bcc-init-project` 和 `/bcc-update-project` 生成时遵循，也指导 `architecture-reviewer` 在审查 CLAUDE.md 时的判断。
+项目中的 CLAUDE.md 文件必须符合以下规范。此规则由 `/bcc-init-project` 和 `/bcc-update-memory` 生成时遵循，也指导 `architecture-reviewer` 在审查 CLAUDE.md 时的判断。
 
 ---
 

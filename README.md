@@ -19,10 +19,10 @@
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-v2.1.59+-7c3aed?style=flat-square&logo=anthropic)](https://claude.com/claude-code)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](./LICENSE)
-[![Status: v3.9](https://img.shields.io/badge/Status-v3.9-f59e0b?style=flat-square)](#)
+[![Status: v4.3](https://img.shields.io/badge/Status-v4.3-f59e0b?style=flat-square)](#)
 [![Chinese First](https://img.shields.io/badge/Language-中文优先-ef4444?style=flat-square)](#)
 [![Agents](https://img.shields.io/badge/Agents-29-3b82f6?style=flat-square)](#二十九-subagent-角色)
-[![Rules](https://img.shields.io/badge/Rules-47-8b5cf6?style=flat-square)](#支持的技术栈)
+[![Rules](https://img.shields.io/badge/Rules-48-8b5cf6?style=flat-square)](#支持的技术栈)
 [![Skills](https://img.shields.io/badge/Skills-42-06b6d4?style=flat-square)](#系统架构)
 
 <br>
@@ -58,9 +58,9 @@ Agent Legion 把 Claude Code 的七种扩展层全部用上，让它们各司其
 | 机制 | 职责 | 在本系统的体现 |
 |:--|:--|:--|
 | **CLAUDE.md** | 调度元协议（始终在线） | 根文件 ~120 行，定义调度器身份和流水线路由 |
-| **Skills** | 可调用的知识 / 工作流 | 47 个，分三类：`bcc-*` 调度命令（disable-model-invocation）、领域协议（Agent 预加载）、参考文档（含 argument-hint 提示） |
-| **Subagents** | 隔离上下文的工作者 | 25 个专职角色，覆盖业务 intake / 需求 / 设计 / 研究 / 实现 / 审查 / 测试 / 验收 / 部署 / 元治理 |
-| **Rules** | 编码规范与调度真源（按需激活） | 全局规则 + 调度表 + 17 种语言 + 18 种框架 + 3 种基础设施 |
+| **Skills** | 可调用的知识 / 工作流 | 42 个，分三类：系统运维命令（disable-model-invocation）、领域协议（Agent 预加载）、参考文档 |
+| **Subagents** | 隔离上下文的工作者 | 29 个专职角色，覆盖需求/设计/研究/实现/审查/测试/验收/部署/元治理/论文/仓颉/昇腾 |
+| **Rules** | 编码规范与调度真源（按需激活） | 全局规则 + 调度表 + 18 种语言 + 18 种框架 + 3 种基础设施 |
 | **Hooks** | 确定性保障脚本 | 会话启动注入、压缩前后状态恢复、编辑自动 lint 等 |
 | **Memory** | 跨会话持久学习 | Agent 按认知类型分层（思维类 user，执行类 project） |
 | **Output Style** | 调度器行为风格 | 自定义 `legion-dispatch` 强制中文、极简、委派纪律 |
@@ -73,7 +73,7 @@ Agent Legion 把 Claude Code 的七种扩展层全部用上，让它们各司其
 ┌─────────────────────────────────────────────┐
 │  用户                                        │
 └────────────────┬────────────────────────────┘
-                 │ /bcc-new-feature / /bcc-fix-bug / ...
+                 │ 自然语言描述任务（v3.4 自然语言优先）
                  ▼
 ┌───────────────────────────────────────────────┐
 │  主会话 = 调度器（Dispatcher）                  │
@@ -140,12 +140,14 @@ Agent Legion 把 Claude Code 的七种扩展层全部用上，让它们各司其
 
 ## 能做什么
 
-- **新功能开发全流程**：`/bcc-new-feature {需求}` 触发专职流水线（需求→需求审查→架构→范围规划→架构审查→实现→代码审查→安全/功能/UI 验证）
-- **Bug 修复**：`/bcc-fix-bug {描述}` 走 TDD 简化流水线
-- **安全部署**：`/bcc-deploy` 带预检、确认节点、回滚预案
-- **跨技术栈项目**：React、Vue、Svelte、Angular、Next、Nuxt、Spring、Django、FastAPI、Rails、Laravel、ASP.NET、iOS、Android、Flutter、微信小程序、uni-app、ML 推理服务等主流场景全覆盖
-- **项目初始化与持续维护**：`/bcc-init-project` + `/bcc-update-project`
-- **系统自我进化**：`/bcc-reflect` 会话总结 + `/bcc-evolve` 将 Memory 固化为 Rules / Skills
+- **自然语言驱动开发**：直接说"实现用户登录功能"即可触发完整门控流水线（需求→架构→scope→实现→审查→安全→测试→裁决），无需显式命令
+- **顶会论文撰写与审稿**：学术论文写作专家 + 顶会审稿专家形成撰写-审查闭环，对标 NeurIPS/CVPR/ACL 标准
+- **仓颉语言开发**：华为仓颉语言专属开发专家，完整类型系统/并发/FFI 知识
+- **昇腾 NPU 开发**：CANN 工具链/Ascend C 算子/模型部署/鸿蒙端侧推理
+- **Claude Code 工作流定制**：提示词设计大师可为任意场景快速设计 Agent/Skill/流水线
+- **跨技术栈项目**：React、Vue、Next、Spring、Django、Flutter、微信小程序、仓颉、昇腾等全覆盖
+- **项目初始化**：`/bcc-init-project` 深度递归探索 + 逐目录生成 CLAUDE.md
+- **系统进化**：`/bcc-update-memory` 自动汇总学习 → 检测临界 → 提议架构升级
 
 ---
 
@@ -170,7 +172,7 @@ Agent Legion 把 Claude Code 的七种扩展层全部用上，让它们各司其
 编辑 `.tsx` 自动激活 React 规则；编辑 `.py` 自动激活 Python 规则。不在场的规则零上下文成本。
 
 ### 5. 进化飞轮
-Auto Memory + Agent Memory 持续积累 → `/bcc-reflect` 结构化学习 → `/bcc-evolve` 提案 → 人工审批 → 固化为永久 Rules/Skills。系统越用越聪明。
+Auto Memory + Agent Memory 持续积累 → `/bcc-update-memory` 自动汇总 → 临界检测 → 人工审批 → 固化为永久 Rules/Skills。系统越用越聪明。
 
 ### 6. 多模型 Provider 支持
 内置多家国内 Claude 兼容协议提供商（GLM、MiniMax、Kimi 等）配置示例，让成本敏感场景也能用上 Agent Legion。
@@ -214,13 +216,21 @@ chmod +x ~/.claude/hooks/*.sh
 /bcc-init-project 你的项目简介
 ```
 
-之后根据需要：
+之后直接自然语言描述任务即可：
 
 ```
-/bcc-new-feature  实现用户登录功能，支持邮箱密码和 Google OAuth
-/bcc-fix-bug      刷新 token 在并发请求下偶现失败
-/bcc-deploy       部署到 staging
-/bcc-evolve       （每 1-2 周）让系统基于积累学习进化
+实现用户登录功能，支持邮箱密码和 Google OAuth
+刷新 token 在并发请求下偶现失败
+帮我写一篇 CVPR 论文初稿
+```
+
+或使用显式命令：
+
+```
+/bcc-loop-dev 实现完整的用户管理系统
+/bcc-fast-fix src/auth.ts 第 42 行 typo
+/bcc-update-memory  （每 1-2 周）进化系统
+/bcc-doctor          每周健康检查
 ```
 
 ---
@@ -251,7 +261,7 @@ chmod +x ~/.claude/hooks/*.sh
 
 ## 支持的技术栈
 
-**语言（17）** — TypeScript、Python、Java、Swift、Kotlin、Dart、CSS、Go、Rust、C++、C、Ruby、PHP、C#、SQL、Shell、Scala
+**语言（18）** — TypeScript、Python、Java、Swift、Kotlin、Dart、CSS、Go、Rust、C++、C、Ruby、PHP、C#、SQL、Shell、Scala、LaTeX
 
 **框架（18）** — React、Vue、Svelte、Angular、Next.js、Nuxt、Express、NestJS、Spring、Django、FastAPI、Flask、Rails、Laravel、ASP.NET Core、Tailwind、Prisma、微信小程序
 
