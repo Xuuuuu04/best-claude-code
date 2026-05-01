@@ -267,7 +267,7 @@ chmod +x ~/.claude/hooks/*.sh
 
 **基础设施** — Docker、CI/CD（GitHub Actions/GitLab CI/etc.）、环境配置
 
-覆盖 95% 主流开发场景。其他语言/框架可通过 `/bcc-evolve` 自行扩展。
+覆盖 95% 主流开发场景。其他语言/框架可通过 `/bcc-update-memory` 自行扩展。
 
 ---
 

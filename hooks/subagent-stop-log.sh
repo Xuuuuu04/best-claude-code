@@ -1,7 +1,7 @@
 #!/bin/bash
 # subagent-stop-log.sh
 # 目的：
-#   1. 记录 Subagent 完成事件到 JSONL 日志（供 /bcc-evolve 分析）
+#   1. 记录 Subagent 完成事件到 JSONL 日志（供 /bcc-update-memory 分析）
 #   2. 从 subagent transcript 累计 token 用量 → 写入项目级 cost-log.txt
 # 触发：SubagentStop hook
 #
@@ -29,7 +29,7 @@ TRANSCRIPT="$(echo "$INPUT" | jq -r '.agent_transcript_path // empty' 2>/dev/nul
 # agent_type 为空时（主会话直接调用 Agent 工具的 inline case），用 "inline" 标记
 [ -z "$AGENT_TYPE" ] && AGENT_TYPE="inline"
 
-# ── 1. JSONL 原始日志（compact 单行，供 /bcc-evolve 分析） ─────────────────
+# ── 1. JSONL 原始日志（compact 单行，供 /bcc-update-memory 分析） ─────────────────
 LOG_DIR="$HOME/.claude/logs"
 mkdir -p "$LOG_DIR" 2>/dev/null || true
 

@@ -5,7 +5,7 @@
 #
 # 用途：
 # - 调试"规则没生效"问题：查 .claude/logs/instructions-log.txt 看加载时间/原因
-# - /bcc-evolve 可分析 ~/.claude/logs/instructions-loaded.jsonl 找从未触发的 Rule
+# - /bcc-update-memory 可分析 ~/.claude/logs/instructions-loaded.jsonl 找从未触发的 Rule
 #
 # 行为：
 # - 写两份日志：机器可读 JSONL（全局）+ 人类可读文本（项目级，如在项目目录）
