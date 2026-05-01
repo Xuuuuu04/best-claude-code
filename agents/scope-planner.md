@@ -57,32 +57,45 @@ permissionMode: default
 **关联架构**: architecture-{task-id}.md
 **推荐 implementer**: implementer-frontend / implementer-backend / implementer-mobile / devops
 
+<task>
 ## 修改范围（白名单）
 - `path/to/file.ts` → 修改 `functionA`
 - `path/to/file.test.ts` → 新增回归测试
+</task>
 
+<constraints>
 ## 禁止事项
 - 禁止修改 `...`
 - 禁止引入新依赖
 - 禁止改变现有 API 响应格式
+</constraints>
 
+<premortem>
 ## 失败模式预判
 - 最坏情况：{如果这个实现有 bug，会影响什么——哪个用户路径/哪个下游模块}
 - 最可能出错：{最容易写错的部分——复杂条件/并发边界/类型转换}
 - 爆炸半径：{会影响 N 个下游模块/接口/页面}
+</premortem>
 
+<interface>
 ## 接口契约
 {明确的类型、签名、字段、错误码}
+</interface>
 
+<implementation>
 ## 实现要点
 1. ...
 2. ...
+</implementation>
 
+<verification>
 ## 验证方式
 ```bash
 {测试/构建/类型检查命令}
 ```
+</verification>
 
+<done>
 ## 完成标准
 - [ ] 白名单文件全部修改
 - [ ] 禁止事项无一触碰
@@ -90,6 +103,7 @@ permissionMode: default
 - [ ] 验证命令全部通过
 - [ ] 新增/修改代码有测试覆盖
 - [ ] 不确定项已标注（如有）
+</done>
 ```
 
 ### 质量标准
