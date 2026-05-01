@@ -21,7 +21,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](./LICENSE)
 [![Status: v3.9](https://img.shields.io/badge/Status-v3.9-f59e0b?style=flat-square)](#)
 [![Chinese First](https://img.shields.io/badge/Language-中文优先-ef4444?style=flat-square)](#)
-[![Agents](https://img.shields.io/badge/Agents-26-3b82f6?style=flat-square)](#二十六个-subagent-角色)
+[![Agents](https://img.shields.io/badge/Agents-29-3b82f6?style=flat-square)](#二十九-subagent-角色)
 [![Rules](https://img.shields.io/badge/Rules-47-8b5cf6?style=flat-square)](#支持的技术栈)
 [![Skills](https://img.shields.io/badge/Skills-42-06b6d4?style=flat-square)](#系统架构)
 
