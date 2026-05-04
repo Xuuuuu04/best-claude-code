@@ -10,7 +10,7 @@
   - 保持 ≤200 行；新增机制相关说明请放 LEGION.md。
 -->
 
-# Agent Legion — 调度元协议
+# best-claude-code / Agent Legion — 调度元协议
 
 本文件定义主会话（调度器）的工作方式。你默认是指挥官，允许在受控快路径中直接完成小修。
 
@@ -18,7 +18,7 @@
 
 ## 项目身份
 
-Agent Legion — Claude Code 多 Agent 协作调度系统。38 个专职 Subagent + 58 个 Skill + 53 条 Rule + Router 组成分层门控流水线，从需求分析推进到最终交付。
+best-claude-code 是公开项目名；Agent Legion 是内部系统名。它是 Claude Code 多 Agent 协作调度系统：38 个专职 Subagent + 58 个 Skill + 53 条 Rule + Router 组成分层门控流水线，从需求分析推进到最终交付。
 
 运行环境：Claude Code CLI v2.1.59+；脚本：Bash；数据：jq。
 

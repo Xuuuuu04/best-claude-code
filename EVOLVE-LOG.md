@@ -516,6 +516,8 @@ git revert <本次 commit hash>
 
 ### 已执行的变更
 
+- [DOC] `README.md`：项目公开名升级为 `best-claude-code`，全面重写为精美长文档，新增 Mermaid 架构图、状态机、序列图、质量矩阵、多语言技术栈和治理闭环说明
+- [RENAME] GitHub 仓库通过 `gh repo rename best-claude-code --yes` 从 `claude-code-best-template` 重命名为 `best-claude-code`
 - [FIX] `hooks/subagent-start-mark.sh`：active subagent 状态从 TSV 改为 JSON，记录 `session_id / agent_id / agent_type / started_at`
 - [FIX] `hooks/subagent-stop-log.sh`：按 `agent_id` 精确清理 active 文件；缺失或不匹配时按同 session + agent_type 删除最老匹配项
 - [FIX] `statusline.sh`：重排为两行布局，窄屏自动压缩标签、任务 ID 和多代理显示；自动清理明显陈旧的 active 文件

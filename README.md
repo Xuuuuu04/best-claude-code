@@ -1,338 +1,611 @@
 <div align="center">
 
-<br>
+# best-claude-code
 
-```
- █████╗  ██████╗ ███████╗███╗   ██╗████████╗    ██╗     ███████╗ ██████╗ ██╗ ██████╗ ███╗   ██╗
-██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝    ██║     ██╔════╝██╔════╝ ██║██╔═══██╗████╗  ██║
-███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║       ██║     █████╗  ██║  ███╗██║██║   ██║██╔██╗ ██║
-██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║       ██║     ██╔══╝  ██║   ██║██║██║   ██║██║╚██╗██║
-██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║       ███████╗███████╗╚██████╔╝██║╚██████╔╝██║ ╚████║
-╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝       ╚══════╝╚══════╝ ╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
-```
+### 一个把 Claude Code 变成工程团队的多 Agent 开发系统
 
-### The Best Claude Code Template
-
-***把主会话变成默认指挥官，让 Subagent 军团处理复杂任务，在快路径中直接完成小修***
+**中文优先 · 多语言支持 · 结构化调度 · 对抗审查 · 可进化记忆 · 发布治理**
 
 <br>
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-v2.1.59+-7c3aed?style=flat-square&logo=anthropic)](https://claude.com/claude-code)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](./LICENSE)
-[![Status: v4.7](https://img.shields.io/badge/Status-v4.7-f59e0b?style=flat-square)](#)
-[![Chinese First](https://img.shields.io/badge/Language-中文优先-ef4444?style=flat-square)](#)
-[![Agents](https://img.shields.io/badge/Agents-38-3b82f6?style=flat-square)](#三十-subagent-角色)
-[![Rules](https://img.shields.io/badge/Rules-53-8b5cf6?style=flat-square)](#支持的技术栈)
-[![Skills](https://img.shields.io/badge/Skills-58-06b6d4?style=flat-square)](#系统架构)
+[![Status: v4.7](https://img.shields.io/badge/Status-v4.7-f59e0b?style=flat-square)](#版本状态)
+[![Language](https://img.shields.io/badge/Language-中文优先-ef4444?style=flat-square)](#多语言与技术栈)
+[![Agents](https://img.shields.io/badge/Agents-38-3b82f6?style=flat-square)](#agent-矩阵)
+[![Skills](https://img.shields.io/badge/Skills-58-06b6d4?style=flat-square)](#skill-体系)
+[![Rules](https://img.shields.io/badge/Rules-53-8b5cf6?style=flat-square)](#rule-体系)
+[![Hooks](https://img.shields.io/badge/Hooks-17%2B3-10b981?style=flat-square)](#hook-安全网)
 
 <br>
 
-**[设计哲学](#设计哲学)** · **[架构](#系统架构)** · **[能做什么](#能做什么)** · **[快速开始](#安装与使用)** · **[维护指南](./LEGION.md)**
+**[快速开始](#快速开始)** · **[系统架构](#系统架构)** · **[工作流](#端到端工作流)** · **[技术栈](#多语言与技术栈)** · **[治理闭环](#治理闭环)** · **[维护指南](./LEGION.md)**
 
 <br>
 
----
-
-<br>
-
-> **一套基于 Claude Code 全部扩展机制构建的自适应多 Agent 开发军团。**
+> best-claude-code 不是一份普通 `CLAUDE.md` 模板，而是一套基于 Claude Code 全扩展机制构建的工程执行系统。
 >
-> 让中等能力模型在干净的隔离上下文中，单点任务上匹敌甚至超越顶级模型。
+> 它把主会话变成调度器，把复杂任务拆给专职 Subagent，并用 Rules、Hooks、Skills、Memory、Output Style 和 DispatchTicket 形成可验证的交付闭环。
 
 </div>
 
-<br>
+---
 
-## 为什么是 Agent Legion
+## 为什么需要 best-claude-code
 
-### 核心信念
+单个强模型在大项目里最常见的问题不是“不会写代码”，而是：
 
-**干净上下文 + 结构化约束 > 混乱上下文 + 最强模型。**
+- 上下文越来越脏，越做越不知道当前状态。
+- 实现者自证正确，审查、测试、安全被口头带过。
+- 改一个需求牵动多个模块，但缺少范围锁定和交接协议。
+- 多轮返工没有沉淀，下次继续踩同一个坑。
+- prompt、rule、hook、skill 各自漂移，版本文档和真实系统不一致。
 
-行业主流做法是扔一个 Opus 级模型到几十 K token 的混乱上下文里硬抗。我们反其道而行：用架构消除混乱本身。在干净的 Subagent 上下文中，一个 Sonnet 级模型在精确 scope 内的单点任务表现可以媲美甚至超越 Opus 在复杂上下文中的表现。
+best-claude-code 的核心判断是：
 
-### 核心机制
+**干净上下文 + 明确职责 + 结构化证据 > 混乱上下文 + 最强模型硬抗。**
 
-Agent Legion 把 Claude Code 的七种扩展层全部用上，让它们各司其职：
+系统通过 38 个 Subagent、58 个 Skill、53 条 Rule、17 个主 Hook 和 3 个 hook 辅助库，把 Claude Code 组织成一个可调度、可审查、可进化的工程团队。
 
-| 机制 | 职责 | 在本系统的体现 |
-|:--|:--|:--|
-| **CLAUDE.md** | 调度元协议（始终在线） | 根文件 ~120 行，定义调度器身份和流水线路由 |
-| **Skills** | 可调用的知识 / 工作流 | 58 个，分三类：系统运维命令（disable-model-invocation）、领域协议（Agent 预加载）、参考文档 |
-| **Subagents** | 隔离上下文的工作者 | 38 个专职角色，覆盖需求/设计/研究/实现/审查/测试/验收/部署/元治理/论文/仓颉/昇腾/就业/外包 |
-| **Rules** | 编码规范与调度真源（按需激活） | 53 条，全局规则 + 调度表 + 18 种语言 + 18 种框架 + 3 种基础设施 |
-| **Hooks** | 确定性保障脚本 | 17 个主 hook + 3 个 `_lib` 辅助脚本，覆盖会话启动、压缩恢复、编辑守卫、Subagent 生命周期和质量闸门 |
-| **Memory** | 跨会话持久学习 | Agent 按认知类型分层（思维类 user，执行类 project） |
-| **Output Style** | 调度器行为风格 | 自定义 `legion-dispatch` 强制中文、极简、委派纪律 |
+---
+
+## 快速开始
+
+### 1. 安装
+
+```bash
+git clone https://github.com/Xuuuuu04/best-claude-code.git ~/.claude
+cd ~/.claude
+cp settings.example.json settings.json
+chmod +x hooks/*.sh hooks/_lib/*.sh bin/*.sh
+```
+
+### 2. 配置
+
+编辑 `~/.claude/settings.json`，填入你的模型 Provider、API Key 和 hook 配置。
+
+> 仓库不会包含真实密钥。`settings.json`、本地备份、日志、session 和 pending state 已被 `.gitignore` 排除。
+
+### 3. 体检
+
+```bash
+bash ~/.claude/bin/doctor.sh
+```
+
+健康输出应至少满足：
+
+- `0 failures`
+- README 数字徽章与真实文件数量一致
+- Release Readiness 版本一致
+- Git hygiene 无运行态文件待提交
+
+### 4. 使用
+
+进入任意项目目录：
+
+```bash
+claude
+```
+
+首次进入项目建议：
+
+```text
+/bcc-init-project 这个项目是一个 SaaS 后台，包含前端、后端和数据库迁移
+```
+
+之后直接用自然语言描述任务：
+
+```text
+实现用户登录功能，支持邮箱密码和 Google OAuth
+刷新 token 在并发请求下偶现失败，帮我定位并修复
+给这个小程序班级管理页加搜索、分页和导出
+写一篇 CVPR 风格论文初稿，主题是多模态医学图像配准
+部署到生产前做一次安全审计和回滚方案
+```
 
 ---
 
 ## 系统架构
 
+### 总览
+
+```mermaid
+flowchart TB
+    U[用户自然语言任务] --> D[主会话 Dispatcher]
+    D --> T[DispatchTicket<br/>task / phase / risk / gates]
+    D --> OS[Output Style<br/>中文 / 极简 / 调度纪律]
+    D --> R[Rules<br/>全局约束 + path-specific 技术规则]
+    D --> H[Hooks<br/>确定性安全网]
+    D --> M[Memory<br/>跨会话学习]
+
+    T --> PM[项目管理师]
+    PM --> REQ[需求与规格层]
+    PM --> ARCH[架构与范围层]
+    PM --> IMPL[实现层]
+    PM --> REVIEW[审查与测试层]
+    PM --> RELEASE[发布与治理层]
+
+    REQ --> A1[客户需求整理师]
+    REQ --> A2[资深需求分析师]
+    REQ --> A3[高级需求审查师]
+
+    ARCH --> B1[资深系统架构师]
+    ARCH --> B2[资深范围规划师]
+    ARCH --> B3[高级架构审查师]
+
+    IMPL --> C1[高级前端工程师]
+    IMPL --> C2[高级后端工程师]
+    IMPL --> C3[高级移动端工程师]
+    IMPL --> C4[小程序开发专家]
+    IMPL --> C5[资深数据库工程师]
+    IMPL --> C6[机器学习工程师]
+    IMPL --> C7[高级运维工程师]
+
+    REVIEW --> D1[高级代码审查师]
+    REVIEW --> D2[高级安全审计师]
+    REVIEW --> D3[高级功能测试师]
+    REVIEW --> D4[高级视觉测试师]
+    REVIEW --> D5[质量总监]
+
+    RELEASE --> E1[release-checklist Skill]
+    RELEASE --> E2[doctor.sh]
+    RELEASE --> E3[版本一致性 / Git hygiene Rule]
+
+    H --> SL[statusline<br/>两行状态面板]
+    H --> STOP[stop-quality-gate<br/>证据未闭合不收工]
+    H --> SG[subagent lifecycle<br/>active JSON 精确清理]
 ```
-┌─────────────────────────────────────────────┐
-│  用户                                        │
-└────────────────┬────────────────────────────┘
-                 │ 自然语言描述任务（v3.4 自然语言优先）
-                 ▼
-┌───────────────────────────────────────────────┐
-│  主会话 = 调度器（Dispatcher）                  │
-│  CLAUDE.md + Output Style 双重强化其身份       │
-│  默认不写复杂代码；仅在受控快路径直做小修       │
-└─┬─────────────────────────────────────────────┘
-  │
-  ▼
-┌────────────┐   ┌────────────────────┐   ┌────────────────────┐
-│需求与调度链 │──▶│设计与范围规划链      │──▶│实现与专项域链        │
-│客户需求整理师      │   │资深系统架构师           │   │实现工程师-*       │
-│创意策划师    │   │资深范围规划师       │   │小程序开发专家     │
-│product-    │   │architecture-review │   │资深数据库工程师   │
-│analyst     │   └────────────────────┘   │机器学习工程师         │
-│项目管理师          │                             │高级运维工程师              │
-│requirements│                             └──────┬─────────────┘
-│reviewer    │                                    │
-└──────┬─────┘                                    ▼
-       │                              ┌────────────────────────┐
-       └─────────────────────────────▶│审查 / 文档 / 验收链      │
-                                      │高级代码审查师          │
-                                      │高级安全审计师       │
-                                      │高级功能测试师      │
-                                      │高级视觉测试师          │
-                                      │质量总监              │
-                                      │文档工程师             │
-                                      │视觉设计专家        │
-                                      │Claude Code 工作流与提示词设计大师        │
-                                      └─────────┬─────────────┘
-                                                ▼
-                                     .claude/artifacts/
-                                   （结构化文件交接总线）
+
+### 分层架构
+
+```mermaid
+flowchart LR
+    subgraph L0[入口层]
+      USER[用户输入]
+      CLAUDE[CLAUDE.md 调度元协议]
+      STYLE[legion-dispatch Output Style]
+    end
+
+    subgraph L1[状态层]
+      TICKET[DispatchTicket]
+      STATUS[statusline]
+      LOG[progress-log / Task]
+    end
+
+    subgraph L2[智能层]
+      AGENTS[38 Subagents]
+      SKILLS[58 Skills]
+      RULES[53 Rules]
+      MEMORY[Memory]
+    end
+
+    subgraph L3[确定性层]
+      HOOKS[17 Hooks + 3 _lib]
+      DOCTOR[doctor.sh]
+      VALIDATE[validate-rules / validate-ticket]
+      GIT[Git hygiene / release checklist]
+    end
+
+    subgraph L4[交付层]
+      ARTIFACTS[.claude/artifacts]
+      REVIEW[review reports]
+      VERDICT[verdict]
+      PUSH[commit / push]
+    end
+
+    USER --> CLAUDE --> TICKET --> AGENTS --> ARTIFACTS --> VERDICT
+    STYLE --> CLAUDE
+    RULES --> AGENTS
+    SKILLS --> AGENTS
+    MEMORY --> AGENTS
+    HOOKS --> TICKET
+    TICKET --> STATUS
+    DOCTOR --> GIT
+    VALIDATE --> GIT
+    VERDICT --> PUSH
 ```
 
-### 三十八个 Subagent 角色
+### DispatchTicket 状态机
 
-按**认知模式**而非技术栈划分：
+```mermaid
+stateDiagram-v2
+    [*] --> intake
+    intake --> research: 需要外部调研
+    intake --> plan: 需求清晰
+    intake --> needs_user: 缺截图/日志/验收标准
 
-- **客户需求整理师** — 客户原话、售后反馈、提案需求的工程化整理
-- **创意策划师** — 命名、Slogan、品牌调性和概念级视觉方向
-- **资深需求分析师** — 从模糊需求到精确规格（需求拆分、验收标准、风险识别）
-- **高级需求审查师** — 只审需求文档是否完整、可测、可进入设计阶段
-- **项目管理师** — 多阶段任务的状态机、单跳调度、返工升级
-- **资深系统架构师** — 只做技术方案、模块边界、ADR 和关键权衡
-- **资深范围规划师** — 把需求和架构压缩成文件级 `scope-lock` 与依赖图
-- **高级架构审查师** — 专审架构方案与 scope-lock 是否自洽、可实施
-- **代码库研究员** — 只做仓库内定位、代码考古、依赖关系和历史追溯
-- **技术调研专家** — 只做外部文档、第三方能力、兼容性和选型调研
-- **实现工程师-{frontend,backend,mobile}** — 在 scope-lock 范围内高质量执行
-- **小程序开发专家** — 微信小程序 / uni-app / 小程序生态专项实现
-- **资深数据库工程师** — schema、迁移、索引和数据层兼容性
-- **机器学习工程师** — 训练、评估、推理部署和 ML 失败分析
-- **高级代码审查师** — 只审 diff、契约一致性、异常处理、测试覆盖和可维护性
-- **高级安全审计师** — 只审权限、安全边界、依赖风险和上线前隐患
-- **高级功能测试师** — 只做功能验证、主路径回归和边界场景测试
-- **高级视觉测试师** — 只做 UI 证据采集、视觉回归和交互可用性检查
-- **质量总监** — 汇总功能 / 视觉 / 安全证据后的最终放行裁决
-- **文档工程师** — API 文档、部署说明、交付文档、阶段报告
-- **视觉设计专家** — design tokens、组件规范、布局与视觉系统
-- **Claude Code 工作流与提示词设计大师** — Agent、Rule、Style 和元治理协议维护
-- **高级运维工程师** — 构建、部署、CI/CD、发布（可重复、可回滚、可追踪）
-- **多媒体内容生成师** — 代码驱动宣传视频/动画/幻灯片生成（Remotion/React，多平台导出）
+    research --> plan: RESEARCH_PASS
+    plan --> implement: scope-lock 完成
+    implement --> review: IMPL_DONE
+    review --> implement: REVIEW_REJECT
+    review --> security: REVIEW_PASS
+    security --> implement: SECURITY_REJECT
+    security --> test: SECURITY_PASS
+    test --> implement: TEST_BLOCKED
+    test --> visual: TEST_PASS
+    visual --> implement: VISUAL_BLOCKED
+    visual --> verdict: VISUAL_PASS
+    verdict --> blocked: VERDICT_BLOCKED
+    verdict --> needs_user: VERDICT_PASS / CONDITIONAL
+    needs_user --> done: final_confirmation=accepted
+    needs_user --> implement: continue_requested / specified_check
+    blocked --> needs_user: 需要用户裁决
+    done --> [*]
+```
 
----
+### Agent 调度序列
 
-## 能做什么
+```mermaid
+sequenceDiagram
+    participant User as 用户
+    participant Main as 主会话 Dispatcher
+    participant Ticket as DispatchTicket
+    participant Agent as Subagent
+    participant Hook as Hooks
+    participant QA as 审查/测试/质量总监
 
-- **自然语言驱动开发**：直接说"实现用户登录功能"即可触发完整门控流水线（需求→架构→scope→实现→审查→安全→测试→裁决），无需显式命令
-- **顶会论文撰写与审稿**：学术论文写作专家 + 顶会审稿专家形成撰写-审查闭环，对标 NeurIPS/CVPR/ACL 标准
-- **仓颉语言开发**：华为仓颉语言专属开发专家，完整类型系统/并发/FFI 知识
-- **昇腾 NPU 开发**：CANN 工具链/Ascend C 算子/模型部署/鸿蒙端侧推理
-- **代码驱动多媒体生成**：宣传视频、产品动画、社交媒体短片、幻灯片演示——用 Remotion/React 代码直接渲染 MP4/GIF
-- **Claude Code 工作流定制**：提示词设计大师可为任意场景快速设计 Agent/Skill/流水线
-- **跨技术栈项目**：React、Vue、Next、Spring、Django、Flutter、微信小程序、仓颉、昇腾等全覆盖
-- **项目初始化**：`/bcc-init-project` 深度递归探索 + 逐目录生成 CLAUDE.md
-- **系统进化**：`/bcc-update-memory` 自动汇总学习 → 检测临界 → 提议架构升级
+    User->>Main: 自然语言任务
+    Main->>Ticket: 写入 task_id / phase / risk / gates
+    Main->>Agent: 派遣专职 Agent
+    Hook->>Ticket: SubagentStart 写 active JSON
+    Agent-->>Main: TOKEN: artifact path
+    Hook->>Ticket: SubagentStop 更新 gate/evidence
+    Main->>QA: 根据 token 派下一门控
+    QA-->>Main: PASS / BLOCKED / NEEDS_USER
+    Main->>Ticket: phase=needs_user, final_confirmation=asked
+    Main-->>User: 接受当前结果 / 继续深挖 / 指定检查点
+```
 
----
+### 质量门控矩阵
 
-## 特性总览
-
-### 1. 默认调度，受控快路径
-主会话上下文尽量保持干净。复杂实现、测试、部署优先交给隔离的 Subagent 完成；系统文件和单文件低风险小修允许主会话直接完成。
-
-### 2. Scope-Lock 范围锁定
-架构师只负责设计，`资深范围规划师` 专职产出精确到**文件和函数级别**的 scope-lock，包含白名单、禁止事项、接口契约、验证方式、完成标准。这样把“设计正确”和“拆分精确”两种认知任务分离开来。
-
-### 3. 阶段门控质量
-需求、架构、代码、安全、功能、视觉各自有专职 reviewer / tester，避免一个“总审查员”同时切换多种判断标准。质量是流水线的一部分，不是事后补丁。
-
-### 3.1 最终裁决与专项域
-`质量总监` 负责最终放行；数据库、小程序、ML、文档、设计、多媒体内容、提示词治理分别有专职角色，不再把高差异场景硬塞给通用 实现工程师。
-
-### 3.2 调度表与安全并发
-`rules/_global/dispatch-table.md` 是路由真源，定义“用户信号 → Agent → artifact → 下一跳 → 并发等级”。允许并发，但必须满足白名单无交集、输出 artifact 不冲突、依赖图同 Batch、共享环境不污染。
-
-### 4. 路径限定 Rules 按需激活
-编辑 `.tsx` 自动激活 React 规则；编辑 `.py` 自动激活 Python 规则。不在场的规则零上下文成本。
-
-### 5. 进化飞轮
-Auto Memory + Agent Memory 持续积累 → `/bcc-update-memory` 自动汇总 → 临界检测 → 人工审批 → 固化为永久 Rules/Skills。系统越用越聪明。
-
-### 6. 多模型 Provider 支持
-内置多家国内 Claude 兼容协议提供商（GLM、MiniMax、Kimi 等）配置示例，让成本敏感场景也能用上 Agent Legion。
-
-### 7. 中文优先
-Output Style 强制中文交互，适合中文开发团队使用。
-
-### 8. 自适应推理强度（v3.2 新增）
-7 个高决策风险 Agent（`质量总监` / `资深系统架构师` / `高级架构审查师` / `高级代码审查师` / `高级安全审计师` / `资深范围规划师` / `Claude Code 工作流与提示词设计大师`）通过 `effort` frontmatter 配置 4.7 自适应推理强度（`high` / `xhigh`），其余 Agent 继承会话默认值。
-
-### 9. PermissionRequest 自动批准（v3.2 新增）
-`ExitPlanMode` 权限请求由专用 hook 自动批准，消除 plan mode 完成后的确认摩擦。其他权限请求不受影响。
+| 阶段 | 产出 | 审查者 | 通过标准 | 打回路径 |
+|:--|:--|:--|:--|:--|
+| 需求 | requirements / scope intent | 高级需求审查师 | 目标、边界、验收标准清晰 | 回需求分析 |
+| 架构 | ADR / architecture artifact | 高级架构审查师 | 模块边界、依赖、数据流自洽 | 回架构师 |
+| 范围 | scope-lock | 高级架构审查师 / 项目管理师 | 文件级白名单、禁止事项明确 | 回范围规划 |
+| 实现 | impl-report | 高级代码审查师 | diff 正确、契约一致、异常可读 | 回实现工程师 |
+| 安全 | security-review | 高级安全审计师 | 无高危漏洞、权限边界清晰 | 回实现或架构 |
+| 功能 | functional-review | 高级功能测试师 | 主路径和边界测试通过 | 回实现工程师 |
+| 视觉 | visual-review | 高级视觉测试师 | 截图证据、交互可用 | 回前端/设计 |
+| 裁决 | verdict | 质量总监 | 证据闭合，可交付 | blocked / needs_user |
 
 ---
 
-## 安装与使用
+## 端到端工作流
 
-### 前置要求
+### 标准开发流水线
 
-- Claude Code v2.1.59+（支持 Auto Memory、Agent Memory 等特性）
-- Git
-- （推荐）对应语言的 linter / formatter（ruff / eslint / prettier / gofmt 等）
+```mermaid
+flowchart LR
+    A[用户任务] --> B[理解自检]
+    B --> C{信息充分?}
+    C -- 否 --> D[AskUserQuestion / needs_user]
+    C -- 是 --> E[DispatchTicket]
+    E --> F[需求/架构/范围]
+    F --> G[实现]
+    G --> H[代码审查]
+    H --> I[安全审计]
+    I --> J[功能测试]
+    J --> K[视觉测试]
+    K --> L[质量裁决]
+    L --> M[最终确认]
+    M --> N[交付 / 发布]
+```
 
-### 安装
+### 快路径
+
+单文件、低风险、无 schema/依赖/API 变更的小修，可由主会话直接处理：
+
+```mermaid
+flowchart LR
+    A[小修任务] --> B[写 DispatchTicket<br/>executor=main-fast-path]
+    B --> C[主会话修改]
+    C --> D[最小验证]
+    D --> E[记录 evidence]
+    E --> F[final_confirmation]
+```
+
+快路径仍然必须：
+
+- 写 `state/legion-session.json`
+- 记录 `fast_path_reason`
+- 运行最小验证
+- 在收尾前确认 `final_confirmation`
+
+---
+
+## Agent 矩阵
+
+| 认知层 | Agent | 典型任务 |
+|:--|:--|:--|
+| 需求 | 客户需求整理师 / 资深需求分析师 / 高级需求审查师 | 客户原话整理、需求拆分、验收标准 |
+| 调度 | 项目管理师 | 单跳调度、状态机、返工升级 |
+| 架构 | 资深系统架构师 / 资深范围规划师 / 高级架构审查师 | ADR、scope-lock、依赖图 |
+| 研究 | 代码库研究员 / 技术调研专家 / 高级调研审查师 | 仓库定位、外部文档、选型审查 |
+| 实现 | 高级前端/后端/移动端/桌面工程师 | 业务功能、组件、API、客户端 |
+| 专项 | 小程序开发专家 / 资深数据库工程师 / 机器学习工程师 / 高级运维工程师 | 小程序、schema、ML、部署 |
+| 审查 | 高级代码审查师 / 高级安全审计师 | 代码质量、安全风险、契约一致性 |
+| 测试 | 高级功能测试师 / 高级视觉测试师 | E2E、边界、截图证据 |
+| 裁决 | 质量总监 | 汇总证据、通过/有条件通过/打回 |
+| 内容 | 文档工程师 / 创意策划师 / 视觉设计专家 / 多媒体内容生成师 | 文档、品牌、设计、视频 |
+| 学术 | 学术论文写作专家 / 顶会顶刊审稿专家 / 引用审计员 / 论文数字审计员 / 定理证明审计员 | 论文写作、审稿、引用、数字和证明审计 |
+| 元治理 | Claude Code 工作流与提示词设计大师 | Agent/Skill/Rule/Output Style 进化 |
+
+---
+
+## Skill 体系
+
+58 个 Skill 分为四类：
+
+```mermaid
+pie title Skill 类型分布
+    "系统命令" : 5
+    "领域协议" : 34
+    "参考知识" : 13
+    "文件工作流" : 6
+```
+
+| 类型 | 用途 | 示例 |
+|:--|:--|:--|
+| 系统命令 | 确定性运维入口 | `bcc-init-project`、`bcc-doctor`、`release-checklist` |
+| 领域协议 | Agent 预加载工作流 | `implementation-protocol`、`code-review-protocol`、`quality-verdict` |
+| 参考知识 | 技术深水区资料 | `cangjie-language`、`huawei-ascend`、`architecture-patterns` |
+| 文件工作流 | 文档/表格/演示处理 | `docx-workflow`、`xlsx-workflow`、`pptx-workflow`、`pdf-workflow` |
+
+---
+
+## Rule 体系
+
+53 条 Rule 覆盖：
+
+- 调度真源：`dispatch-table`
+- Artifact 协议：`artifact-protocol`
+- 审查独立性：`reviewer-independence`
+- 发布治理：`release-version-consistency`
+- Git hygiene：`runtime-state-git-hygiene`
+- Statusline 合约：`statusline-contract`
+- 语言规范：TypeScript、Python、Java、Go、Rust、Swift、Kotlin、Dart、SQL、LaTeX 等
+- 框架规范：React、Vue、Svelte、Angular、Next、Nuxt、Spring、Django、FastAPI、Flask、Rails、Laravel、Tailwind、Prisma、微信小程序等
+- 基础设施：Docker、CI/CD、环境配置
+
+Rule 是 path-specific 的，读取或编辑匹配文件时才激活，避免无关上下文污染。
+
+---
+
+## Hook 安全网
+
+17 个主 hook + 3 个 `_lib` 脚本提供确定性保障：
+
+| Hook | 作用 |
+|:--|:--|
+| `session-start` | 注入项目状态、git 摘要、DispatchTicket 摘要 |
+| `pre-compact` / `post-compact` | 压缩前后状态恢复 |
+| `clarification-gate` | 缺资产/需求模糊时注入理解检查或拦截 |
+| `review-gate` | 提醒未 review 改动 |
+| `scope-lock-guard` | 阻止越过 scope-lock |
+| `orchestrator-edit-guard` | 防止主会话越权改业务文件 |
+| `subagent-start-mark` | 写 active JSON 状态 |
+| `subagent-stop-log` | 清理 active 状态并写 evidence/gate |
+| `stop-quality-gate` | 证据未闭合时阻止收工 |
+| `post-edit-lint` | 编辑后轻量 lint |
+| `instructions-audit` | 指令加载审计 |
+| `tool-failure-audit` | 工具失败记录 |
+| `artifact-*` | artifact 写入和索引提示 |
+
+---
+
+## Statusline
+
+v4.7 起 statusline 是两行协议：
+
+```text
+⚡ LEGION  ▶ 代理 2x Explore · max 1m24s · 模型 ◆ Claude · 权限 default
+任务 chore…dispatch-loop · 阶段 needs_user · 风险 medium fast · 门控 c:✓ f:✓ vd:✓ · 理解 clear:.92 · 迭代 pass#0 · 确认 ask · CTX 64% · ◷ 14:35
+```
+
+设计约束：
+
+- 第 1 行只放运行态：品牌、活跃代理、模型、权限。
+- 第 2 行只放任务闭环：任务、阶段、风险、门控、理解、迭代、确认、上下文、时间。
+- 窄屏自动压缩：`理解 clear:0.86` → `U clear:.86`，`final_confirmation required` → `C req`。
+- active subagent 文件超时会被忽略并清理，避免展示假的活跃代理。
+
+---
+
+## 治理闭环
+
+### DispatchTicket
+
+所有业务实现、业务文件修改或 Agent 团队调度前，写入：
+
+```text
+.claude/state/legion-session.json
+```
+
+关键字段：
+
+```json
+{
+  "task_id": "feat-20260504-login",
+  "phase": "implement",
+  "risk": "medium",
+  "executor": "agent-team",
+  "required_gates": ["code", "security", "functional", "visual", "verdict"],
+  "understanding": {
+    "status": "clear",
+    "confidence": 0.9
+  },
+  "iteration": {
+    "mode": "until_pass",
+    "round": 0
+  },
+  "final_confirmation": "required"
+}
+```
+
+校验：
 
 ```bash
-git clone https://github.com/Xuuuuu04/claude-code-best-template.git ~/.claude
-cp ~/.claude/settings.example.json ~/.claude/settings.json
-chmod +x ~/.claude/hooks/*.sh
+bash ~/.claude/bin/validate-dispatch-ticket.sh
 ```
 
-### 配置
+### Release checklist
 
-编辑 `~/.claude/settings.json` 填入自己的 API Key 等配置。本仓库**不包含** Key，你需要自己准备。
+发布前运行：
 
-### 开始使用
-
-进入任意项目目录运行 `claude`。首次在该项目使用：
-
-```
-/bcc-init-project 你的项目简介
-```
-
-之后直接自然语言描述任务即可：
-
-```
-实现用户登录功能，支持邮箱密码和 Google OAuth
-刷新 token 在并发请求下偶现失败
-帮我写一篇 CVPR 论文初稿
+```bash
+bash -n statusline.sh hooks/*.sh hooks/_lib/*.sh bin/*.sh
+bash bin/validate-dispatch-ticket.sh state/legion-session.json
+bash bin/test-hook-flags.sh
+bash bin/validate-rules.sh
+bash bin/doctor.sh
+git diff --check
+git status --short
 ```
 
-或使用显式命令：
+发布后确认：
 
+```bash
+git rev-parse HEAD
+git rev-parse origin/main
 ```
-/bcc-loop-dev 实现完整的用户管理系统
-/bcc-fast-fix src/auth.ts 第 42 行 typo
-/bcc-update-memory  （每 1-2 周）进化系统
-/bcc-doctor          每周健康检查
-```
+
+两者必须一致。
+
+---
+
+## 多语言与技术栈
+
+### 支持语言
+
+| 类型 | 语言 |
+|:--|:--|
+| Web / App | TypeScript、JavaScript、Dart、Swift、Kotlin |
+| 后端 | Python、Java、Go、Rust、C#、PHP、Ruby、Scala |
+| 系统 / 性能 | C、C++、Rust、Go |
+| 数据 / 文档 | SQL、LaTeX、Shell |
+| 专项 | 仓颉语言、Ascend C / CANN 生态 |
+
+### 支持框架
+
+| 方向 | 框架 |
+|:--|:--|
+| 前端 | React、Vue、Svelte、Angular、Next.js、Nuxt、Tailwind |
+| 后端 | Express、NestJS、Spring、Django、FastAPI、Flask、Rails、Laravel、ASP.NET Core |
+| 数据 | Prisma、SQL、迁移脚本、索引策略 |
+| 移动端 | iOS、Android、Flutter、React Native |
+| 小程序 | 微信小程序、uni-app |
+| DevOps | Docker、GitHub Actions、GitLab CI、环境配置 |
+| 多媒体 | Remotion、React 动画、视频/幻灯片代码生成 |
+
+---
+
+## 典型场景
+
+| 场景 | 推荐路径 | 质量门控 |
+|:--|:--|:--|
+| 新功能 | 需求 → 架构 → scope → 实现 → 审查 → 测试 → 裁决 | full / adversarial-default |
+| Bug 修复 | 代码库研究 → 实现 → 回归 → 审查 | code + functional |
+| UI 改版 | 视觉设计 → 前端实现 → 视觉测试 | visual 不可跳 |
+| API 分页 | 架构/接口契约 → 后端实现 → 测试 | code + functional + security |
+| DB schema | 数据库工程师 → 迁移 → 回滚方案 | full |
+| 部署上线 | 运维工程师 → release checklist → doctor | security + verdict |
+| 论文写作 | 学术写作 → 顶会审稿 → 引用/数字/证明审计 | academic review |
+| Agent/Rule/Skill 改造 | 提示词设计大师 → doctor → release checklist | meta-governance |
 
 ---
 
 ## 目录结构
 
-```
+```text
 .claude/
-├── CLAUDE.md             # 调度元协议（主会话每次看到）
-├── LEGION.md             # 维护指南（给未来 AI 维护者）
-├── README.md             # 本文件
-├── settings.example.json # 配置模板（含占位符）
-├── agents/               # 38 个专职 Subagent 定义
-├── skills/               # 所有 Skill 扁平存放（Claude Code 要求直接子目录）
-│   ├── bcc-*/            # /bcc-* 命令入口（流水线，disable-model-invocation）
-│   ├── {domain}/         # Agent 预加载的领域知识
-│   └── {reference}/      # 可按需查询的参考文档
-├── rules/
-│   ├── _global/          # 无条件规则
-│   ├── _lang/            # 语言规范（path-specific）
-│   ├── _framework/       # 框架规范（path-specific）
-│   └── _infra/           # 基础设施规范（path-specific）
-├── hooks/                # 17 个主生命周期脚本 + 3 个 _lib 辅助脚本
-└── output-styles/        # 自定义输出风格
+├── CLAUDE.md                  # 调度元协议
+├── README.md                  # 项目说明
+├── LEGION.md                  # 深度维护指南
+├── EVOLVE-LOG.md              # 进化历史
+├── agents/                    # 38 个 Subagent
+├── skills/                    # 58 个 Skill
+├── rules/                     # 53 条 Rule
+│   ├── _global/
+│   ├── _lang/
+│   ├── _framework/
+│   └── _infra/
+├── hooks/                     # 17 个主 hook + 3 个 _lib
+├── bin/                       # doctor / validator / release 工具
+├── output-styles/             # legion-dispatch
+├── state/                     # 发布态 DispatchTicket
+└── settings.example.json      # 配置模板
 ```
 
 ---
 
-## 支持的技术栈
+## 与普通模板的区别
 
-**语言（18）** — TypeScript、Python、Java、Swift、Kotlin、Dart、CSS、Go、Rust、C++、C、Ruby、PHP、C#、SQL、Shell、Scala、LaTeX
-
-**框架（18）** — React、Vue、Svelte、Angular、Next.js、Nuxt、Express、NestJS、Spring、Django、FastAPI、Flask、Rails、Laravel、ASP.NET Core、Tailwind、Prisma、微信小程序
-
-**基础设施** — Docker、CI/CD（GitHub Actions/GitLab CI/etc.）、环境配置
-
-覆盖 95% 主流开发场景。其他语言/框架可通过 `/bcc-update-memory` 自行扩展。
-
----
-
-## 设计哲学
-
-### 为什么按认知模式分 Agent 而非按技术栈
-
-人类按职业分（前端工程师、iOS 工程师）是因为人脑精力有限。Agent 没这个限制——一个 Agent 加载不同 Skill 就扮演不同技术角色。应按**根本不同的思维方式**分 Agent（分析、设计、执行、对抗、运维），技术差异交给 Skill/Rule。
-
-### 为什么 Implementer 有三个变体
-
-理想是 1 个 Implementer 动态加载技术栈 Skill。但 Claude Code 的 Subagent `skills:` 字段是**静态绑定**到 Agent 定义文件的，主会话调度时无法动态指定。折中方案：按大类认知域（frontend/backend/mobile）拆 3 个变体，具体技术栈通过 path-specific Rules 自动补充。
-
-### 为什么主会话默认不写复杂代码
-
-为了保持调度器上下文尽可能干净。一旦主会话长期沉入大量实现细节，后续调度决策质量会下降。让专业 Agent 在自己的干净上下文中完成复杂工作，只向主会话返回摘要；但对系统文件和单文件小修，主会话直做的开销更低。
-
-### 为什么进化需要人工审批
-
-Claude 自动提炼的 Rule 可能过于严格、过于宽泛、或错误。一条坏 Rule 会持续产生噪音，所以"人在回路"是质量关卡。宁可少进化一条，不要错误地固化一条。
-
-更多设计细节见 [LEGION.md](./LEGION.md)。
-
----
-
-## 对比其他方案
-
-| 方面 | Agent Legion | 通用 CLAUDE.md 模板 | 静态 Agent 库（如 awesome-claude-agents） |
+| 维度 | best-claude-code | 普通 CLAUDE.md 模板 | 静态 Agent 集合 |
 |:--|:--|:--|:--|
-| 调度纪律 | ✅ Output Style + CLAUDE.md 强化 | ❌ 无 | ❌ 无 |
-| Agent 拓扑 | ✅ 核心流水线 + 专项卫星层，共 38 角色 | N/A | ⚠️ 通常按技术栈，维护成本高 |
-| Scope-Lock 机制 | ✅ `资深范围规划师` 产出文件级锁定 | ❌ 无 | ❌ 无 |
-| 阶段门控审查 | ✅ reviewer/tester 专职链 | ❌ 无 | ⚠️ 部分方案有 |
-| 路径限定 Rules | ✅ 17 语言 + 18 框架 | ❌ 无 | ❌ 无 |
-| 自我进化机制 | ✅ Memory + reflect + evolve | ❌ 无 | ❌ 无 |
-| 中文支持 | ✅ 原生 | ⚠️ 按模板 | ⚠️ 按模板 |
-| Hooks 安全网 | ✅ 完备 | ⚠️ 按需 | ❌ 通常无 |
+| 主会话定位 | 调度器 | 自由发挥 | 不确定 |
+| Agent 拓扑 | 38 个按认知模式分层 | 无 | 多按技术栈堆叠 |
+| 质量门控 | 需求/架构/代码/安全/功能/视觉/裁决 | 通常无 | 不稳定 |
+| 状态可见性 | DispatchTicket + statusline | 无 | 少量 |
+| 规则激活 | path-specific Rules | 全局文本 | 不稳定 |
+| 发布治理 | doctor + release checklist + Git hygiene | 手动 | 手动 |
+| 自我进化 | Memory → Rule/Skill 固化 | 无 | 无 |
+| 中文体验 | 原生中文优先 | 取决于模板 | 取决于 Agent |
+
+---
+
+## 版本状态
+
+当前版本：**v4.7**
+
+规模：
+
+- 38 Agents
+- 58 Skills
+- 53 Rules
+- 17 main Hooks + 3 `_lib`
+
+最近关键升级：
+
+- statusline 两行协议
+- DispatchTicket validator
+- final confirmation 入口分类
+- release checklist
+- 版本一致性 Rule
+- runtime state Git hygiene Rule
+- statusline contract Rule
+- doctor Release Readiness 检查
 
 ---
 
 ## 贡献
 
 欢迎提交 PR：
-- 新语言 / 框架 Rules
-- Hook 脚本改进
-- Skill 描述优化
-- 流水线细节完善
 
-请在 PR 描述中说明：
-- 你想解决什么问题
-- 改动如何影响现有调度行为
-- 是否需要更新 LEGION.md
+- 新语言 / 新框架 Rule
+- Hook 可靠性改进
+- Skill examples / references 补充
+- Agent 职责边界收敛
+- doctor 检查项增强
+
+PR 请说明：
+
+- 解决什么问题
+- 影响哪些 Agent / Skill / Rule / Hook
+- 是否改变调度表
+- 是否需要更新 `README.md`、`LEGION.md`、`EVOLVE-LOG.md`
+- 已运行哪些验证命令
 
 ---
 
 ## 致谢
 
-本系统建立在 [Claude Code](https://claude.com/claude-code) 的扩展机制之上，特别感谢 Anthropic 提供的 CLAUDE.md / Skills / Subagents / Rules / Hooks / Memory / Output Styles 这套完整的生态。
+本项目建立在 Claude Code 的扩展机制之上，特别感谢 Anthropic 提供的 CLAUDE.md、Subagents、Skills、Hooks、Memory、Rules 和 Output Styles 生态。
 
-初版设计与实现由项目维护者与 Claude Opus 4.7 合作完成。
+初版设计由项目维护者与 Claude Opus 4.7 合作完成，后续通过 Agent Legion 的进化协议持续迭代。
 
 ---
 
-## 许可
+## License
 
 MIT

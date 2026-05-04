@@ -3,7 +3,7 @@
   "session_id": "",
   "tier": "small",
   "phase": "done",
-  "intent": "Upgrade Agent Legion statusline active-agent tracking and DispatchTicket validation loop.",
+  "intent": "Upgrade Agent Legion statusline active-agent tracking, DispatchTicket validation loop, release governance, and public project README/name.",
   "risk": "medium",
   "executor": "main-fast-path",
   "chosen_agents": [],
@@ -18,8 +18,8 @@
   },
   "evidence": {
     "code": "bash -n statusline.sh hooks/subagent-start-mark.sh hooks/subagent-stop-log.sh hooks/clarification-gate.sh bin/validate-dispatch-ticket.sh",
-    "functional": "simulated SubagentStart/SubagentStop active JSON lifecycle, fallback cleanup, stale cleanup, COLUMNS=80/140 statusline rendering, validator warning path, and release readiness checks",
-    "verdict": "bin/test-hook-flags.sh, bin/validate-rules.sh, bin/doctor.sh completed with no failures; doctor Release Readiness passed",
+    "functional": "simulated SubagentStart/SubagentStop active JSON lifecycle, fallback cleanup, stale cleanup, COLUMNS=80/140 statusline rendering, validator warning path, release readiness checks, README rewrite, and gh repo rename",
+    "verdict": "bin/test-hook-flags.sh, bin/validate-rules.sh, bin/doctor.sh completed with no failures; doctor Release Readiness passed; gh repo view confirms Xuuuuu04/best-claude-code",
     "impl_count": 1,
     "review_count": 1
   },
@@ -34,12 +34,12 @@
     "missing_assets": []
   },
   "reasoning_mode": "internal_summary",
-  "decision_summary": "Implemented JSON active-agent state, deterministic stop cleanup, compact two-line statusline, ticket validation, and final-confirmation protocol reminders.",
+  "decision_summary": "Implemented JSON active-agent state, deterministic stop cleanup, compact two-line statusline, ticket validation, final-confirmation protocol reminders, release governance checks, and best-claude-code README/name migration.",
   "iteration": {
     "mode": "until_pass",
     "round": 0,
     "pass_condition": "Syntax checks, hook simulations, statusline render checks, release readiness checks, and existing doctor/rule/hook tests pass."
   },
   "final_confirmation": "accepted",
-  "updated_at": "2026-05-04T14:49:54+0800"
+  "updated_at": "2026-05-04T14:59:34+0800"
 }

@@ -1,4 +1,4 @@
-# Agent Legion — 系统维护指南
+# best-claude-code / Agent Legion — 系统维护指南
 
 > **这是给未来 AI 维护者的文档**。如果你是一个被召唤来升级、调试或扩展这套系统的新会话，没有历史上下文，**先完整读完本文再动手**。本文记录了设计初衷、Claude Code 的关键机制、以及升级这套系统时的纪律。
 >
@@ -8,7 +8,7 @@
 
 ## 一、这是什么
 
-Agent Legion 是基于 Claude Code 全部扩展机制构建的"自适应多 Agent 开发军团"。核心设计理念：
+best-claude-code 是公开项目名；Agent Legion 是内部系统名。它基于 Claude Code 全部扩展机制构建"自适应多 Agent 开发军团"。核心设计理念：
 
 - **默认调度，受控快路径**：主会话负责调度和整合；系统文件和单文件低风险小修可直接完成，复杂实现仍由 Subagent 完成
 - **认知模式分工**：Agent 按思维方式划分（分析/设计/实现/对抗/运维），不按技术栈
@@ -847,6 +847,11 @@ providers 配置规范化，清理冗余字段。
 - `创意策划师`：命名/Slogan 场景，仅在品牌建设阶段用到
 
 ### v4.7（2026-05-04）
+
+#### 项目公开命名与 README 升级
+- GitHub 仓库从 `claude-code-best-template` 重命名为 `best-claude-code`
+- README 全面重写：新增复杂架构图、状态机、序列图、质量矩阵、Agent/Skill/Rule/Hook/治理闭环、多语言技术栈和发布说明
+- 文档统一区分：`best-claude-code` 是公开项目名，`Agent Legion` 是内部系统名
 
 #### Statusline 与 DispatchTicket 闭环升级
 - `statusline.sh` 改为真正两行：第 1 行只显示 LEGION / 活跃代理 / 模型 / 权限，第 2 行显示任务 / 阶段 / 风险 / 门控 / 理解 / 迭代 / 确认 / 上下文 / 时间
