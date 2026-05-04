@@ -1,6 +1,6 @@
 <rule id="claudemd-standard" severity="blocker">
   <rationale>
-    项目中的 CLAUDE.md 文件必须符合以下规范。此规则由 <cmd>/bcc-init-project</cmd> 和 <cmd>/bcc-update-memory</cmd> 生成时遵循，也指导 <agent>architecture-reviewer</agent> 在审查 CLAUDE.md 时的判断。
+    项目中的 CLAUDE.md 文件必须符合以下规范。此规则由 <cmd>/bcc-init-project</cmd> 和 <cmd>/bcc-update-memory</cmd> 生成时遵循，也指导 <agent>高级架构审查师</agent> 在审查 CLAUDE.md 时的判断。
   </rationale>
 
   <section id="capacity-limit">
@@ -55,7 +55,7 @@
         <list>
           <item>可用的流水线命令</item>
           <item>Agent 选择规则</item>
-          <item>调度原则（何时用 repo-researcher / tech-researcher，何时各层 reviewer/tester 必须审查）</item>
+          <item>调度原则（何时用 代码库研究员 / 技术调研专家，何时各层 reviewer/tester 必须审查）</item>
         </list>
       </requirement>
     </subsection>
@@ -95,7 +95,7 @@
 
   <section id="review-points">
     <requirement>
-      <agent>architecture-reviewer</agent> 审查 CLAUDE.md 时，除了形式合规，还要检查：
+      <agent>高级架构审查师</agent> 审查 CLAUDE.md 时，除了形式合规，还要检查：
       <checklist>
         <check id="invariants-testable">核心铁律**具体可检验**（"写好代码"不算，"ESLint 必须无警告"算）</check>
         <check id="dispatch-agent-exists">Agent 调度指引**与实际 Agent 定义一致**（引用的 Agent 名称存在）</check>

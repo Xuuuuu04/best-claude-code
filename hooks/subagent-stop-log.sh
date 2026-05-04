@@ -20,11 +20,16 @@ set -uo pipefail
 INPUT="$(cat || true)"
 TIMESTAMP="$(date +%Y-%m-%dT%H:%M:%S%z)"
 
+LIB="$HOME/.claude/hooks/_lib/legion-state.sh"
+[ -r "$LIB" ] && . "$LIB"
+
 # 基础字段
 SESSION_ID="$(echo "$INPUT" | jq -r '.session_id // "unknown"' 2>/dev/null || echo "unknown")"
 AGENT_ID="$(echo "$INPUT" | jq -r '.agent_id // "unknown"' 2>/dev/null || echo "unknown")"
 AGENT_TYPE="$(echo "$INPUT" | jq -r '.agent_type // empty' 2>/dev/null || echo "")"
 TRANSCRIPT="$(echo "$INPUT" | jq -r '.agent_transcript_path // empty' 2>/dev/null || echo "")"
+CWD="$(echo "$INPUT" | jq -r '.cwd // empty' 2>/dev/null || echo "")"
+LAST_MSG="$(echo "$INPUT" | jq -r '.last_assistant_message // empty' 2>/dev/null || echo "")"
 
 # agent_type 为空时（主会话直接调用 Agent 工具的 inline case），用 "inline" 标记
 [ -z "$AGENT_TYPE" ] && AGENT_TYPE="inline"
@@ -42,6 +47,82 @@ jq -c -n \
   --argjson raw "${INPUT:-null}" \
   '{timestamp: $ts, event: $event, agent: $agent, session: $session, raw: $raw}' \
   >> "$LOG_DIR/subagent-events.jsonl" 2>/dev/null || true
+
+# ── 1b. Update current DispatchTicket evidence/gate status ──────────────────
+STATE_FILE="$(legion_state_file "$CWD" 2>/dev/null || echo "")"
+if [ -n "$STATE_FILE" ] && [ -f "$STATE_FILE" ] && command -v jq >/dev/null 2>&1; then
+  STATE_SESSION="$(jq -r '.session_id // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+  if [ -z "$STATE_SESSION" ] || [ "$STATE_SESSION" = "$SESSION_ID" ]; then
+    FIRST_LINE="$(printf '%s\n' "$LAST_MSG" | head -1 | tr -d '`')"
+    TOKEN="${FIRST_LINE%%:*}"
+    ARTIFACT_PATH=""
+    case "$FIRST_LINE" in
+      *:*) ARTIFACT_PATH="${FIRST_LINE#*:}" ;;
+    esac
+    ARTIFACT_PATH="$(printf '%s' "$ARTIFACT_PATH" | awk '{$1=$1};1')"
+
+    GATE=""
+    GATE_STATE=""
+    PHASE_NEXT=""
+    case "$TOKEN" in
+      IMPL_DONE)
+        GATE="impl"; GATE_STATE="pass"; PHASE_NEXT="review" ;;
+      REVIEW_PASS)
+        GATE="code"; GATE_STATE="pass"; PHASE_NEXT="security" ;;
+      REVIEW_REJECT)
+        GATE="code"; GATE_STATE="blocked"; PHASE_NEXT="implement" ;;
+      SECURITY_PASS)
+        GATE="security"; GATE_STATE="pass"; PHASE_NEXT="test" ;;
+      SECURITY_REJECT)
+        GATE="security"; GATE_STATE="blocked"; PHASE_NEXT="blocked" ;;
+      TEST_PASS)
+        GATE="functional"; GATE_STATE="pass"; PHASE_NEXT="visual" ;;
+      TEST_BLOCKED)
+        GATE="functional"; GATE_STATE="blocked"; PHASE_NEXT="implement" ;;
+      VISUAL_PASS)
+        GATE="visual"; GATE_STATE="pass"; PHASE_NEXT="verdict" ;;
+      VISUAL_BLOCKED)
+        GATE="visual"; GATE_STATE="blocked"; PHASE_NEXT="implement" ;;
+      VERDICT_PASS|VERDICT_CONDITIONAL)
+        GATE="verdict"; GATE_STATE="pass"; PHASE_NEXT="needs_user" ;;
+      VERDICT_BLOCKED)
+        GATE="verdict"; GATE_STATE="blocked"; PHASE_NEXT="blocked" ;;
+      NEEDS_USER)
+        GATE="needs_user"; GATE_STATE="blocked"; PHASE_NEXT="needs_user" ;;
+    esac
+
+    if [ -n "$GATE" ]; then
+      TMP_STATE="$(mktemp -t legion-state-XXXXXX 2>/dev/null || echo "/tmp/legion-state-$$")"
+      jq --arg ts "$TIMESTAMP" --arg agent "$AGENT_TYPE" --arg token "$TOKEN" \
+         --arg gate "$GATE" --arg state "$GATE_STATE" --arg artifact "$ARTIFACT_PATH" \
+         --arg phase "$PHASE_NEXT" '
+        .updated_at = $ts
+        | .last_agent = $agent
+        | .last_token = $token
+        | .phase = (if $phase != "" then $phase else (.phase // "unknown") end)
+        | .gate_status = (.gate_status // {})
+        | .gate_status[$gate] = $state
+        | .evidence = (.evidence // {})
+        | .evidence[$gate] = (if $artifact != "" then $artifact else ($token + ":" + $agent) end)
+        | if $gate == "impl" then .evidence.impl_count = ((.evidence.impl_count // 0) + 1) else . end
+        | if $gate == "code" then .evidence.review_count = ((.evidence.review_count // 0) + 1) else . end
+        | .iteration = (.iteration // {})
+        | .iteration.mode = (.iteration.mode // "until_pass")
+        | if ($token | test("REJECT|BLOCKED")) then .iteration.round = ((.iteration.round // 0) + 1) else . end
+        | if ($token == "NEEDS_USER") then
+            .understanding = (.understanding // {})
+            | .understanding.status = "needs_user"
+            | .understanding.unknowns = ((.understanding.unknowns // []) + [if $artifact != "" then $artifact else ($token + ":" + $agent) end])
+          else . end
+        | if ($token == "VERDICT_PASS" or $token == "VERDICT_CONDITIONAL") then
+            .final_confirmation = "required"
+            | .understanding = (.understanding // {})
+            | .understanding.status = (.understanding.status // "clear")
+          else . end
+      ' "$STATE_FILE" > "$TMP_STATE" 2>/dev/null && mv "$TMP_STATE" "$STATE_FILE" 2>/dev/null || rm -f "$TMP_STATE" 2>/dev/null || true
+    fi
+  fi
+fi
 
 # ── 2. 从 transcript 聚合 token 用量 ─────────────────────────────────────────
 INPUT_TOK=0
@@ -90,12 +171,53 @@ if [ -n "$PROJ_DIR" ] && [ -d "$PROJ_DIR/.claude" ]; then
     >> "$COST_LOG" 2>/dev/null || true
 fi
 
-# ── 4. 清除活跃 subagent 状态文件（只清此 agent 自己，保留兄弟 agent） ─────
-if [ -n "$AGENT_ID" ] && [ "$AGENT_ID" != "unknown" ]; then
-  rm -f "/tmp/claude-legion-active-${SESSION_ID}-${AGENT_ID}" 2>/dev/null || true
-else
-  # 老版本回退：如果 agent_id 为空，清空本 session 所有状态（保险起见）
-  rm -f /tmp/claude-legion-active-${SESSION_ID}-* 2>/dev/null || true
-fi
+# ── 4. 清除活跃 subagent 状态文件（先精确，失败再同类最老回退） ─────────────
+cleanup_active_agent() {
+  local session_id="$1"
+  local agent_id="$2"
+  local agent_type="$3"
+  local exact_file=""
+  local fallback_file=""
+  local fallback_start=""
+  local state_file=""
+  local file_type=""
+  local file_start=""
+
+  [ -n "$session_id" ] && [ "$session_id" != "unknown" ] || return 0
+
+  if [ -n "$agent_id" ] && [ "$agent_id" != "unknown" ]; then
+    exact_file="/tmp/claude-legion-active-${session_id}-${agent_id}"
+    if [ -f "$exact_file" ]; then
+      rm -f "$exact_file" 2>/dev/null || true
+      return 0
+    fi
+  fi
+
+  [ -n "$agent_type" ] || return 0
+
+  shopt -s nullglob 2>/dev/null || true
+  for state_file in /tmp/claude-legion-active-"${session_id}"-*; do
+    [ -f "$state_file" ] || continue
+    file_type="$(jq -r '.agent_type // empty' "$state_file" 2>/dev/null || echo "")"
+    file_start="$(jq -r '.started_at // empty' "$state_file" 2>/dev/null || echo "")"
+    if [ -z "$file_type" ]; then
+      # Legacy TSV written by older hook versions.
+      file_type="$(awk -F'\t' 'NR==1 {print $1}' "$state_file" 2>/dev/null || echo "")"
+      file_start="$(awk -F'\t' 'NR==1 {print $2}' "$state_file" 2>/dev/null || echo "")"
+    fi
+    [ "$file_type" = "$agent_type" ] || continue
+    case "$file_start" in
+      ''|*[!0-9]*) file_start="0" ;;
+    esac
+    if [ -z "$fallback_file" ] || [ "$file_start" -lt "$fallback_start" ]; then
+      fallback_file="$state_file"
+      fallback_start="$file_start"
+    fi
+  done
+
+  [ -n "$fallback_file" ] && rm -f "$fallback_file" 2>/dev/null || true
+}
+
+cleanup_active_agent "$SESSION_ID" "$AGENT_ID" "$AGENT_TYPE"
 
 exit 0

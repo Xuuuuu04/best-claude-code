@@ -1,10 +1,10 @@
 ---
 name: research-review-protocol
 description: >
-  调研审查协议。为 research-reviewer 提供技术调研和仓库研究产出的审查清单。
-  仅当 research-reviewer Agent 在审查 tech-research-* 或 repo-research-* artifact 时加载。
+  调研审查协议。为 高级调研审查师 提供技术调研和仓库研究产出的审查清单。
+  仅当 高级调研审查师 Agent 在审查 tech-research-* 或 repo-research-* artifact 时加载。
 when_to_use: >
-  仅当 research-reviewer Agent 在审查 tech-research-* 或 repo-research-* artifact 时加载。
+  仅当 高级调研审查师 Agent 在审查 tech-research-* 或 repo-research-* artifact 时加载。
   不适用于代码审查、文档审查、创意审查。
 ---
 
@@ -13,7 +13,7 @@ when_to_use: >
 ## 审查原则
 
 1. **只审不改** — 发现问题写入报告，不直接修改 artifact
-2. **证据交叉验证** — repo-researcher 报告的路径/行号必须通过 Grep/Glob 验证
+2. **证据交叉验证** — 代码库研究员 报告的路径/行号必须通过 Grep/Glob 验证
 3. **事实与推断分离** — 严格区分"仓库中存在的"和"推测的"
 4. **三级评级** — 严重 / 一般 / 轻微，标准见下方
 
@@ -102,7 +102,7 @@ when_to_use: >
 
 **Task ID**: {task-id}
 **生成时间**: {ISO 8601}
-**产出者**: research-reviewer
+**产出者**: 高级调研审查师
 **状态**: draft
 **关联**: {被审 artifact 路径}
 

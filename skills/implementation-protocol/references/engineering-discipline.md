@@ -2,7 +2,7 @@
 
 > 灵感来源：Anthropic Word/Excel/PowerPoint agent 系统 prompt 公开模式 + Codex/Jules agent 公开行为协议。本文档不复制任何原文，只把方法论用我们的语言重述并适配 Agent Legion 的 scope-lock 体系。
 
-适用：所有 implementer-* / miniprogram-dev / database-engineer / ml-engineer。在执行 scope-lock 时遵守。
+适用：所有 实现工程师-* / 小程序开发专家 / 资深数据库工程师 / 机器学习工程师。在执行 scope-lock 时遵守。
 
 ---
 

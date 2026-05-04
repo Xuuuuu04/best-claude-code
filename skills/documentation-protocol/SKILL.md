@@ -1,7 +1,7 @@
 ---
 name: documentation-protocol
-description: 文档产出协议。为 doc-writer 提供 reader-first 结构、事实审计和文档分类方法。
-when_to_use: 当 doc-writer 产出 API reference / 部署说明 / 用户手册 / 阶段报告 / 交付材料时；用户提"写文档"、"reference"、"用户手册"、"交付说明"、"deployment guide"、"handover" 时自动加载。
+description: 文档产出协议。为 文档工程师 提供 reader-first 结构、事实审计和文档分类方法。
+when_to_use: 当 文档工程师 产出 API reference / 部署说明 / 用户手册 / 阶段报告 / 交付材料时；用户提"写文档"、"reference"、"用户手册"、"交付说明"、"deployment guide"、"handover" 时自动加载。
 ---
 
 <skill name="documentation-protocol">

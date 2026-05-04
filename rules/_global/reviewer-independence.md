@@ -44,13 +44,13 @@
       <table>
 | 执行者 | 审稿者 | 传递限制 |
 |:--|:--|:--|
-| implementer-* | code-reviewer | 仅文件路径 + artifact 路径，无实现摘要 |
-| implementer-* | security-auditor | 仅文件路径，无安全上下文解释 |
-| implementer-* | functional-tester | 仅功能范围和测试命令，无实现说明 |
-| implementer-* | visual-tester | 仅 UI 文件路径，无设计意图解释 |
-| academic-paper-writer | academic-paper-reviewer | 仅论文文件路径，无写作意图 |
-| tech-researcher / repo-researcher | research-reviewer | 仅研究 artifact 路径 |
-| doc-writer / creative | content-reviewer | 仅文档 artifact 路径 |
+| 实现工程师-* | 高级代码审查师 | 仅文件路径 + artifact 路径，无实现摘要 |
+| 实现工程师-* | 高级安全审计师 | 仅文件路径，无安全上下文解释 |
+| 实现工程师-* | 高级功能测试师 | 仅功能范围和测试命令，无实现说明 |
+| 实现工程师-* | 高级视觉测试师 | 仅 UI 文件路径，无设计意图解释 |
+| 学术论文写作专家 | 顶会顶刊审稿专家 | 仅论文文件路径，无写作意图 |
+| 技术调研专家 / 代码库研究员 | 高级调研审查师 | 仅研究 artifact 路径 |
+| 文档工程师 / 创意策划师 | 高级内容审查师 | 仅文档 artifact 路径 |
       </table>
     </requirement>
   </section>

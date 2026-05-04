@@ -19,7 +19,7 @@ type: verdict
 task_id: feat-20260425-01
 status: accepted
 generated_at: 2026-04-25T18:00:00+0800
-产出者: test-lead
+产出者: 质量总监
 ---
 
 # verdict: feat-20260425-01 OAuth 登录
@@ -55,7 +55,7 @@ type: verdict
 task_id: feat-20260420-08
 status: accepted
 generated_at: 2026-04-22T11:00:00+0800
-产出者: test-lead
+产出者: 质量总监
 ---
 
 # verdict: feat-20260420-08 数据导出 CSV
@@ -100,7 +100,7 @@ type: verdict
 task_id: hotfix-20260424-02
 status: accepted
 generated_at: 2026-04-24T20:30:00+0800
-产出者: test-lead
+产出者: 质量总监
 ---
 
 # verdict: hotfix-20260424-02 支付回调签名校验
@@ -119,14 +119,14 @@ generated_at: 2026-04-24T20:30:00+0800
 
 ## 一票否决理由
 
-**未关闭高危安全问题**：security-auditor 报告的"重放攻击窗口 5 分钟"未修复。
+**未关闭高危安全问题**：高级安全审计师 报告的"重放攻击窗口 5 分钟"未修复。
 该路径处理用户支付，重放可导致重复扣款。
 
 ## 修复路由
 
-1. 派 implementer-backend：在 `src/payment/callback.ts:42` 加 nonce Redis 校验（TTL 10 分钟）
-2. 完成后 → security-auditor 复审重放场景
-3. 复审通过 → functional-tester 跑回归
+1. 派 高级后端工程师：在 `src/payment/callback.ts:42` 加 nonce Redis 校验（TTL 10 分钟）
+2. 完成后 → 高级安全审计师 复审重放场景
+3. 复审通过 → 高级功能测试师 跑回归
 4. 重新发起 verdict
 
 不要批准任何"先合并后续修"的方案。

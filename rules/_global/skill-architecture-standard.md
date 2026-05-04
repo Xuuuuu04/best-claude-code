@@ -26,7 +26,7 @@ applies-to: skills/**/SKILL.md
 | `*-protocol` | 流程协议 | reviewer / tester 的审查流程 |
 | `*-checklist` | 检查清单 | 合并进对应 protocol 的 `references/` |
 | `*-patterns` | 知识参考 | 设计 / 架构类 agent 的模式库 |
-| `*-development` | 领域知识 | implementer 的技术栈知识 |
+| `*-development` | 领域知识 | 实现工程师 的技术栈知识 |
 | `*-intake` | 输入整理 | intake 类 agent 的整理方法 |
 | `bcc-*` | 调度命令 | 主会话流水线入口（disable-model-invocation） |
     </table>

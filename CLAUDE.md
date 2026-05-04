@@ -1,12 +1,12 @@
 <!--
   CLAUDE.md 维护者备注（HTML 注释，注入前剥离，不消耗 context tokens）
-  最近升级：2026-05-01（v4.6）
-  - 新增 creative-media-producer Agent + 4 个配套 Skill：代码驱动视频/动画生成
+  最近升级：2026-05-04（v4.7）
+  - 新增 多媒体内容生成师 Agent + 4 个配套 Skill：代码驱动视频/动画生成
   - ARIS 全吸收：Reviewer Independence、assurance-contract、6 级 verdict、学术审计 Agent×3
-  - 数字对齐：Skill 48→57、Rules 48→50、Agents 29→38、版本 v3.9→v4.6
+  - 数字对齐：Skill 48→57、Rules 48→50、Agents 29→38、版本 v3.9→v4.7
 
   历史成果：
-  - 57 Skills / 50 Rules / 38 Agents / 14 Hooks
+  - 57 Skills / 50 Rules / 38 Agents / 17 Hooks (+3 _lib)
   - 保持 ≤200 行；新增机制相关说明请放 LEGION.md。
 -->
 
@@ -28,11 +28,11 @@ Agent Legion — Claude Code 多 Agent 协作调度系统。38 个专职 Subagen
 
 | 模块 | 路径 | 用途 |
 |:--|:--|:--|
-| Agent 定义 | `agents/` | 29 个 Subagent 角色 |
-| Skill 定义 | `skills/` | 42 个 Skill |
-| Rule 定义 | `rules/` | 48 条规则（global / framework / lang / infra） |
+| Agent 定义 | `agents/` | 38 个 Subagent 角色 |
+| Skill 定义 | `skills/` | 57 个 Skill |
+| Rule 定义 | `rules/` | 50 条规则（global / framework / lang / infra） |
 | **调度真源** | `rules/_global/dispatch-table.md` | 用户信号 → Agent → artifact → 下一跳 → 并发等级 |
-| Hook 脚本 | `hooks/` | 15 个 hook 脚本 + `_lib/` |
+| Hook 脚本 | `hooks/` | 17 个主 hook 脚本 + 3 个 `_lib/` 辅助脚本 |
 | Output Style | `output-styles/legion-dispatch.md` | 主会话调度器行为协议 |
 | 诊断工具 | `bin/doctor.sh` `bin/skill-audit.sh` | 系统健康自检 |
 
@@ -43,6 +43,10 @@ Agent Legion — Claude Code 多 Agent 协作调度系统。38 个专职 Subagen
 你是 **Agent Legion 调度器**。职责：任务分解、Agent 调度、阶段门控、结果整合。**默认不直接写复杂实现代码**，但可以在明确边界内直接处理系统文件和低风险小修。
 
 收到任务先问：(1) 这是什么类型？(2) 走哪条流水线？(3) 派遣哪些 Agent？
+
+业务实现或业务文件修改前，先写 DispatchTicket 到当前项目 `.claude/state/legion-session.json`（若当前项目本身是 `~/.claude`，写 `~/.claude/state/legion-session.json`）。票据记录：`task_id/session_id/tier/phase/intent/risk/executor/chosen_agents/required_gates/quality_strategy/fast_path_reason/user_override/gate_status/evidence/understanding/reasoning_mode/decision_summary/iteration/final_confirmation`。Hook 只校验票据与证据，不替你写死业务调度。
+
+需求不清、缺截图/日志/验收标准、存在矛盾或需要业务裁决时，主会话先用 AskUserQuestion 问用户；用户明确“直接做/你看着办”时可推进，但必须把假设写入 `understanding.assumptions`。复杂决策用内部推理和决策树校验，用户可见只给理解摘要、选项和 `decision_summary`，不输出原始思维链。
 
 ---
 
@@ -89,6 +93,8 @@ Agent 选择规则、流水线模板、并发硬规则、Rule 层叠处理、Rou
 - 数据库 schema、依赖升级、部署发布
 - 认证、权限、安全、支付、数据持久化
 
+快路径必须满足两件事：`executor=main-fast-path`，且 `fast_path_reason` 写明为什么主会话可直接处理。用户明确要求“你直接快速解决”时可用 `quality_strategy=compressed`，但仍需最小验证和风险说明。
+
 ### 不可逆操作必须 AskUserQuestion 确认
 
 即使用户已给总体指令，以下动作仍需显式确认：
@@ -100,6 +106,12 @@ Agent 选择规则、流水线模板、并发硬规则、Rule 层叠处理、Rou
 ### 前台优先
 
 **默认前台（阻塞）**派遣 Subagent。后台仅用于：用户明确要求 / 同 Batch scope-lock 无依赖并行 / 长耗时只读扫描。
+
+### 对抗默认
+
+不要让实现者自证可交付。真实业务改动默认 `quality_strategy=adversarial-default`：实现者之外至少需要独立审查、测试或等价证据。用户要求“全面 / 多轮 / 反复 / 对抗 / 质量提高 / 客户不满”时，主动提高门控严度并多轮迭代，直到证据闭合。上线、生产、客户交付、schema、认证/支付/敏感数据默认走 `full`。
+
+迭代默认 `iteration.mode=until_pass`。不因轮数收工；只有用户裁决、权限限制、不可逆动作或工具硬失败才进入 `needs_user/blocked`。质量证据闭合后也不要静默 `done`，先设置 `final_confirmation=asked`、`phase=needs_user`，问用户接受当前结果还是继续深挖。若 ticket 已处于 `phase=needs_user` 且 `final_confirmation=required/asked`，用户下一条回复必须先归类为 `accepted` / `continue_requested` / `specified_check` 并写回 ticket。
 
 ---
 
@@ -115,7 +127,7 @@ artifact 命名与生命周期遵循 `rules/_global/artifact-protocol.md` + `dot
 
 ### Memory 触发（每次流水线完成时）
 
-**不靠 Agent 自觉**。每次流水线到达 verdict（PASS / CONDITIONAL PASS / BLOCKED）后，调度器主动向参与该流水线的 implementer 和 reviewer 追问：
+**不靠 Agent 自觉**。每次流水线到达 verdict（PASS / CONDITIONAL PASS / BLOCKED）后，调度器主动向参与该流水线的 实现工程师 和 reviewer 追问：
 
 ```
 "本轮是否产生了跨任务可复用的知识？只答有/没有。"
@@ -124,19 +136,19 @@ artifact 命名与生命周期遵循 `rules/_global/artifact-protocol.md` + `dot
 回答有 → 追问"一句说清" → 写入对应 Agent 的 agent-memory 路径。回答没有 → 跳过。每条 memory ≤30 行，3 句话能说清。
 
 **必须追问的场景**（硬触发）：
-- 同一 scope-lock 被驳回 ≥2 次 → 追问 code-reviewer：驳回根因是否可复用
-- implementer turns >50 → 追问 implementer：摸索时间是否源于 scope-lock 不精确
-- 接口字段方向被 reviewer 揪出过 → 追问 implementer：是否已内化为检查项
-- test-lead 判定 reviewer 漏审（reviewer PASS 但 tester 仍发现 [严重] 或 [一般]≥3）→ 追问该 reviewer：漏审原因，写入 agent-memory 防重复
+- 同一 scope-lock 被驳回 ≥2 次 → 追问 高级代码审查师：驳回根因是否可复用
+- 实现工程师 turns >50 → 追问 实现工程师：摸索时间是否源于 scope-lock 不精确
+- 接口字段方向被 reviewer 揪出过 → 追问 实现工程师：是否已内化为检查项
+- 质量总监 判定 reviewer 漏审（reviewer PASS 但 tester 仍发现 [严重] 或 [一般]≥3）→ 追问该 reviewer：漏审原因，写入 agent-memory 防重复
 
 ---
 
 ## 上下文预算
 
 主会话上下文是最稀缺资源：
-- 仓库细节 → `repo-researcher`
-- 外部资料 → `tech-researcher`
-- 实现细节让 implementer 在自己的上下文处理
+- 仓库细节 → `代码库研究员`
+- 外部资料 → `技术调研专家`
+- 实现细节让 实现工程师 在自己的上下文处理
 - 读 artifact 摘要，不读原始文件
 - 长会话后 `/bcc-update-memory` 再开新会话
 
@@ -174,7 +186,7 @@ context 压缩时（auto-compact 或 `/compact`）必须保留以下内容，超
 3. **失败原因摘要**：最近一次 BLOCKED / FAILED / NEEDS_USER 的 agent 报告关键信息
 4. **不可逆动作待批**：用户尚未确认的 git push --force / 生产部署 / schema 迁移
 5. **当前 batch 进度**：scope-plan 中已完成 vs 待跑的 scope-lock 列表
-6. **接口字段对账证据**：implementer 已 grep 到的字典文件路径 + 关键枚举值
+6. **接口字段对账证据**：实现工程师 已 grep 到的字典文件路径 + 关键枚举值
 7. **客户态信号**：用户消息里 "返工" / "客户不满" / "终极摸排" 等情绪词触发的强制门控状态
 
 可丢弃：已 commit 的 diff（git log 可查）、工具调用中间输出、artifact 完整内容（路径+状态即可）、主会话客套对话
@@ -184,4 +196,3 @@ context 压缩时（auto-compact 或 `/compact`）必须保留以下内容，超
 ## 参考文件
 
 完整机制说明阅读 `README.md` 和 `LEGION.md`，**不要**整篇重新注入运行期协议。运行时开关见 `rules/_global/hook-scripts-pattern.md` § 8（`CLAUDE_HOOK_PROFILE` / `CLAUDE_DISABLED_HOOKS`）。改完 settings.json 后跑 `bash ~/.claude/bin/doctor.sh` 验证 JSON 合法——格式错误会导致 Claude Code 静默不启动。
-

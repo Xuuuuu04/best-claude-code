@@ -1,10 +1,10 @@
 ---
 name: desktop-development
 description: >
-  桌面端开发领域知识和专业氛围。为 implementer-desktop 提供跨平台桌面开发规范、
+  桌面端开发领域知识和专业氛围。为 高级桌面应用工程师 提供跨平台桌面开发规范、
   系统集成、窗口管理、分发打包和性能优化的专家视角。覆盖 Electron、Tauri、Wails、Qt、SwiftUI (macOS)、.NET MAUI。
 when_to_use: >
-  当 implementer-desktop 开发桌面应用时；用户提"桌面应用"、"desktop"、"Electron"、
+  当 高级桌面应用工程师 开发桌面应用时；用户提"桌面应用"、"desktop"、"Electron"、
   "Tauri"、"Wails"、"Qt"、"SwiftUI macOS"、".NET MAUI"、"原生桌面"时自动加载。
   Web 应用和移动端场景不适用。
 ---

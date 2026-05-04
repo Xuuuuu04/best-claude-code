@@ -1,6 +1,6 @@
 # Failure Taxonomy
 
-Agent / Skill 失败时**必须**按以下分类报告。这是 quality-verdict 和 pm 路由判断的输入信号。
+Agent / Skill 失败时**必须**按以下分类报告。这是 quality-verdict 和 项目管理师 路由判断的输入信号。
 
 ## 五种失败类型
 
@@ -8,7 +8,7 @@ Agent / Skill 失败时**必须**按以下分类报告。这是 quality-verdict 
 
 | 触发场景 | 处理 |
 |:--|:--|
-| 缺输入 artifact（如 implementer 没拿到 scope-lock） | 上报上游 Agent 名 + 缺失文件路径 |
+| 缺输入 artifact（如 实现工程师 没拿到 scope-lock） | 上报上游 Agent 名 + 缺失文件路径 |
 | 权限不足（无法读/写指定路径） | 上报缺失的权限或工具 |
 | 环境不可达（DB / API / 服务未启动） | 上报具体不可达项 + 复现命令 |
 | 等待用户拍板（不可逆动作） | 上报具体待决问题 + 选项 |
@@ -61,9 +61,9 @@ Agent / Skill 失败时**必须**按以下分类报告。这是 quality-verdict 
 
 | 触发场景 | 处理 |
 |:--|:--|
-| product-analyst 被要求写代码 | 拒绝，建议改派 implementer |
-| code-reviewer 被要求实现修复 | 拒绝，建议派 implementer 后再 review |
-| visual-tester 被要求做安全审查 | 拒绝，建议派 security-auditor |
+| 资深需求分析师 被要求写代码 | 拒绝，建议改派 实现工程师 |
+| 高级代码审查师 被要求实现修复 | 拒绝，建议派 实现工程师 后再 review |
+| 高级视觉测试师 被要求做安全审查 | 拒绝，建议派 高级安全审计师 |
 
 **报告格式**：
 ```
@@ -98,7 +98,7 @@ Agent / Skill 失败时**必须**按以下分类报告。这是 quality-verdict 
 - ❌ 把 OUT_OF_SCOPE 误报为 BLOCKED（应该拒绝接单而不是等输入）
 - ❌ FAILED 不带证据（"测试失败"无具体用例）
 
-## pm / test-lead 的下一跳判断
+## 项目管理师 / 质量总监 的下一跳判断
 
 - BLOCKED → 找上游 Agent 或用户
 - FAILED → 退回产出 Agent 重做（同 task-id 续跑）

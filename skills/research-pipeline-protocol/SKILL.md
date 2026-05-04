@@ -3,7 +3,7 @@ name: research-pipeline-protocol
 description: >
   科研流水线协议（ARIS W1→W3 适配）。覆盖 Idea Discovery → 实验实现 → 论文写作 → Rebuttal
   的完整 Stage 1-4 流程。定义每阶段的输入、输出、门控和 Agent 分配。
-  供 academic-paper-writer、academic-paper-reviewer、tech-researcher 引用。
+  供 学术论文写作专家、顶会顶刊审稿专家、技术调研专家 引用。
 when_to_use: 当用户提到科研流水线、论文写作阶段、Idea Discovery、实验计划、rebuttal 流程时加载。
 ---
 
@@ -30,7 +30,7 @@ Stage 3: 论文写作（Workflow 3）
   ├── Phase 3: 图表生成 paper-figure
   ├── Phase 4: 编译与格式检查 paper-compile
   ├── Phase 5: 内部审计（assurance 门控）
-  │   ├── 5.1 proof-checker（如有定理）
+  │   ├── 5.1 定理证明审计员（如有定理）
   │   ├── 5.5 paper-claim-audit（数字审计）
   │   └── 5.8 citation-audit（引用审计）
   └── Phase 6: 最终报告 Final Report
@@ -45,19 +45,19 @@ Stage 4: Rebuttal（Workflow 4，审稿意见到达后）
 
 ### 1.1 文献调研
 - **输入**: 研究方向关键词、时间范围（默认近 5 年）
-- **Agent**: tech-researcher
+- **Agent**: 技术调研专家
 - **输出**: 文献综述摘要（含关键论文、方法对比表、空白点识别）
 - **门控**: 至少覆盖该方向 Top-3 会议近 2 年工作
 
 ### 1.2 想法生成
 - **输入**: 文献综述 + 用户初步思路
-- **Agent**: academic-paper-writer（创意模式）
+- **Agent**: 学术论文写作专家（创意模式）
 - **输出**: 3-5 个研究想法，每个含：问题定义、方法概述、预期贡献
 - **门控**: 每个想法必须有明确的技术可行性和 novelty 方向
 
 ### 1.3 新颖性验证
 - **输入**: 研究想法 + 文献库
-- **Agent**: academic-paper-reviewer（nightmare 难度预审）
+- **Agent**: 顶会顶刊审稿专家（nightmare 难度预审）
 - **输出**: novelty 评估报告（高/中/低 novelty + 风险点）
 - **门控**: 至少有一个想法 novelty 评估为"高"才进入 Stage 2
 
@@ -72,19 +72,19 @@ Stage 4: Rebuttal（Workflow 4，审稿意见到达后）
 
 ### 2.1 实验计划
 - **输入**: IDEA_REPORT + 可用资源（GPU/数据/时间）
-- **Agent**: ml-engineer（如涉及模型）或 implementer-backend（如涉及系统）
+- **Agent**: 机器学习工程师（如涉及模型）或 高级后端工程师（如涉及系统）
 - **输出**: 实验计划书（baseline 列表、消融设计、评估指标、统计检验方法）
 - **门控**: 必须包含至少 3 个 strong baseline 和完整消融实验设计
 
 ### 2.2 代码实现与运行
 - **输入**: 实验计划书
-- **Agent**: 对应领域 implementer
+- **Agent**: 对应领域 实现工程师
 - **输出**: 实验代码 + 运行日志 + 结果数据
-- **门控**: 代码审查（code-reviewer）+ 安全审计（如涉及数据）
+- **门控**: 代码审查（高级代码审查师）+ 安全审计（如涉及数据）
 
 ### 2.3 实验审计（L1）
 - **输入**: 评估脚本、结果文件
-- **Agent**: code-reviewer（专注实验诚实性）
+- **Agent**: 高级代码审查师（专注实验诚实性）
 - **输出**: EXPERIMENT_AUDIT.md
 - **审计要点**:
   - 假 GT（ground truth 污染）
@@ -106,7 +106,7 @@ Stage 4: Rebuttal（Workflow 4，审稿意见到达后）
 - 解析 assurance 等级（draft / submission）
 - 加载 venue 模板（CVPR/NeurIPS/ACL/IEEE/毕业论文）
 - 读取 IDEA_REPORT 和 EXPERIMENT_LOG（如有）
-- **产出者**: academic-paper-writer
+- **产出者**: 学术论文写作专家
 
 ### Phase 1: 大纲设计
 - 结构化大纲（章节 + 每章核心论点）
@@ -142,7 +142,7 @@ assurance = submission 时：以下审计必须全部执行并发出六级裁决
 
 | 审计 | 输入 | 输出 | 裁决要求 |
 |:-----|:-----|:-----|:---------|
-| proof-checker（如有定理）| .tex 中的定理/证明 | proof-verdict.json | PASS/WARN/NOT_APPLICABLE |
+| 定理证明审计员（如有定理）| .tex 中的定理/证明 | proof-verdict.json | PASS/WARN/NOT_APPLICABLE |
 | paper-claim-audit（L3）| .tex + 原始结果 | PAPER_CLAIM_AUDIT.md | PASS/WARN/FAIL/NOT_APPLICABLE |
 | citation-audit（L4）| .bib + \cite{} 上下文 | CITATION_AUDIT.md | PASS/WARN/FAIL/NOT_APPLICABLE |
 
@@ -204,13 +204,13 @@ assurance = submission 时：以下审计必须全部执行并发出六级裁决
 
 | Stage | 主要 Agent | 审查 Agent | 产出 artifact |
 |:--|:--|:--|:--|
-| 1.1 文献调研 | tech-researcher | research-reviewer | `tech-research-*` |
-| 1.2 想法生成 | academic-paper-writer | — | `IDEA_REPORT.md` |
-| 1.3 新颖性验证 | academic-paper-reviewer | — | novelty 评估 |
-| 2.1 实验计划 | ml-engineer / architect | — | 实验计划书 |
-| 2.2 代码实现 | implementer-* | code-reviewer | `impl-report-*` |
-| 2.3 实验审计 | code-reviewer | — | `EXPERIMENT_AUDIT.md` |
-| 3.0-3.6 论文写作 | academic-paper-writer | academic-paper-reviewer | `.tex`, `.bib`, audit reports |
-| 4.0-4.7 Rebuttal | academic-paper-writer | academic-paper-reviewer | `PASTE_READY.txt` |
+| 1.1 文献调研 | 技术调研专家 | 高级调研审查师 | `tech-research-*` |
+| 1.2 想法生成 | 学术论文写作专家 | — | `IDEA_REPORT.md` |
+| 1.3 新颖性验证 | 顶会顶刊审稿专家 | — | novelty 评估 |
+| 2.1 实验计划 | 机器学习工程师 / 资深系统架构师 | — | 实验计划书 |
+| 2.2 代码实现 | 实现工程师-* | 高级代码审查师 | `impl-report-*` |
+| 2.3 实验审计 | 高级代码审查师 | — | `EXPERIMENT_AUDIT.md` |
+| 3.0-3.6 论文写作 | 学术论文写作专家 | 顶会顶刊审稿专家 | `.tex`, `.bib`, audit reports |
+| 4.0-4.7 Rebuttal | 学术论文写作专家 | 顶会顶刊审稿专家 | `PASTE_READY.txt` |
 
 </skill>

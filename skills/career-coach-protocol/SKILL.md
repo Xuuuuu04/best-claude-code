@@ -1,10 +1,10 @@
 ---
-name: career-coach-protocol
+name: 就业教练-protocol
 description: >
-  就业辅导协议。为 career-coach 提供简历ATS优化、技术面试准备、
+  就业辅导协议。为 就业教练 提供简历ATS优化、技术面试准备、
   作品集策展和薪资谈判的清单与模板。基于2026年技术就业市场调研数据。
 when_to_use: >
-  仅当 career-coach Agent 在辅助用户就业准备时加载。
+  仅当 就业教练 Agent 在辅助用户就业准备时加载。
   不适用于学术申请、移民评估、非技术岗位求职。
 ---
 

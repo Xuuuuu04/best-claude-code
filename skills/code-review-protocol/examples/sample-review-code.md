@@ -4,7 +4,7 @@ description: 标准 review-code artifact 格式参考
 type: review-code
 task_id: feat-20260425-01
 generated_at: 2026-04-25T14:30:00+0800
-产出者: code-reviewer
+产出者: 高级代码审查师
 status: accepted
 关联:
   - scope-lock-feat-20260425-01-1.md
@@ -83,5 +83,5 @@ logger.info('OAuth callback', { email, profile });  // ⚠ 含完整 profile
 
 ## 下一步
 
-- 派 implementer-backend 修 Warning-1 + Warning-2（Suggestion 可后续单 task）
-- 完成后 → security-auditor（OAuth 是安全敏感路径）
+- 派 高级后端工程师 修 Warning-1 + Warning-2（Suggestion 可后续单 task）
+- 完成后 → 高级安全审计师（OAuth 是安全敏感路径）

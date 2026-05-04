@@ -6,9 +6,9 @@
 > - [developer.android.com](https://developer.android.com)（Google 公开文档）
 > - Material Design 3 Guidelines（material.io）
 >
-> 本文档保留方法论与流程，已根据 Agent Legion implementer-mobile 工作流改写。Android / Jetpack / Material Design 是 Google LLC 的商标。
+> 本文档保留方法论与流程，已根据 Agent Legion 高级移动端工程师 工作流改写。Android / Jetpack / Material Design 是 Google LLC 的商标。
 
-适用：implementer-mobile 接到 Android 任务时。
+适用：高级移动端工程师 接到 Android 任务时。
 
 ---
 

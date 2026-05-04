@@ -5,7 +5,10 @@ set -uo pipefail
 
 LEGION_DIR="${HOME}/.claude"
 LOG_DIR="$LEGION_DIR/logs"
+PROJ_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
 HOURS="${1:-24}"  # 默认 24h，可传参
+STATE_LIB="$LEGION_DIR/hooks/_lib/legion-state.sh"
+[ -r "$STATE_LIB" ] && . "$STATE_LIB"
 
 # 颜色
 RED='\033[0;31m'
@@ -24,25 +27,50 @@ else
   SINCE="$(date -v-${HOURS}H +%Y-%m-%dT%H:%M:%S 2>/dev/null || echo "")"
 fi
 
-# ─── Intent Tier Distribution ───────────────────────────────────────────────
-section "Intent Tier Distribution (${HOURS}h)"
+# ─── Router Mode ────────────────────────────────────────────────────────────
+section "Router Mode"
+line "任务档位由模型按 output-styles/legion-dispatch.md 自判，并写入 DispatchTicket"
+line "UserPromptSubmit 当前只统计 clarification-gate / review-gate"
 
-INTENT_FILE="$LOG_DIR/intent-classify.jsonl"
-if [ -f "$INTENT_FILE" ] && command -v jq >/dev/null 2>&1; then
-  if [ -n "$SINCE" ]; then
-    FILTER="select(.timestamp >= \"$SINCE\")"
-  else
-    FILTER="."
-  fi
-  TOTAL=$(jq -r "$FILTER | .tier" "$INTENT_FILE" 2>/dev/null | wc -l | tr -d ' ')
-  if [ "$TOTAL" -gt 0 ]; then
-    jq -r "$FILTER | .tier" "$INTENT_FILE" 2>/dev/null | sort | uniq -c | sort -rn | awk '{printf "  %-12s %s\n", $2, $1}'
-    line "总计: $TOTAL 次"
-  else
-    line "无数据"
-  fi
+# ─── DispatchTicket ─────────────────────────────────────────────────────────
+section "DispatchTicket"
+
+STATE_FILE=""
+if command -v legion_state_file >/dev/null 2>&1; then
+  STATE_FILE="$(legion_state_file "$PROJ_DIR" 2>/dev/null || echo "")"
+elif [ -f "$PROJ_DIR/.claude/state/legion-session.json" ]; then
+  STATE_FILE="$PROJ_DIR/.claude/state/legion-session.json"
+elif [ -f "$LEGION_DIR/state/legion-session.json" ]; then
+  STATE_FILE="$LEGION_DIR/state/legion-session.json"
+fi
+
+if [ -n "$STATE_FILE" ] && [ -r "$STATE_FILE" ] && command -v jq >/dev/null 2>&1; then
+  TASK_ID="$(jq -r '.task_id // "no-task"' "$STATE_FILE" 2>/dev/null || echo "no-task")"
+  PHASE="$(jq -r '.phase // "unknown"' "$STATE_FILE" 2>/dev/null || echo "unknown")"
+  RISK="$(jq -r '.risk // "unknown"' "$STATE_FILE" 2>/dev/null || echo "unknown")"
+  EXECUTOR="$(jq -r '.executor // "unknown"' "$STATE_FILE" 2>/dev/null || echo "unknown")"
+  QUALITY="$(jq -r '.quality_strategy // "unknown"' "$STATE_FILE" 2>/dev/null || echo "unknown")"
+  REQUIRED="$(jq -r '.required_gates[]? // empty' "$STATE_FILE" 2>/dev/null | paste -sd ',' - || true)"
+  IMPL_COUNT="$(jq -r '.evidence.impl_count // 0' "$STATE_FILE" 2>/dev/null || echo 0)"
+  REVIEW_COUNT="$(jq -r '.evidence.review_count // 0' "$STATE_FILE" 2>/dev/null || echo 0)"
+  UNDERSTANDING_STATUS="$(jq -r '.understanding.status // "unknown"' "$STATE_FILE" 2>/dev/null || echo "unknown")"
+  UNDERSTANDING_CONF="$(jq -r '.understanding.confidence // "n/a"' "$STATE_FILE" 2>/dev/null || echo "n/a")"
+  UNKNOWN_COUNT="$(jq -r '(.understanding.unknowns // []) | length' "$STATE_FILE" 2>/dev/null || echo 0)"
+  ASSET_COUNT="$(jq -r '(.understanding.missing_assets // []) | length' "$STATE_FILE" 2>/dev/null || echo 0)"
+  ITER_MODE="$(jq -r '.iteration.mode // "unknown"' "$STATE_FILE" 2>/dev/null || echo "unknown")"
+  ITER_ROUND="$(jq -r '.iteration.round // 0' "$STATE_FILE" 2>/dev/null || echo 0)"
+  FINAL_CONFIRMATION="$(jq -r '.final_confirmation // "unset"' "$STATE_FILE" 2>/dev/null || echo "unset")"
+
+  line "task: $TASK_ID"
+  line "phase/risk: $PHASE / $RISK"
+  line "executor/quality: $EXECUTOR / $QUALITY"
+  line "required_gates: ${REQUIRED:-none}"
+  line "evidence: impl=$IMPL_COUNT review=$REVIEW_COUNT"
+  line "understanding: $UNDERSTANDING_STATUS confidence=$UNDERSTANDING_CONF unknowns=$UNKNOWN_COUNT missing_assets=$ASSET_COUNT"
+  line "iteration: $ITER_MODE round=$ITER_ROUND"
+  line "final_confirmation: $FINAL_CONFIRMATION"
 else
-  line "intent-classify.jsonl 不存在或无 jq"
+  line "no-ticket（无当前机读调度票据）"
 fi
 
 # ─── Clarification Gate ─────────────────────────────────────────────────────

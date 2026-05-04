@@ -74,6 +74,53 @@ jq_get() { echo "$INPUT" | jq -r "$1 // empty" 2>/dev/null; }
 # ── Session ID (for active-subagent detection) ──────────────────────────────
 SESSION_ID="$(jq_get '.session_id')"
 
+STATE_LIB="$HOME/.claude/hooks/_lib/legion-state.sh"
+[ -r "$STATE_LIB" ] && . "$STATE_LIB"
+
+TERM_COLUMNS="${COLUMNS:-120}"
+case "$TERM_COLUMNS" in
+  ''|*[!0-9]*) TERM_COLUMNS=120 ;;
+esac
+COMPACT=0
+[ "$TERM_COLUMNS" -lt 100 ] && COMPACT=1
+
+shorten_task_id() {
+  local task_id="$1"
+  local max_len="${2:-28}"
+  local short=""
+
+  [ -n "$task_id" ] || return 0
+  if [ "${#task_id}" -le "$max_len" ]; then
+    printf '%s\n' "$task_id"
+    return 0
+  fi
+
+  short="$(printf '%s\n' "$task_id" | awk -F- 'NF >= 3 {print $1 "…" $(NF-1) "-" $NF; next} {print substr($0,1,10) "…" substr($0,length($0)-9)}')"
+  printf '%s\n' "$short"
+}
+
+fmt_elapsed() {
+  local elapsed="${1:-0}"
+  if [ "$elapsed" -lt 60 ]; then
+    printf '%ss\n' "$elapsed"
+  elif [ "$elapsed" -lt 3600 ]; then
+    printf '%dm%02ds\n' "$(( elapsed / 60 ))" "$(( elapsed % 60 ))"
+  else
+    printf '%dh%02dm\n' "$(( elapsed / 3600 ))" "$(( (elapsed % 3600) / 60 ))"
+  fi
+}
+
+abbr_final_confirmation() {
+  case "$1" in
+    required) printf 'req' ;;
+    asked) printf 'ask' ;;
+    accepted) printf 'ok' ;;
+    continue_requested) printf 'cont' ;;
+    specified_check) printf 'spec' ;;
+    *) printf '%s' "$1" ;;
+  esac
+}
+
 # ── 1. LEGION brand prefix ──────────────────────────────────────────────────
 LEGION_SEG="${BOLD}${C_LEGION}${ICO_LEGION} LEGION${RESET}"
 
@@ -83,42 +130,43 @@ if [ -n "$SESSION_ID" ]; then
   NOW_TS="$(date +%s)"
   ACTIVE_NAMES=()
   MAX_ELAPSED=0
+  ACTIVE_TTL="${CLAUDE_LEGION_ACTIVE_TTL_SECONDS:-21600}"
+  case "$ACTIVE_TTL" in
+    ''|*[!0-9]*) ACTIVE_TTL=21600 ;;
+  esac
 
   shopt -s nullglob 2>/dev/null || true
   for STATE_FILE in /tmp/claude-legion-active-${SESSION_ID}-*; do
     [ -f "$STATE_FILE" ] || continue
-    AGENT_LINE="$(cat "$STATE_FILE" 2>/dev/null || echo '')"
-    [ -z "$AGENT_LINE" ] && continue
-
-    NAME="$(echo "$AGENT_LINE" | awk -F'\t' '{print $1}')"
-    START="$(echo "$AGENT_LINE" | awk -F'\t' '{print $2}')"
+    NAME="$(jq -r '.agent_type // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+    START="$(jq -r '.started_at // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+    if [ -z "$NAME" ]; then
+      # Legacy TSV written before active state moved to JSON.
+      NAME="$(awk -F'\t' 'NR==1 {print $1}' "$STATE_FILE" 2>/dev/null || echo "")"
+      START="$(awk -F'\t' 'NR==1 {print $2}' "$STATE_FILE" 2>/dev/null || echo "")"
+    fi
     [ -z "$NAME" ] && continue
-    [ -z "$START" ] && START="$NOW_TS"
+    case "$START" in
+      ''|*[!0-9]*) START="$NOW_TS" ;;
+    esac
 
     ELAPSED=$(( NOW_TS - START ))
+    if [ "$ELAPSED" -lt 0 ] || [ "$ELAPSED" -gt "$ACTIVE_TTL" ]; then
+      rm -f "$STATE_FILE" 2>/dev/null || true
+      continue
+    fi
     [ "$ELAPSED" -gt "$MAX_ELAPSED" ] && MAX_ELAPSED=$ELAPSED
     ACTIVE_NAMES+=("$NAME")
   done
 
   if [ ${#ACTIVE_NAMES[@]} -gt 0 ]; then
-    # Format elapsed (longest-running)
-    if [ "$MAX_ELAPSED" -lt 60 ]; then
-      ELAPSED_STR="${MAX_ELAPSED}s"
-    else
-      ELAPSED_STR="$(( MAX_ELAPSED / 60 ))m$(( MAX_ELAPSED % 60 ))s"
-    fi
+    ELAPSED_STR="$(fmt_elapsed "$MAX_ELAPSED")"
 
     if [ ${#ACTIVE_NAMES[@]} -eq 1 ]; then
       LABEL="${ACTIVE_NAMES[0]} · ${ELAPSED_STR}"
     else
-      # 多个 agent：显示 Nx 计数 + 简略名单（前 2 个）
-      if [ ${#ACTIVE_NAMES[@]} -le 2 ]; then
-        JOINED="$(IFS=+; echo "${ACTIVE_NAMES[*]}")"
-        LABEL="${JOINED} · ${ELAPSED_STR}"
-      else
-        JOINED="${ACTIVE_NAMES[0]}+${ACTIVE_NAMES[1]}+…"
-        LABEL="${#ACTIVE_NAMES[@]}× ${JOINED} · ${ELAPSED_STR}"
-      fi
+      SUMMARY="$(printf '%s\n' "${ACTIVE_NAMES[@]}" | sort | uniq -c | awk '{name=$2; for (i=3;i<=NF;i++) name=name " " $i; item=$1 "x " name; out=(out==""?item:out " · " item)} END {print out}')"
+      LABEL="${SUMMARY:-${#ACTIVE_NAMES[@]}x} · max ${ELAPSED_STR}"
     fi
 
     AGENT_SEG=" ${C_AGENT_BG}${C_AGENT_FG}${BOLD} ${ICO_AGENT} 代理 ${LABEL} ${RESET}"
@@ -137,6 +185,30 @@ if [ -n "$MODEL" ]; then
   MODEL_SEG="${C_TOKEN}模型${RESET} ${C_MODEL}${ICO_MODEL} ${MODEL}${RESET}"
 fi
 
+# ── 2b. Permission mode ────────────────────────────────────────────────────
+PERMISSION_MODE="$(jq_get '.permission_mode')"
+[ -z "$PERMISSION_MODE" ] && PERMISSION_MODE="$(jq_get '.permissions.mode')"
+PERMISSION_SEG=""
+if [ -n "$PERMISSION_MODE" ]; then
+  case "$PERMISSION_MODE" in
+    bypassPermissions|dangerously-skip-permissions)
+      PERMISSION_LABEL="bypass"; PERMISSION_COLOR="$C_BAR_CRIT" ;;
+    acceptEdits)
+      PERMISSION_LABEL="accept-edits"; PERMISSION_COLOR="$C_BAR_LOW" ;;
+    plan)
+      PERMISSION_LABEL="plan"; PERMISSION_COLOR="$C_BAR_MID" ;;
+    default)
+      PERMISSION_LABEL="default"; PERMISSION_COLOR="$C_TOKEN" ;;
+    *)
+      PERMISSION_LABEL="$PERMISSION_MODE"; PERMISSION_COLOR="$C_TOKEN" ;;
+  esac
+  if [ "$COMPACT" -eq 1 ]; then
+    PERMISSION_SEG="${C_TOKEN}P${RESET} ${PERMISSION_COLOR}${PERMISSION_LABEL}${RESET}"
+  else
+    PERMISSION_SEG="${C_TOKEN}权限${RESET} ${PERMISSION_COLOR}${PERMISSION_LABEL}${RESET}"
+  fi
+fi
+
 # ── 3. Output style (if custom) ─────────────────────────────────────────────
 STYLE="$(jq_get '.output_style.name')"
 STYLE_SEG=""
@@ -153,9 +225,146 @@ CWD="$(jq_get '.workspace.current_dir')"
 
 DIR_SEG=""
 BRANCH_SEG=""
+TASK_SEG=""
+PHASE_SEG=""
+RISK_SEG=""
+GATES_SEG=""
+EVIDENCE_SEG=""
+UNDERSTANDING_SEG=""
+ITER_SEG=""
+CONFIRM_SEG=""
 if [ -n "$CWD" ]; then
   BASENAME="$(basename "$CWD" 2>/dev/null || echo '?')"
   DIR_SEG="${C_TOKEN}项目${RESET} ${C_DIR}${ICO_DIR} ${BASENAME}${RESET}"
+
+  # DispatchTicket / gate state. Never guess: no state means no-ticket.
+  STATE_FILE=""
+  if command -v legion_state_file >/dev/null 2>&1; then
+    STATE_FILE="$(legion_state_file "$CWD" 2>/dev/null || echo "")"
+  fi
+  if [ -n "$STATE_FILE" ] && [ -r "$STATE_FILE" ] && command -v jq >/dev/null 2>&1; then
+    TASK_ID="$(jq -r '.task_id // "no-task"' "$STATE_FILE" 2>/dev/null || echo "no-task")"
+    PHASE="$(jq -r '.phase // "unknown"' "$STATE_FILE" 2>/dev/null || echo "unknown")"
+    RISK="$(jq -r '.risk // "unknown"' "$STATE_FILE" 2>/dev/null || echo "unknown")"
+    QUALITY="$(jq -r '.quality_strategy // "adversarial-default"' "$STATE_FILE" 2>/dev/null || echo "adversarial-default")"
+
+    case "$RISK" in
+      low)      C_RISK="$C_BAR_LOW" ;;
+      medium)   C_RISK="$C_BAR_MID" ;;
+      high)     C_RISK="$C_BAR_HIGH" ;;
+      critical) C_RISK="$C_BAR_CRIT" ;;
+      *)        C_RISK="$C_TOKEN" ;;
+    esac
+    case "$QUALITY" in
+      compressed) Q_LABEL="fast" ;;
+      full) Q_LABEL="full" ;;
+      *) Q_LABEL="adv" ;;
+    esac
+
+    TASK_DISPLAY="$(shorten_task_id "$TASK_ID" "$([ "$COMPACT" -eq 1 ] && echo 20 || echo 34)")"
+    if [ "$COMPACT" -eq 1 ]; then
+      TASK_SEG="${C_TOKEN}T${RESET} ${C_STYLE}${TASK_DISPLAY}${RESET}"
+      PHASE_SEG="${C_TOKEN}P${RESET} ${C_MODEL}${PHASE}${RESET}"
+      RISK_SEG="${C_TOKEN}R${RESET} ${C_RISK}${RISK}${RESET} ${C_TOKEN}${Q_LABEL}${RESET}"
+    else
+      TASK_SEG="${C_TOKEN}任务${RESET} ${C_STYLE}${TASK_DISPLAY}${RESET}"
+      PHASE_SEG="${C_TOKEN}阶段${RESET} ${C_MODEL}${PHASE}${RESET}"
+      RISK_SEG="${C_TOKEN}风险${RESET} ${C_RISK}${RISK}${RESET} ${C_TOKEN}${Q_LABEL}${RESET}"
+    fi
+
+    GATE_LABELS=""
+    REQUIRED_GATES="$(jq -r '.required_gates[]? // empty' "$STATE_FILE" 2>/dev/null || true)"
+    while IFS= read -r gate; do
+      [ -z "$gate" ] && continue
+      GATE_STATE="$(jq -r --arg g "$gate" '.gate_status[$g] // "pending"' "$STATE_FILE" 2>/dev/null || echo "pending")"
+      GATE_DISPLAY="$gate"
+      if [ "$COMPACT" -eq 1 ]; then
+        case "$gate" in
+          code) GATE_DISPLAY="c" ;;
+          security) GATE_DISPLAY="s" ;;
+          functional) GATE_DISPLAY="f" ;;
+          visual) GATE_DISPLAY="v" ;;
+          verdict) GATE_DISPLAY="vd" ;;
+          impl) GATE_DISPLAY="i" ;;
+        esac
+      fi
+      case "$GATE_STATE" in
+        pass|passed|accepted) MARK="${C_BAR_LOW}✓${RESET}" ;;
+        blocked|reject|rejected|fail|failed) MARK="${C_BAR_CRIT}×${RESET}" ;;
+        skipped_by_user|not_applicable) MARK="${C_TOKEN}-${RESET}" ;;
+        *) MARK="${C_BAR_MID}…${RESET}" ;;
+      esac
+      GATE_LABELS="${GATE_LABELS}${GATE_LABELS:+ }${GATE_DISPLAY}:${MARK}"
+    done <<< "$REQUIRED_GATES"
+    if [ -n "$GATE_LABELS" ]; then
+      if [ "$COMPACT" -eq 1 ]; then
+        GATES_SEG="${C_TOKEN}G${RESET} ${GATE_LABELS}"
+      else
+        GATES_SEG="${C_TOKEN}门控${RESET} ${GATE_LABELS}"
+      fi
+    fi
+
+    IMPL_COUNT="$(jq -r '.evidence.impl_count // 0' "$STATE_FILE" 2>/dev/null || echo 0)"
+    REVIEW_COUNT="$(jq -r '.evidence.review_count // 0' "$STATE_FILE" 2>/dev/null || echo 0)"
+    EVIDENCE_SEG="${C_TOKEN}证据${RESET} impl:${IMPL_COUNT} review:${REVIEW_COUNT}"
+
+    UNDERSTANDING_STATUS="$(jq -r '.understanding.status // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+    UNDERSTANDING_CONF="$(jq -r '.understanding.confidence // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+    ITER_MODE="$(jq -r '.iteration.mode // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+    ITER_ROUND="$(jq -r '.iteration.round // 0' "$STATE_FILE" 2>/dev/null || echo 0)"
+    FINAL_CONFIRMATION="$(jq -r '.final_confirmation // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+
+    if [ -n "$UNDERSTANDING_STATUS" ]; then
+      case "$UNDERSTANDING_STATUS" in
+        clear) C_UNDER="$C_BAR_LOW" ;;
+        assumed) C_UNDER="$C_BAR_MID" ;;
+        needs_user|missing_asset|contradictory) C_UNDER="$C_BAR_CRIT" ;;
+        *) C_UNDER="$C_TOKEN" ;;
+      esac
+      CONF_LABEL=""
+      if [ -n "$UNDERSTANDING_CONF" ] && [ "$UNDERSTANDING_CONF" != "null" ]; then
+        if [ "$COMPACT" -eq 1 ]; then
+          CONF_LABEL=":$(printf '%s' "$UNDERSTANDING_CONF" | sed 's/^0//')"
+        else
+          CONF_LABEL=":${UNDERSTANDING_CONF}"
+        fi
+      fi
+      if [ "$COMPACT" -eq 1 ]; then
+        UNDERSTANDING_SEG="${C_TOKEN}U${RESET} ${C_UNDER}${UNDERSTANDING_STATUS}${CONF_LABEL}${RESET}"
+      else
+        UNDERSTANDING_SEG="${C_TOKEN}理解${RESET} ${C_UNDER}${UNDERSTANDING_STATUS}${CONF_LABEL}${RESET}"
+      fi
+    fi
+    if [ -n "$ITER_MODE" ] || [ "${ITER_ROUND:-0}" != "0" ]; then
+      ITER_LABEL="${ITER_MODE:-iter}"
+      if [ "$COMPACT" -eq 1 ]; then
+        case "$ITER_LABEL" in
+          until_pass) ITER_LABEL="pass" ;;
+        esac
+        ITER_SEG="${C_TOKEN}I${RESET} ${C_MODEL}${ITER_LABEL}#${ITER_ROUND:-0}${RESET}"
+      else
+        ITER_SEG="${C_TOKEN}迭代${RESET} ${C_MODEL}${ITER_LABEL}#${ITER_ROUND:-0}${RESET}"
+      fi
+    fi
+    if [ -n "$FINAL_CONFIRMATION" ]; then
+      case "$FINAL_CONFIRMATION" in
+        accepted) C_CONFIRM="$C_BAR_LOW" ;;
+        asked|required|continue_requested|specified_check) C_CONFIRM="$C_BAR_MID" ;;
+        *) C_CONFIRM="$C_TOKEN" ;;
+      esac
+      if [ "$COMPACT" -eq 1 ]; then
+        CONFIRM_SEG="${C_TOKEN}C${RESET} ${C_CONFIRM}$(abbr_final_confirmation "$FINAL_CONFIRMATION")${RESET}"
+      else
+        CONFIRM_SEG="${C_TOKEN}确认${RESET} ${C_CONFIRM}${FINAL_CONFIRMATION}${RESET}"
+      fi
+    fi
+  else
+    if [ "$COMPACT" -eq 1 ]; then
+      TASK_SEG="${C_TOKEN}T${RESET} ${C_BAR_EMPTY}no-ticket${RESET}"
+    else
+      TASK_SEG="${C_TOKEN}任务${RESET} ${C_BAR_EMPTY}no-ticket${RESET}"
+    fi
+  fi
 
   # Git info（独立成段，与项目用 SEP 分隔，不再粘在一起）
   if git -C "$CWD" --no-optional-locks rev-parse --git-dir &>/dev/null; then
@@ -221,8 +430,11 @@ if [ -n "$USED_PCT" ] && [ "$USED_PCT" != "null" ]; then
     [ "$USED_K" -gt 0 ] && LABEL="${LABEL}${C_TOKEN} ${USED_K}K${RESET}"
   fi
 
-  # 加"上下文"中文标签明示含义
-  BAR_SEG="${C_TOKEN}上下文${RESET} ${BAR} ${LABEL}"
+  if [ "$COMPACT" -eq 1 ]; then
+    BAR_SEG="${C_TOKEN}CTX${RESET} ${LABEL}"
+  else
+    BAR_SEG="${C_TOKEN}上下文${RESET} ${BAR} ${LABEL}"
+  fi
 fi
 
 # ── 6. Project cost aggregate (only if cost-log.txt exists in cwd/.claude) ──
@@ -272,44 +484,31 @@ fi
 NOW="$(date '+%H:%M' 2>/dev/null || echo '')"
 TIME_SEG=""
 if [ -n "$NOW" ]; then
-  TIME_SEG="${C_TOKEN}时间${RESET} ${C_TIME}${ICO_CLOCK} ${NOW}${RESET}"
-fi
-
-# ── Router tier (v3.9: 模型自判，intent-classify 已退役) ────────────────────
-TIER_SEG=""
-TIER_LOG="$HOME/.claude/logs/intent-classify.jsonl"
-if [ -r "$TIER_LOG" ] && command -v jq >/dev/null 2>&1; then
-  TIER="$(tail -1 "$TIER_LOG" 2>/dev/null | jq -r '.tier // empty' 2>/dev/null || echo "")"
-  if [ -n "$TIER" ]; then
-    case "$TIER" in
-      trivial)  C_TIER="\033[38;2;148;163;184m"; ICO_TIER="◌" ;;  # slate
-      small)    C_TIER="\033[38;2;74;222;128m";  ICO_TIER="◯" ;;  # green
-      medium)   C_TIER="\033[38;2;251;191;36m";  ICO_TIER="◐" ;;  # amber
-      large)    C_TIER="\033[38;2;251;146;60m";  ICO_TIER="◉" ;;  # orange
-      unclear)  C_TIER="\033[38;2;248;113;113m"; ICO_TIER="?"  ;;  # red
-      *)        C_TIER="\033[38;2;148;163;184m"; ICO_TIER="·" ;;
-    esac
-    TIER_SEG="${C_TOKEN}档位${RESET} ${ITALIC}${C_TIER}${ICO_TIER} ${TIER}${RESET}"
+  if [ "$COMPACT" -eq 1 ]; then
+    TIME_SEG="${C_TIME}${ICO_CLOCK} ${NOW}${RESET}"
+  else
+    TIME_SEG="${C_TOKEN}时间${RESET} ${C_TIME}${ICO_CLOCK} ${NOW}${RESET}"
   fi
-else
-  # v3.9：无 intent-classify 日志 → 模型自判模式
-  TIER_SEG="${C_TOKEN}档位${RESET} ${ITALIC}\033[38;2;167;139;250m◈ auto${RESET}"
 fi
 
 # ── Assemble (两行布局) ──────────────────────────────────────────────────────
-# Line 1: 品牌 · 活跃 agent（如有）· 模型 · 风格 · tier
-# Line 2: 目录 ⎇ 分支 · 上下文进度 · 项目消耗 · 时钟
+# Line 1: 品牌 · 活跃 agent（如有）· 模型 · 权限
+# Line 2: task · phase · risk · gates · understanding · iteration · confirm · context · time
 
 LINE1="$LEGION_SEG"
 [ -n "$AGENT_SEG" ] && LINE1="${LINE1}${AGENT_SEG}"
 [ -n "$MODEL_SEG" ] && LINE1="${LINE1}${SEP}${MODEL_SEG}"
+[ -n "$PERMISSION_SEG" ] && LINE1="${LINE1}${SEP}${PERMISSION_SEG}"
 [ -n "$STYLE_SEG" ] && LINE1="${LINE1}${SEP}${STYLE_SEG}"
-[ -n "$TIER_SEG"  ] && LINE1="${LINE1}${SEP}${TIER_SEG}"
 
 LINE2=""
-[ -n "$DIR_SEG" ]    && LINE2="${DIR_SEG}"
-[ -n "$BRANCH_SEG" ] && LINE2="${LINE2:+${LINE2}${SEP}}${BRANCH_SEG}"
-[ -n "$COST_SEG" ]   && LINE2="${LINE2:+${LINE2}${SEP}}${COST_SEG}"
+[ -n "$TASK_SEG" ]   && LINE2="${TASK_SEG}"
+[ -n "$PHASE_SEG" ]  && LINE2="${LINE2:+${LINE2}${SEP}}${PHASE_SEG}"
+[ -n "$RISK_SEG" ]   && LINE2="${LINE2:+${LINE2}${SEP}}${RISK_SEG}"
+[ -n "$GATES_SEG" ]  && LINE2="${LINE2:+${LINE2}${SEP}}${GATES_SEG}"
+[ -n "$UNDERSTANDING_SEG" ] && LINE2="${LINE2:+${LINE2}${SEP}}${UNDERSTANDING_SEG}"
+[ -n "$ITER_SEG" ] && LINE2="${LINE2:+${LINE2}${SEP}}${ITER_SEG}"
+[ -n "$CONFIRM_SEG" ] && LINE2="${LINE2:+${LINE2}${SEP}}${CONFIRM_SEG}"
 [ -n "$BAR_SEG" ]    && LINE2="${LINE2:+${LINE2}${SEP}}${BAR_SEG}"
 [ -n "$TIME_SEG" ]   && LINE2="${LINE2:+${LINE2}${SEP}}${TIME_SEG}"
 

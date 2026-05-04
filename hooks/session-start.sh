@@ -10,6 +10,9 @@ set -uo pipefail
 
 INPUT="$(cat || true)"
 
+LIB="$HOME/.claude/hooks/_lib/legion-state.sh"
+[ -r "$LIB" ] && . "$LIB"
+
 # 取出触发源（可选）
 SOURCE="$(echo "$INPUT" | jq -r '.source // "startup"' 2>/dev/null || echo "startup")"
 
@@ -47,6 +50,26 @@ fi
 
 if [ -n "$PENDING_ARTIFACTS" ]; then
   CONTEXT+="\n### 进行中的交接文件\n${PENDING_ARTIFACTS}\n"
+fi
+
+# ── DispatchTicket 状态摘要 ────────────────────────────────────────────────
+STATE_FILE="$(legion_state_file "$(pwd 2>/dev/null || echo "")" 2>/dev/null || echo "")"
+if [ -n "$STATE_FILE" ] && [ -f "$STATE_FILE" ] && command -v jq >/dev/null 2>&1; then
+  TASK_ID="$(jq -r '.task_id // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+  PHASE="$(jq -r '.phase // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+  RISK="$(jq -r '.risk // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+  EXECUTOR="$(jq -r '.executor // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+  QUALITY="$(jq -r '.quality_strategy // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+  UNDERSTANDING="$(jq -r '.understanding.status // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+  ITER_ROUND="$(jq -r '.iteration.round // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+  FINAL_CONFIRMATION="$(jq -r '.final_confirmation // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+  REQUIRED="$(jq -r '.required_gates[]? // empty' "$STATE_FILE" 2>/dev/null | paste -sd ',' - 2>/dev/null || true)"
+  if [ -n "$TASK_ID" ] || [ -n "$PHASE" ]; then
+    CONTEXT+="\n### 当前 DispatchTicket\n"
+    CONTEXT+="- task: ${TASK_ID:-unknown} | phase: ${PHASE:-unknown} | risk: ${RISK:-unknown} | executor: ${EXECUTOR:-unknown} | quality: ${QUALITY:-unknown}\n"
+    CONTEXT+="- understanding: ${UNDERSTANDING:-unknown} | iteration_round: ${ITER_ROUND:-0} | final_confirmation: ${FINAL_CONFIRMATION:-unset}\n"
+    [ -n "$REQUIRED" ] && CONTEXT+="- required_gates: ${REQUIRED}\n"
+  fi
 fi
 
 # ── 续传状态摘要（resume / clear / compact 时从 artifact 提取） ──────────────

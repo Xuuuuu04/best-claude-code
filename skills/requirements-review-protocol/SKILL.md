@@ -1,7 +1,7 @@
 ---
 name: requirements-review-protocol
-description: 需求审查协议。为 requirements-reviewer 提供完整性、可测试性、边界与风险审查清单。
-when_to_use: 仅当 requirements-reviewer 或 product-analyst Agent 在审查 requirements-* artifact 时加载。需求收集阶段（client / product-analyst 还在写）不应触发。
+description: 需求审查协议。为 高级需求审查师 提供完整性、可测试性、边界与风险审查清单。
+when_to_use: 仅当 高级需求审查师 或 资深需求分析师 Agent 在审查 requirements-* artifact 时加载。需求收集阶段（客户需求整理师 / 资深需求分析师 还在写）不应触发。
 ---
 
 <skill name="requirements-review-protocol">

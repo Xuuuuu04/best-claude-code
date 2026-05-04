@@ -3,7 +3,7 @@ name: motion-graphics-principles
 description: >
   动态图形（Motion Graphics）设计原则。定义排版动画、信息层级、
   品牌动效和数据可视化动画的行业标准，确保代码生成视频具有专业视觉品质。
-when_to_use: creative-media-producer 在动画实现阶段预加载，校验动效质量。
+when_to_use: 多媒体内容生成师 在动画实现阶段预加载，校验动效质量。
 ---
 
 <skill name="motion-graphics-principles">

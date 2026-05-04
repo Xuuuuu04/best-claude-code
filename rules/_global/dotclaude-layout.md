@@ -151,7 +151,7 @@ mv .claude/artifacts/*-{task-id}*.md .claude/artifacts/archive/YYYY-Qn/
     <requirement>
       Agent 产出推进类文档（整体规划、阶段路线图、多 task 协调）使用 <type>dispatch</type> type：
       <list>
-        <item><pattern>dispatch-{YYYYMMDD}-{slug}.md</pattern> — pm 或主会话产出</item>
+        <item><pattern>dispatch-{YYYYMMDD}-{slug}.md</pattern> — 项目管理师 或主会话产出</item>
         <item>不允许用 <path>roadmap.md</path> / <path>plan.md</path> / <path>todo.md</path> 等无规范命名</item>
       </list>
     </requirement>
@@ -173,7 +173,7 @@ mv .claude/artifacts/*-{task-id}*.md .claude/artifacts/archive/YYYY-Qn/
       <list>
         <item>scope-lock 白名单路径必须含子项目前缀，如 <path>packages/web/src/...</path></item>
         <item><cmd>bcc-init-project</cmd> 检测到 monorepo 时会询问整体 vs 分子项目初始化</item>
-        <item>跨子项目任务由 <agent>product-analyst</agent> 拆分子项目边界，<agent>architect</agent> 做跨模块设计</item>
+        <item>跨子项目任务由 <agent>资深需求分析师</agent> 拆分子项目边界，<agent>资深系统架构师</agent> 做跨模块设计</item>
       </list>
     </requirement>
   </section>
@@ -181,7 +181,7 @@ mv .claude/artifacts/*-{task-id}*.md .claude/artifacts/archive/YYYY-Qn/
   <section id="review-responsibility">
     <requirement>
       <list>
-        <item><role>主会话</role>：派遣 agent 前告知 task-id（可由 intent-classify 建议）</item>
+        <item><role>主会话</role>：派遣 agent 前告知 task-id（由模型按当前任务自判）</item>
         <item><role>每个 agent</role>：写 artifact 前校验 task-id 合规</item>
         <item><cmd>bin/validate-artifacts.sh</cmd>：非合规 task-id 输出 <token>WARNING</token>；非法 type 前缀输出 <token>CRITICAL</token></item>
         <item><cmd>bin/tidy-dotclaude.sh</cmd>：只读诊断当前项目布局 + 命名合规率</item>

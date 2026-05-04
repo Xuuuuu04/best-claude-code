@@ -101,7 +101,7 @@ def handle_validation(e):
 
 <rule name="flask-testing">
   <convention>app.test_client() 发起请求</convention>
-  <convention>pytest fixture 提供 app 和 client</convention>
+  <convention>pytest fixture 提供 app 和 客户需求整理师</convention>
   <convention>事务回滚模式提速</convention>
 </rule>
 

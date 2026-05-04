@@ -18,7 +18,7 @@
 | 维度 | README | LEGION | dispatch-table | 实际 agents/ |
 |:--|:--|:--|:--|:--|
 | 数量 | 25 | 25 | 25 行路由表 | 25 个 .md 文件 |
-| 名称列表 | 完整列出 23 个具名（3 个 implementer 合并写） | 核心流水线 15 + 卫星层 8 = 23（同上） | 路由表每行 1 个 | 完全一致 |
+| 名称列表 | 完整列出 23 个具名（3 个 实现工程师 合并写） | 核心流水线 15 + 卫星层 8 = 23（同上） | 路由表每行 1 个 | 完全一致 |
 
 **置信度：确定**。三文件 + 实际文件完全对齐。
 
@@ -132,11 +132,11 @@
 **悬空引用**：
 | 文件 | 行号 | 内容 | 严重度 |
 |:--|:--|:--|:--|
-| `LEGION.md:677` | v3.3 历史记录 | "implementer-frontend 新增 frontend-design-protocol skill" | 低（历史记录，不影响运行） |
-| `agents/implementer-frontend.md:16` | skills 字段 | 已更新为 `visual-design-protocol` | 无问题 |
-| `agents/visual-designer.md` | skills 字段 | 引用 `visual-design-protocol` | 无问题 |
+| `LEGION.md:677` | v3.3 历史记录 | "高级前端工程师 新增 frontend-design-protocol skill" | 低（历史记录，不影响运行） |
+| `agents/高级前端工程师.md:16` | skills 字段 | 已更新为 `visual-design-protocol` | 无问题 |
+| `agents/视觉设计专家.md` | skills 字段 | 引用 `visual-design-protocol` | 无问题 |
 
-**结论**：删除合理。`implementer-frontend` 已更新引用。唯一残留是 LEGION.md 历史记录，不影响运行。
+**结论**：删除合理。`高级前端工程师` 已更新引用。唯一残留是 LEGION.md 历史记录，不影响运行。
 
 ### 3.2 `skills/security-checklist/`（已删除，1 个文件）
 
@@ -179,8 +179,8 @@
 
 **用途**：替代已删除的 `frontend-design-protocol`，内容几乎相同。
 **文档覆盖**：
-- `agents/implementer-frontend.md` — skills 字段已更新引用
-- `agents/visual-designer.md` — skills 字段已引用
+- `agents/高级前端工程师.md` — skills 字段已更新引用
+- `agents/视觉设计专家.md` — skills 字段已引用
 - README / LEGION — **未记录**此 skill 的存在（既不在目录结构描述中，也不在版本历史中）
 **影响**：该 skill 实际生效（Agent 已引用），但文档层面无痕迹。
 

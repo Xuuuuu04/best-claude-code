@@ -1,10 +1,10 @@
 ---
-name: creative-direction
-description: 创意方向协议。为 creative 提供命名框架、品牌调性轴、Slogan 生成和概念级视觉 DNA 输出方法。
-when_to_use: 当 creative 做产品命名 / Slogan / 品牌调性 / 文案方向 / 概念级视觉 DNA 时；用户提"取名"、"slogan"、"品牌调性"、"文案方向"、"创意"、"naming"、"copy ideation" 时自动加载。
+name: 创意策划师-direction
+description: 创意方向协议。为 创意策划师 提供命名框架、品牌调性轴、Slogan 生成和概念级视觉 DNA 输出方法。
+when_to_use: 当 创意策划师 做产品命名 / Slogan / 品牌调性 / 文案方向 / 概念级视觉 DNA 时；用户提"取名"、"slogan"、"品牌调性"、"文案方向"、"创意"、"naming"、"copy ideation" 时自动加载。
 ---
 
-<skill name="creative-direction">
+<skill name="创意策划师-direction">
 
 <knowledge domain="pre-flight">
 <principle>在产出任何命名或文案前，必须先明确三个前置坐标</principle>

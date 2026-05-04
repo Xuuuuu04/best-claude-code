@@ -1,10 +1,10 @@
 ---
 name: content-review-protocol
 description: >
-  内容审查协议。为 content-reviewer 提供文档和创意产出的审查清单。
-  仅当 content-reviewer Agent 在审查 doc-* 或 creative-* artifact 时加载。
+  内容审查协议。为 高级内容审查师 提供文档和创意产出的审查清单。
+  仅当 高级内容审查师 Agent 在审查 doc-* 或 creative-* artifact 时加载。
 when_to_use: >
-  仅当 content-reviewer Agent 在审查 doc-* 或 creative-* artifact 时加载。
+  仅当 高级内容审查师 Agent 在审查 doc-* 或 creative-* artifact 时加载。
   不适用于代码审查、架构审查、安全审计、调研审查。
 ---
 
@@ -101,7 +101,7 @@ when_to_use: >
 
 **Task ID**: {task-id}
 **生成时间**: {ISO 8601}
-**产出者**: content-reviewer
+**产出者**: 高级内容审查师
 **状态**: draft
 **关联**: {被审 artifact 路径}
 

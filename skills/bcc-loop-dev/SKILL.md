@@ -15,8 +15,8 @@ disable-model-invocation: true
 <principle id="human-gate">人工仅在安全 + 不可逆时介入（生产部署、DB schema 变更、API 密钥变更、安全漏洞）</principle>
 <principle id="auto-git">每 scope-lock 通过完整流水线后 auto commit + push；失败时 auto revert 到上一个 commit</principle>
 <principle id="adaptive-concurrency">优先标准并发（S0-S3），遭遇 agent 失败/限流时动态降级，恢复后自动尝试升回高并发</principle>
-<principle id="token-routing">收 IMPL_DONE → 派 code-reviewer；收 REVIEW_REJECT → redeliberation；收 VERDICT_PASS → 提交+下一 scope</principle>
-<principle id="self-healing">redeliberation 自动循环 + pm 穷尽升级 + reviewer 漏审反馈写入 agent-memory</principle>
+<principle id="token-routing">收 IMPL_DONE → 派 高级代码审查师；收 REVIEW_REJECT → redeliberation；收 VERDICT_PASS → 提交+下一 scope</principle>
+<principle id="self-healing">redeliberation 自动循环 + 项目管理师 穷尽升级 + reviewer 漏审反馈写入 agent-memory</principle>
 </core-principles>
 
 <preflight>
@@ -34,17 +34,17 @@ disable-model-invocation: true
 <instructions>
 
 <step id="1.1" title="需求分析">
-派 product-analyst → 产出 requirements
-<next>→ requirements-reviewer（含对抗性压力测试）</next>
+派 资深需求分析师 → 产出 requirements
+<next>→ 高级需求审查师（含对抗性压力测试）</next>
 </step>
 
 <step id="1.2" title="架构设计">
-派 architect → 产出 architecture
-<next>→ architecture-reviewer（含断点分析）</next>
+派 资深系统架构师 → 产出 architecture
+<next>→ 高级架构审查师（含断点分析）</next>
 </step>
 
 <step id="1.3" title="范围锁定">
-派 scope-planner → 产出 scope-lock[] + scope-plan（含集成风险标记 + 并行批次规划）
+派 资深范围规划师 → 产出 scope-lock[] + scope-plan（含集成风险标记 + 并行批次规划）
 </step>
 
 </instructions>
@@ -58,13 +58,13 @@ disable-model-invocation: true
 <step id="2.1" title="并发实现">
 for each Batch:
 <procedure>
-  <item>并发派 implementer-*（attempt S2 并发）</item>
+  <item>并发派 实现工程师-*（attempt S2 并发）</item>
   <item>收集 IMPL_DONE token</item>
 </procedure>
 </step>
 
 <step id="2.2" title="自适应降级">
-如某 implementer 失败/超时：
+如某 实现工程师 失败/超时：
 <degradation>
   <stage level="降级">该 Batch 改为串行</stage>
   <stage level="观察">之后 3 个 Batch 保持低并发</stage>
@@ -73,7 +73,7 @@ for each Batch:
 </step>
 
 <step id="2.3" title="代码审查">
-串行派 code-reviewer（6 维审查含对抗性）
+串行派 高级代码审查师（6 维审查含对抗性）
 <branch>
   <case condition="REVIEW_REJECT">→ redeliberation（max 3 轮）</case>
   <case condition="REVIEW_PASS">→ 继续</case>
@@ -89,15 +89,15 @@ for each Batch:
 <instructions>
 
 <step id="3.1" title="安全审计">
-<condition>如涉后端/认证/支付</condition>：派 security-auditor（OWASP + 7 维业务逻辑攻击）
+<condition>如涉后端/认证/支付</condition>：派 高级安全审计师（OWASP + 7 维业务逻辑攻击）
 </step>
 
 <step id="3.2" title="功能测试">
-派 functional-tester（验收+边界+回归）
+派 高级功能测试师（验收+边界+回归）
 </step>
 
 <step id="3.3" title="视觉测试">
-<condition>如涉 UI</condition>：派 visual-tester（5 状态截图证据）
+<condition>如涉 UI</condition>：派 高级视觉测试师（5 状态截图证据）
 </step>
 
 </instructions>
@@ -109,11 +109,11 @@ for each Batch:
 <instructions>
 
 <step id="4.1" title="跨 scope 一致性">
-<condition>scope-lock ≥ 3</condition> → test-lead 含跨 scope 一致性检查
+<condition>scope-lock ≥ 3</condition> → 质量总监 含跨 scope 一致性检查
 </step>
 
 <step id="4.2" title="最终裁决">
-test-lead 汇总 functional+visual+security + 一致性 + reviewer 质量反馈
+质量总监 汇总 functional+visual+security + 一致性 + reviewer 质量反馈
 <verdict-branch>
   <case condition="VERDICT_PASS">→ git commit+push → 下一 scope</case>
   <case condition="VERDICT_CONDITIONAL">→ 人工确认</case>
@@ -130,7 +130,7 @@ test-lead 汇总 functional+visual+security + 一致性 + reviewer 质量反馈
 <git-automation>
 每个 scope-lock 的完整流水线通过后（VERDICT_PASS）：
 <cmd-block>git add -A
-git commit -m "feat({scope-name}): {scope 描述} — 通过 code-reviewer+security+test+verdict"
+git commit -m "feat({scope-name}): {scope 描述} — 通过 高级代码审查师+security+test+verdict"
 git push</cmd-block>
 
 如后续 scope 失败需要回滚：
@@ -179,14 +179,14 @@ git push</cmd-block>
 
 <standards>
   <standard name="代码审查" criteria="所有 scope-lock REVIEW_PASS" fallback="继续 redeliberation" />
-  <standard name="对抗性" criteria="code-reviewer 维度 6 全部 [通过]" fallback="退回 implementer" />
-  <standard name="安全" criteria="涉后端/认证/支付 → SECURITY_PASS + 业务逻辑攻击 7 维全 [通过]" fallback="退回 implementer" />
-  <standard name="功能" criteria="TEST_PASS，含边界/回归/并发" fallback="退回 implementer" />
-  <standard name="视觉" criteria="UI 变更 → VISUAL_PASS + 5 状态截图" fallback="退回 implementer" />
-  <standard name="跨 scope" criteria="scope-lock ≥3 → 一致性检查 PASS" fallback="退回 architect/scope-planner" />
-  <standard name="测试覆盖" criteria="新增代码 ≥85%" fallback="退回 implementer 补测试" />
+  <standard name="对抗性" criteria="高级代码审查师 维度 6 全部 [通过]" fallback="退回 实现工程师" />
+  <standard name="安全" criteria="涉后端/认证/支付 → SECURITY_PASS + 业务逻辑攻击 7 维全 [通过]" fallback="退回 实现工程师" />
+  <standard name="功能" criteria="TEST_PASS，含边界/回归/并发" fallback="退回 实现工程师" />
+  <standard name="视觉" criteria="UI 变更 → VISUAL_PASS + 5 状态截图" fallback="退回 实现工程师" />
+  <standard name="跨 scope" criteria="scope-lock ≥3 → 一致性检查 PASS" fallback="退回 资深系统架构师/资深范围规划师" />
+  <standard name="测试覆盖" criteria="新增代码 ≥85%" fallback="退回 实现工程师 补测试" />
   <standard name="文档" criteria="受影响 CLAUDE.md 变更日志已更新" fallback="补文档" />
-  <standard name="裁决" criteria="test-lead VERDICT_PASS" fallback="继续迭代" />
+  <standard name="裁决" criteria="质量总监 VERDICT_PASS" fallback="继续迭代" />
 </standards>
 
 <rule>任一不满足 → 继续。</rule>
@@ -197,9 +197,9 @@ git push</cmd-block>
 
 <safety-valves>
   <valve condition="同一 scope-lock 迭代 ≥5 轮仍未 PASS" action="暂停，报告用户——scope 可能有根本缺陷" />
-  <valve condition="连续 3 个 scope-lock 均 BLOCKED" action="退回 architect 重新设计" />
+  <valve condition="连续 3 个 scope-lock 均 BLOCKED" action="退回 资深系统架构师 重新设计" />
   <valve condition="总派遣次数 ≥100" action="暂停，汇报进度+消耗，请用户确认继续" />
-  <valve condition="test-lead 连续 2 次 CONDITIONAL PASS" action="视为 PASS（条件已足够轻微）" />
+  <valve condition="质量总监 连续 2 次 CONDITIONAL PASS" action="视为 PASS（条件已足够轻微）" />
   <valve condition="连续 5 次 Agent 派遣全部异常" action="暂停，系统性故障" />
   <valve condition="安全漏洞发现" action="立即暂停，等用户决策" />
 </safety-valves>
@@ -221,7 +221,7 @@ git push</cmd-block>
 <item>近 10 次派遣失败率 &gt;30% → 暂停诊断</item>
 <item>连续 3 次 redeliberation 穷尽 → 暂停</item>
 <item>同类型驳回 pattern 重复 ≥3 次 → 标记 + 写 agent-memory</item>
-<item>scope-lock 平均 turns &gt;30 → 提醒 scope-planner 粒度偏大</item>
+<item>scope-lock 平均 turns &gt;30 → 提醒 资深范围规划师 粒度偏大</item>
 <item>自适应并发当前状态 → 汇报</item>
 </health-self-check>
 

@@ -85,7 +85,7 @@ const order = OrderSchema.parse(response.data)  // 失败抛错而非静默
   </example>
 
   <!-- 陷阱 2：枚举判断 magic number（4.7 字面化下高频） -->
-  <constraint severity="blocker">code-reviewer 看到无引用的 `=== <number>` 视为 Critical。详见 `_global/dispatch-table.md` 接口字段对账。</constraint>
+  <constraint severity="blocker">高级代码审查师 看到无引用的 `=== <number>` 视为 Critical。详见 `_global/dispatch-table.md` 接口字段对账。</constraint>
   <example type="bad">
 
 ```ts
@@ -218,6 +218,6 @@ function handle(r: Result) {
 ```
 
   </pattern>
-  <check>未达此基线 → code-reviewer 报 Warning，建议升级。</check>
+  <check>未达此基线 → 高级代码审查师 报 Warning，建议升级。</check>
 
 </rule>

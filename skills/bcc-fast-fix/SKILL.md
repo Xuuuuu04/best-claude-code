@@ -27,7 +27,7 @@ disable-model-invocation: true
     <fail>→ 退回到完整流水线</fail>
   </check>
   <check id="4" label="不改变任何函数签名/API endpoint/类型导出/接口契约">
-    <fail>→ 同上——接口变更必须走 code-reviewer</fail>
+    <fail>→ 同上——接口变更必须走 高级代码审查师</fail>
   </check>
   <check id="5" label="不引入新 import/require/依赖">
     <fail>→ 同上</fail>
@@ -36,7 +36,7 @@ disable-model-invocation: true
     <fail>→ 同上 + 安全审计</fail>
   </check>
   <check id="7" label="不涉及数据库查询或 schema">
-    <fail>→ 同上 + database-engineer</fail>
+    <fail>→ 同上 + 资深数据库工程师</fail>
   </check>
   <check id="8" label="目标文件不在 .claude/ 或 .gitignore 中">
     <fail>→ 人工确认</fail>

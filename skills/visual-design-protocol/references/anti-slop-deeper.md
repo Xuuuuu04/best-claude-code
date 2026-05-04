@@ -2,7 +2,7 @@
 
 > 灵感来源：Claude Design / frontend-design 公开行为协议 + 社区 frontend agent 公开模式。本文档提炼方法论，不复制原文。
 
-适用：implementer-frontend / visual-designer 在做 web UI、landing page、dashboard、组件视觉时。
+适用：高级前端工程师 / 视觉设计专家 在做 web UI、landing page、dashboard、组件视觉时。
 
 ---
 

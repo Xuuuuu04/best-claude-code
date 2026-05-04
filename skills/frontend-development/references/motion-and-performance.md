@@ -7,9 +7,9 @@
 > - Three.js 官方文档
 > - W3C `animation-timeline` / `prefers-reduced-motion` 规范
 >
-> 本文档保留方法论与代码模板，已根据 Agent Legion implementer-frontend 工作流改写。Framer Motion / GSAP / Three.js 是各自所有者的商标。
+> 本文档保留方法论与代码模板，已根据 Agent Legion 高级前端工程师 工作流改写。Framer Motion / GSAP / Three.js 是各自所有者的商标。
 
-适用：implementer-frontend 接到含动画 / 滚动叙事 / 3D / 交互效果的任务时。
+适用：高级前端工程师 接到含动画 / 滚动叙事 / 3D / 交互效果的任务时。
 
 ---
 
@@ -20,7 +20,7 @@
 | UI enter / exit / layout | **Framer Motion** — `AnimatePresence` / `layoutId` / springs |
 | 滚动叙事（pin / scrub） | **GSAP + ScrollTrigger** — 帧精度控制 |
 | 循环图标 | **Lottie** — 懒加载（~50KB） |
-| 3D / WebGL | **Three.js / R3F** — 隔离 `<Canvas>`，独立 `"use client"` 边界 |
+| 3D / WebGL | **Three.js / R3F** — 隔离 `<Canvas>`，独立 `"use 客户需求整理师"` 边界 |
 | Hover / focus 状态 | **CSS only** — 零 JS 成本 |
 | 原生滚动驱动 | **CSS** — `animation-timeline: scroll()` |
 

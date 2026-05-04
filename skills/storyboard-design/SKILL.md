@@ -3,7 +3,7 @@ name: storyboard-design
 description: >
   分镜设计协议。将创意 brief 转化为时间线级别的画面序列，
   定义每个 scene 的镜头、内容、动画和转场，作为代码实现的蓝图。
-when_to_use: creative-media-producer 在阶段 2 预加载，也供视觉设计师参考动态内容结构。
+when_to_use: 多媒体内容生成师 在阶段 2 预加载，也供视觉设计师参考动态内容结构。
 ---
 
 <skill name="storyboard-design">

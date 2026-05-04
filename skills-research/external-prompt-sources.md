@@ -8,14 +8,14 @@
 |:--|:--|:--|:--|:--|
 | Anthropic `skills` 官方仓库 | 官方 Skill | 高 | 短触发描述 + 主协议 + `scripts/`/`references/`/模板资源；文件类 Skill 强调读取、编辑、验证闭环 | 新增文档/PPT/Excel/PDF/Web 测试/设计/MCP Skill |
 | Anthropic `pptx` / `xlsx` / `docx` / `pdf` | 官方 Skill | 高 | 文件格式专用流程、保真约束、QA 验证、脚本工具优先 | `pptx-workflow`、`docx-workflow`、`xlsx-workflow`、`pdf-workflow` |
-| Anthropic `frontend-design` / `canvas-design` | 官方 Skill | 高 | 先建立设计哲学，再实现；强调避免 generic AI aesthetic、视觉细节和可访问性 | 增强 `visual-designer` / `frontend-development` |
+| Anthropic `frontend-design` / `canvas-design` | 官方 Skill | 高 | 先建立设计哲学，再实现；强调避免 generic AI aesthetic、视觉细节和可访问性 | 增强 `视觉设计专家` / `frontend-development` |
 | Anthropic `webapp-testing` | 官方 Skill | 高 | reconnaissance-then-action、with_server、截图、console/network 证据 | 增强 `visual-test-protocol` / `functional-test-protocol` |
 | Anthropic `mcp-builder` / `claude-api` | 官方 Skill | 高 | 先研究协议与 SDK，再实现；强调 prompt cache、tool schema、错误处理 | 新增 `mcp-builder-protocol` / `claude-api-protocol` |
 | CL4R1T4S | 泄漏/复刻 prompt | 低（结构参考） | CLI agent、设计 agent、Cursor/Windsurf/Devin 等强调工具边界、沟通时机、最小修改、环境安全 | 只提炼 guardrail / workflow，不复制正文 |
 | asgeirtj/system_prompts_leaks | 泄漏 prompt | 低（结构参考） | Claude Code/Design/Office、OpenAI Codex、Gemini CLI 等呈现“身份→工具→计划→编辑→验证→汇报”的层次 | 只提炼 Skill 分类与结构，不复制正文 |
 | OpenAI Agents / prompt docs | 官方文档 | 高 | handoffs、guardrails、tool choice、structured output、developer 指令优先级 | `agent-guardrails-protocol` |
 | Gemini CLI / Code Assist docs | 官方文档 | 高 | ReAct loop、MCP、工具审批、上下文文件、计划模式 | 调度器/PM/DevOps 工具安全策略 |
-| Kimi / DeepSeek / MiniMax / GLM 文档 | 官方文档 | 中高 | 长上下文、tool loop、strict schema、thinking/tool 状态传递、兼容 API 注意事项 | `tech-researcher` 和 API/agent Skill 参考 |
+| Kimi / DeepSeek / MiniMax / GLM 文档 | 官方文档 | 中高 | 长上下文、tool loop、strict schema、thinking/tool 状态传递、兼容 API 注意事项 | `技术调研专家` 和 API/agent Skill 参考 |
 
 ## 跨来源高频模式
 

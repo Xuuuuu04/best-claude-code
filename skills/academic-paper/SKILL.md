@@ -31,7 +31,7 @@ Stage 3: 论文写作（Workflow 3）
   ├── Phase 3: 图表生成 paper-figure
   ├── Phase 4: 编译与格式检查 paper-compile
   ├── Phase 5: 内部审计（assurance 门控）
-  │   ├── 5.1 proof-checker（如有定理）
+  │   ├── 5.1 定理证明审计员（如有定理）
   │   ├── 5.5 paper-claim-audit（数字审计）
   │   └── 5.8 citation-audit（引用审计）
   └── Phase 6: 最终报告 Final Report

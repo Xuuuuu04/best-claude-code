@@ -32,6 +32,8 @@ _HOOK_MIN_PROFILE=(
   "subagent-start-mark:minimal"
   "permissionrequest-exit-plan-allow:minimal"
   "tool-failure-audit:minimal"
+  "orchestrator-edit-guard:standard"
+  "stop-quality-gate:standard"
   "scope-lock-guard:standard"
   "artifact-write-guard:standard"
   "post-edit-lint:standard"

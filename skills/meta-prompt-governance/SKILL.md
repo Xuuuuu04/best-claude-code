@@ -1,13 +1,13 @@
 ---
 name: meta-prompt-governance
-description: 元提示词治理协议。为 prompt-engineer 提供 drift 诊断、边界冲突分析和新增 agent 审批标准。
-when_to_use: 仅当 prompt-engineer Agent 在改 agent / skill / rule / output-style / hook 或诊断职责重叠 / dispatch 跑偏时加载。日常需求审查 / 代码审查 / 实现工作不应触发。
+description: 元提示词治理协议。为 Claude Code 工作流与提示词设计大师 提供 drift 诊断、边界冲突分析和新增 agent 审批标准。
+when_to_use: 仅当 Claude Code 工作流与提示词设计大师 Agent 在改 agent / skill / rule / output-style / hook 或诊断职责重叠 / dispatch 跑偏时加载。日常需求审查 / 代码审查 / 实现工作不应触发。
 ---
 
 <skill name="meta-prompt-governance">
 
 <overview>
-为 prompt-engineer 提供系统级的 drift 诊断、根因分类、新增 agent 审批门槛、变更优先级排序和回归检查方法。
+为 Claude Code 工作流与提示词设计大师 提供系统级的 drift 诊断、根因分类、新增 agent 审批门槛、变更优先级排序和回归检查方法。
 </overview>
 
 <drift-diagnosis>

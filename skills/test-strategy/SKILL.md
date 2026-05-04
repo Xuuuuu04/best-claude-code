@@ -1,7 +1,7 @@
 ---
 name: test-strategy
-description: 测试策略与方法论。为 functional-tester、visual-tester 和 implementer 提供测试分层、覆盖标准和边界构造方法。
-when_to_use: 当 implementer / tester 设计测试分层、决定单元/集成/e2e 比例、构造边界用例、补回归测试时；用户提"测试策略"、"测试金字塔"、"覆盖率"、"单元 vs 集成"、"补测试" 时自动加载。
+description: 测试策略与方法论。为 高级功能测试师、高级视觉测试师 和 实现工程师 提供测试分层、覆盖标准和边界构造方法。
+when_to_use: 当 实现工程师 / tester 设计测试分层、决定单元/集成/e2e 比例、构造边界用例、补回归测试时；用户提"测试策略"、"测试金字塔"、"覆盖率"、"单元 vs 集成"、"补测试" 时自动加载。
 ---
 
 <skill name="test-strategy">
@@ -213,7 +213,7 @@ it('should refund when order is cancelled', () => {
   <item>与设计稿或原始截图对比</item>
   <item>列出视觉差异</item>
 </checklist>
-<convention>如果没有 Playwright MCP，要求 implementer 提供截图并人工对比。</convention>
+<convention>如果没有 Playwright MCP，要求 实现工程师 提供截图并人工对比。</convention>
 </knowledge>
 
 <convention name="report-output">

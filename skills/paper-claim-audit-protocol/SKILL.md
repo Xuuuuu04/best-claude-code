@@ -1,9 +1,9 @@
 ---
 name: paper-claim-audit-protocol
 description: >
-  L3 论文数字审计协议。定义 paper-claim-auditor 的审计流程、检查清单和 verdict 格式。
+  L3 论文数字审计协议。定义 论文数字审计员 的审计流程、检查清单和 verdict 格式。
   核心原则：零上下文输入，只读取 .tex 和原始结果文件，独立判断数字精确性。
-  供 paper-claim-auditor Agent 引用。
+  供 论文数字审计员 Agent 引用。
 when_to_use: 当论文进入 Phase 5 内部审计、或需要验证论文数字与原始数据一致性时加载。
 ---
 
@@ -85,7 +85,7 @@ Rounding 规则不一致**不自动视为 FAIL**，需标注：
 
 ```json
 {
-  "audit_skill": "paper-claim-auditor",
+  "audit_skill": "论文数字审计员",
   "verdict": "PASS",
   "reason_code": "all_checks_passed",
   "summary": "审计了 23 个数字声明，全部与原始结果一致。",

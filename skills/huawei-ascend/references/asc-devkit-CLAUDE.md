@@ -44,7 +44,7 @@ cd build && ctest
 
 ## Agent 调度指引
 
-- **算子代码定位** → `repo-researcher` 扫 `examples/` + `impl/` + `include/`
+- **算子代码定位** → `代码库研究员` 扫 `examples/` + `impl/` + `include/`
 - **API 约束查询** → 先查 `impl/` 头文件 + `docs/`，再查 `include/` 公开 API
 - **错误样本构造** → 从 `tests/` 的 gtest 用例反推错误模式
 - **Sanitizer 演示** → `examples/01_simd_cpp_api/01_utilities/05_sanitizer/`

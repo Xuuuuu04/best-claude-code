@@ -3,7 +3,7 @@ name: remotion-development
 description: >
   Remotion 开发协议。React 组件化视频生成的最佳实践：
   项目结构、动画原语、渲染管线、多平台导出和性能优化。
-when_to_use: creative-media-producer 在代码实现和渲染阶段预加载。
+when_to_use: 多媒体内容生成师 在代码实现和渲染阶段预加载。
 ---
 
 <skill name="remotion-development">

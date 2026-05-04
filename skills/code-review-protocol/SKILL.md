@@ -1,7 +1,7 @@
 ---
 name: code-review-protocol
-description: 代码审查协议。为 code-reviewer 提供 scope 合规、契约一致性和可维护性检查清单。
-when_to_use: 仅当 code-reviewer Agent 在审查 implementer 产出的 impl-report 与 diff 时加载。implementer 自审、安全专项审查、架构审查不应触发。
+description: 代码审查协议。为 高级代码审查师 提供 scope 合规、契约一致性和可维护性检查清单。
+when_to_use: 仅当 高级代码审查师 Agent 在审查 实现工程师 产出的 impl-report 与 diff 时加载。实现工程师 自审、安全专项审查、架构审查不应触发。
 ---
 
 <skill name="code-review-protocol">
@@ -71,7 +71,7 @@ when_to_use: 仅当 code-reviewer Agent 在审查 implementer 产出的 impl-rep
   <trigger>某种测试反模式（如"mock 数据库掩盖了真问题"）</trigger>
 </memory-triggers>
 
-<write-path><file>$CLAUDE_PROJECT_DIR/.claude/agent-memory/code-reviewer/{short-title}.md</file>（先 <cmd>mkdir -p</cmd>）</write-path>
+<write-path><file>$CLAUDE_PROJECT_DIR/.claude/agent-memory/高级代码审查师/{short-title}.md</file>（先 <cmd>mkdir -p</cmd>）</write-path>
 
 <format-rule>3 句话能说清；超长拆多条；不确定不写；负向不记、具体到单文件不记、重复已有不记。单个 memory ≤ 30 行。无触发就不写。审查 memory 是冷数据，宁缺毋滥。</format-rule>
 </memory-protocol>

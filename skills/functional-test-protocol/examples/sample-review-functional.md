@@ -4,7 +4,7 @@ description: 标准 review-functional artifact 格式参考
 type: review-functional
 task_id: bug-20260425-03
 generated_at: 2026-04-25T15:10:00+0800
-产出者: functional-tester
+产出者: 高级功能测试师
 status: accepted
 关联:
   - requirements-bug-20260425-03.md
@@ -67,5 +67,5 @@ bug 复现历史：原报告"50+ 并发返回 502"。
 ## 下一步
 
 - 用户可以接收
-- 建议派 visual-tester（UI 上"登录失败"提示文案应统一） — 可选
-- test-lead 综合裁决
+- 建议派 高级视觉测试师（UI 上"登录失败"提示文案应统一） — 可选
+- 质量总监 综合裁决

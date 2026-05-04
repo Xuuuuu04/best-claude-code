@@ -158,7 +158,7 @@ git secrets --add-provider -- cat .git-secrets-patterns
 </rule>
 
 <rule name="review-checklist">
-  <requirement>security-auditor 审查 env 和 config 变更时必须逐项检查：</requirement>
+  <requirement>高级安全审计师 审查 env 和 config 变更时必须逐项检查：</requirement>
   <check>没有密钥硬编码</check>
   <check>.env 没有被提交到 git</check>
   <check>.env.example 已更新（新增变量时）</check>

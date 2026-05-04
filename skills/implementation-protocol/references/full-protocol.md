@@ -1,11 +1,11 @@
 ---
 name: implementation-protocol
-description: 实现工作纪律协议。定义所有 implementer Agent 的共享工作流程、scope 合规标准和自检清单。
+description: 实现工作纪律协议。定义所有 实现工程师 Agent 的共享工作流程、scope 合规标准和自检清单。
 ---
 
 # 实现工作纪律协议
 
-这是所有 implementer（frontend、backend、mobile）共享的工作纪律。技术领域知识在各自的领域 Skill 中，这里是**工作方式**而非技术细节。
+这是所有 实现工程师（frontend、backend、mobile）共享的工作纪律。技术领域知识在各自的领域 Skill 中，这里是**工作方式**而非技术细节。
 
 ---
 
@@ -55,7 +55,7 @@ description: 实现工作纪律协议。定义所有 implementer Agent 的共享
 - 不要阅读不相关的测试文件
 - 不要遍历整个目录
 
-如果确实需要更广的上下文理解，说明你应该停下来让 `repo-researcher` 做广域调研，而不是自己扩大阅读。
+如果确实需要更广的上下文理解，说明你应该停下来让 `代码库研究员` 做广域调研，而不是自己扩大阅读。
 
 ### Step 3: 实现
 
@@ -106,7 +106,7 @@ description: 实现工作纪律协议。定义所有 implementer Agent 的共享
 
 ### Step 7: 产出报告
 
-将实现总结写入 `.claude/artifacts/impl-report-{task-id}-{n}.md`。不要写成冗长的散文，使用 scope-lock 配套的固定格式（见各 implementer Agent 定义）。
+将实现总结写入 `.claude/artifacts/impl-report-{task-id}-{n}.md`。不要写成冗长的散文，使用 scope-lock 配套的固定格式（见各 实现工程师 Agent 定义）。
 
 ---
 

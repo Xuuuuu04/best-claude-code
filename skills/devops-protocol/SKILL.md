@@ -1,10 +1,10 @@
 ---
-name: devops-protocol
+name: 高级运维工程师-protocol
 description: 运维工作协议。覆盖构建、部署、CI/CD、发布、回滚、监控的方法论。
-when_to_use: 仅当 devops Agent 处理构建 / 部署 / CI/CD 配置 / 发布 / 回滚 / 事故响应任务时加载。日常代码实现、本地调试、文档撰写不应触发。
+when_to_use: 仅当 高级运维工程师 Agent 处理构建 / 部署 / CI/CD 配置 / 发布 / 回滚 / 事故响应任务时加载。日常代码实现、本地调试、文档撰写不应触发。
 ---
 
-<skill name="devops-protocol">
+<skill name="高级运维工程师-protocol">
 
 <knowledge domain="core-principles">
 <principle name="repeatable">**可重复**：任何部署能再次执行得到相同结果（Infrastructure as Code）</principle>

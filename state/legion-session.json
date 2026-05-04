@@ -1,0 +1,45 @@
+{
+  "task_id": "chore-20260504-statusline-dispatch-loop",
+  "session_id": "",
+  "tier": "small",
+  "phase": "done",
+  "intent": "Upgrade Agent Legion statusline active-agent tracking and DispatchTicket validation loop.",
+  "risk": "medium",
+  "executor": "main-fast-path",
+  "chosen_agents": [],
+  "required_gates": ["code", "functional", "verdict"],
+  "quality_strategy": "compressed",
+  "fast_path_reason": "Harness self-maintenance across shell hooks and docs with local deterministic verification.",
+  "user_override": "none",
+  "gate_status": {
+    "code": "pass",
+    "functional": "pass",
+    "verdict": "pass"
+  },
+  "evidence": {
+    "code": "bash -n statusline.sh hooks/subagent-start-mark.sh hooks/subagent-stop-log.sh hooks/clarification-gate.sh bin/validate-dispatch-ticket.sh",
+    "functional": "simulated SubagentStart/SubagentStop active JSON lifecycle, fallback cleanup, stale cleanup, COLUMNS=80/140 statusline rendering, and validator warning path",
+    "verdict": "bin/test-hook-flags.sh, bin/validate-rules.sh, bin/doctor.sh completed with no failures",
+    "impl_count": 1,
+    "review_count": 1
+  },
+  "understanding": {
+    "status": "clear",
+    "confidence": 0.92,
+    "unknowns": [],
+    "assumptions": [
+      "Active subagent UI state older than 6 hours is stale enough to clean by default.",
+      "specified_check is a valid final confirmation follow-up classification."
+    ],
+    "missing_assets": []
+  },
+  "reasoning_mode": "internal_summary",
+  "decision_summary": "Implemented JSON active-agent state, deterministic stop cleanup, compact two-line statusline, ticket validation, and final-confirmation protocol reminders.",
+  "iteration": {
+    "mode": "until_pass",
+    "round": 0,
+    "pass_condition": "Syntax checks, hook simulations, statusline render checks, and existing doctor/rule/hook tests pass."
+  },
+  "final_confirmation": "accepted",
+  "updated_at": "2026-05-04T14:43:00+0800"
+}

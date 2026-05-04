@@ -1,17 +1,17 @@
 ---
 name: architecture-review-protocol
-description: 架构审查协议。为 architecture-reviewer 提供 design 与 scope-lock 的可执行性审查清单。
-when_to_use: 仅当 architecture-reviewer Agent 在审查 architecture-* 或 scope-lock-* artifact 时加载。架构方案产出阶段（architect 在写）、代码审查阶段不应触发。
+description: 架构审查协议。为 高级架构审查师 提供 design 与 scope-lock 的可执行性审查清单。
+when_to_use: 仅当 高级架构审查师 Agent 在审查 architecture-* 或 scope-lock-* artifact 时加载。架构方案产出阶段（资深系统架构师 在写）、代码审查阶段不应触发。
 ---
 
 <skill name="architecture-review-protocol">
 
 <overview>
-确保 architecture 与 scope-lock 能稳定指导实现，而不是把歧义继续传给 implementer。
+确保 architecture 与 scope-lock 能稳定指导实现，而不是把歧义继续传给 实现工程师。
 </overview>
 
 <principles>
-  <principle priority="1">设计不能把歧义下放：下游 implementer 不应继续补需求</principle>
+  <principle priority="1">设计不能把歧义下放：下游 实现工程师 不应继续补需求</principle>
   <principle priority="2">scope-lock 是实现契约，不是提醒清单</principle>
   <principle priority="3">架构与范围必须一致：不能 architecture 说 A，scope-lock 写成 B</principle>
   <principle priority="4">可执行优于优雅：设计可以普通，但必须稳定可实现</principle>
@@ -35,7 +35,7 @@ when_to_use: 仅当 architecture-reviewer Agent 在审查 architecture-* 或 sco
     <item priority="critical">白名单与禁止事项都完整</item>
     <item priority="high">验证命令可运行</item>
     <item priority="high">完成标准可逐条勾选</item>
-    <item priority="medium">推荐 implementer 合理</item>
+    <item priority="medium">推荐 实现工程师 合理</item>
   </section>
 
   <section name="执行关系">

@@ -4,7 +4,7 @@ description: >
   Rebuttal 安全门控协议（ARIS Workflow 4 适配）。定义审稿意见回应的三道硬门控：
   Provenance Gate（出处）、Commitment Gate（承诺）、Coverage Gate（覆盖）。
   产出 PASTE_READY.txt（直接粘贴）和 REBUTTAL_DRAFT_rich.md（详细版）。
-  供 academic-paper-writer 在 Stage 4 Rebuttal 阶段引用。
+  供 学术论文写作专家 在 Stage 4 Rebuttal 阶段引用。
 when_to_use: 当用户提到 rebuttal、审稿意见回应、response letter、revision 时加载。
 ---
 
@@ -177,9 +177,9 @@ Response to Reviewer 2
 
 ---
 
-## 与 academic-paper-reviewer 的接口
+## 与 顶会顶刊审稿专家 的接口
 
-Rebuttal 起草完成后，可派 academic-paper-reviewer 审查：
+Rebuttal 起草完成后，可派 顶会顶刊审稿专家 审查：
 - 检查 rebuttal 是否充分回应了所有关切
 - 评估语气是否恰当
 - 验证承诺是否现实可行

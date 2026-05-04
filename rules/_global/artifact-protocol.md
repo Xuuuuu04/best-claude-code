@@ -21,45 +21,46 @@
       <table>
 | Type | 产出者 | 用途 |
 |:--|:--|:--|
-| `requirements` | product-analyst | 需求分析与 Task 拆分 |
-| `client-brief` | client | 客户需求整理与售后分类 |
-| `creative` | creative | 命名、Slogan、品牌方向提案 |
-| `dispatch` | pm | 单跳调度与状态变化记录 |
-| `architecture` | architect | 架构设计文档 |
-| `scope-lock` | scope-planner | 实现范围锁定（多个） |
-| `scope-plan` | scope-planner | scope-lock 执行依赖图与批次规划 |
-| `schema` | database-engineer | schema / migration 方案 |
-| `ml-report` | ml-engineer | 训练、评估、推理交付报告 |
-| `impl-report` | implementer-* | 实现报告 |
-| `review-requirements` | requirements-reviewer | 需求审查 |
-| `review-architecture` | architecture-reviewer | 架构审查 |
-| `review-code` | code-reviewer | 代码审查 |
-| `review-security` | security-auditor | 安全审计 |
-| `review-functional` | functional-tester | 功能测试报告 |
-| `review-visual` | visual-tester | 视觉测试报告 |
-| `verdict` | test-lead | 最终质量裁决 |
-| `doc` | doc-writer | 文档交付说明 |
-| `design` | visual-designer | 设计系统 / 视觉规范摘要 |
-| `prompt-governance` | prompt-engineer | 元治理变更记录 |
-| `deploy-report` | devops | 部署记录 |
-| `incident` | devops | 事故记录 |
-| `repo-research` | repo-researcher | 仓库研究报告 |
-| `tech-research` | tech-researcher | 技术调研报告 |
-| `init-analysis` | repo-researcher | `/bcc-init-project` 初始扫描 |
-| `update-analysis` | repo-researcher | `/bcc-update-project` 差异扫描 |
-| `evolve-audit` | repo-researcher / tech-researcher | `/bcc-evolve` 系统审计 |
+| `requirements` | 资深需求分析师 | 需求分析与 Task 拆分 |
+| `client-brief` | 客户需求整理师 | 客户需求整理与售后分类 |
+| `创意策划师` | 创意策划师 | 命名、Slogan、品牌方向提案 |
+| `dispatch` | 项目管理师 | 单跳调度与状态变化记录 |
+| `dispatch-ticket` | 调度器 | 当前任务的机读调度票据、风险、自适应质量门控 |
+| `architecture` | 资深系统架构师 | 架构设计文档 |
+| `scope-lock` | 资深范围规划师 | 实现范围锁定（多个） |
+| `scope-plan` | 资深范围规划师 | scope-lock 执行依赖图与批次规划 |
+| `schema` | 资深数据库工程师 | schema / migration 方案 |
+| `ml-report` | 机器学习工程师 | 训练、评估、推理交付报告 |
+| `impl-report` | 实现工程师-* | 实现报告 |
+| `review-requirements` | 高级需求审查师 | 需求审查 |
+| `review-architecture` | 高级架构审查师 | 架构审查 |
+| `review-code` | 高级代码审查师 | 代码审查 |
+| `review-security` | 高级安全审计师 | 安全审计 |
+| `review-functional` | 高级功能测试师 | 功能测试报告 |
+| `review-visual` | 高级视觉测试师 | 视觉测试报告 |
+| `verdict` | 质量总监 | 最终质量裁决 |
+| `doc` | 文档工程师 | 文档交付说明 |
+| `design` | 视觉设计专家 | 设计系统 / 视觉规范摘要 |
+| `prompt-governance` | Claude Code 工作流与提示词设计大师 | 元治理变更记录 |
+| `deploy-report` | 高级运维工程师 | 部署记录 |
+| `incident` | 高级运维工程师 | 事故记录 |
+| `repo-research` | 代码库研究员 | 仓库研究报告 |
+| `tech-research` | 技术调研专家 | 技术调研报告 |
+| `init-analysis` | 代码库研究员 | `/bcc-init-project` 初始扫描 |
+| `update-analysis` | 代码库研究员 | `/bcc-update-project` 差异扫描 |
+| `evolve-audit` | 代码库研究员 / 技术调研专家 | `/bcc-evolve` 系统审计 |
 | `evolve-proposals` | 调度器 | `/bcc-evolve` 进化提案 |
 | `evolve-log` | 调度器 | 进化历史累积文件 |
-| `review-content` | content-reviewer | 文档/创意内容审查 |
-| `review-research` | research-reviewer | 技术调研/仓库研究审查 |
-| `storyboard` | creative-media-producer | 分镜设计脚本 |
-| `media-impl` | creative-media-producer | 媒体实现报告（Remotion 项目结构） |
-| `media-render` | creative-media-producer | 渲染输出报告（MP4/GIF/静态图） |
-| `bid-proposal` | freelance-bidder | 外包项目报价提案 |
-| `career` | career-coach | 就业辅导产出（简历/面试/薪资） |
-| `audit-paper-claim` | paper-claim-auditor | L3 论文数字审计 |
-| `audit-citation` | citation-auditor | L4 引用审计 |
-| `audit-proof` | proof-checker | 定理与证明审计 |
+| `review-content` | 高级内容审查师 | 文档/创意内容审查 |
+| `review-research` | 高级调研审查师 | 技术调研/仓库研究审查 |
+| `storyboard` | 多媒体内容生成师 | 分镜设计脚本 |
+| `media-impl` | 多媒体内容生成师 | 媒体实现报告（Remotion 项目结构） |
+| `media-render` | 多媒体内容生成师 | 渲染输出报告（MP4/GIF/静态图） |
+| `bid-proposal` | 接单报价师 | 外包项目报价提案 |
+| `career` | 就业教练 | 就业辅导产出（简历/面试/薪资） |
+| `audit-paper-claim` | 论文数字审计员 | L3 论文数字审计 |
+| `audit-citation` | 引用审计员 | L4 引用审计 |
+| `audit-proof` | 定理证明审计员 | 定理与证明审计 |
       </table>
     </subsection>
 

@@ -230,8 +230,8 @@ CLAUDE.local.md
 - {环境依赖（如需要 VPN/特定数据库）}
 
 ### 推荐 Agent
-- 前端：implementer-frontend
-- 后端：implementer-backend
+- 前端：高级前端工程师
+- 后端：高级后端工程师
 - {如涉及特殊平台（小程序/ML/移动端），注明专项 Agent}
 
 </template-output>

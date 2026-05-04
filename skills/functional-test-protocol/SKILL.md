@@ -1,7 +1,7 @@
 ---
 name: functional-test-protocol
-description: 功能测试协议。为 functional-tester 提供验收标准验证、边界构造和回归检查步骤。
-when_to_use: 仅当 functional-tester Agent 在执行验收标准验证 / 边界场景 / 回归测试 / 端到端用户路径时加载。视觉测试 / 安全审查 / 代码审查不应触发。
+description: 功能测试协议。为 高级功能测试师 提供验收标准验证、边界构造和回归检查步骤。
+when_to_use: 仅当 高级功能测试师 Agent 在执行验收标准验证 / 边界场景 / 回归测试 / 端到端用户路径时加载。视觉测试 / 安全审查 / 代码审查不应触发。
 ---
 
 <skill name="functional-test-protocol">

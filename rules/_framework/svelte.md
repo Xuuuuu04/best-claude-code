@@ -100,7 +100,7 @@ export const actions = {
 
 <rule name="sveltekit-hooks">
   <convention>hooks.server.ts：服务端全局钩子（认证、日志）</convention>
-  <convention>hooks.client.ts：客户端全局钩子</convention>
+  <convention>hooks.客户需求整理师.ts：客户端全局钩子</convention>
   <convention>handle / handleError</convention>
 </rule>
 

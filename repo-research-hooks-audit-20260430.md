@@ -114,9 +114,9 @@
 ### review-gate.sh
 - **有效代码行数**：36
 - **触发**：UserPromptSubmit（第三位，在 intent-classify + clarification-gate 之后）
-- **功能**：检测本会话是否有 implementer 改动未过 code-reviewer，注入 `[REVIEW-PENDING]` 提示
+- **功能**：检测本会话是否有 实现工程师 改动未过 高级代码审查师，注入 `[REVIEW-PENDING]` 提示
 - **质量评级：A**
-- 优点：数据源清晰（subagent-events.jsonl）；仅看本 session_id 的事件；agent 类型匹配覆盖了所有 implementer 变体 + miniprogram-dev + database-engineer + ml-engineer + devops；只提示不 block
+- 优点：数据源清晰（subagent-events.jsonl）；仅看本 session_id 的事件；agent 类型匹配覆盖了所有 实现工程师 变体 + 小程序开发专家 + 资深数据库工程师 + 机器学习工程师 + 高级运维工程师；只提示不 block
 - 问题：
   1. `grep -F "\"session_id\":\"$SESSION_ID\""` 假设 JSONL 中 session_id 紧跟冒号后无空格——与 `jq -c` 输出一致，问题不大
 - **建议：保留**

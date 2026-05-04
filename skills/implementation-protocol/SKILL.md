@@ -1,7 +1,7 @@
 ---
 name: implementation-protocol
-description: 实现工作纪律协议。定义所有 implementer Agent 的 scope-lock 执行流程、越界处理和完成报告要求。
-when_to_use: 仅当 implementer-frontend / implementer-backend / implementer-mobile / miniprogram-dev / database-engineer 接到 scope-lock 任务时加载。code-reviewer / tester / 主会话调度阶段不应触发。
+description: 实现工作纪律协议。定义所有 实现工程师 Agent 的 scope-lock 执行流程、越界处理和完成报告要求。
+when_to_use: 仅当 高级前端工程师 / 高级后端工程师 / 高级移动端工程师 / 小程序开发专家 / 资深数据库工程师 接到 scope-lock 任务时加载。高级代码审查师 / tester / 主会话调度阶段不应触发。
 ---
 
 <skill name="implementation-protocol">
@@ -12,7 +12,7 @@ when_to_use: 仅当 implementer-frontend / implementer-backend / implementer-mob
 
 <boundaries>
   <boundary priority="critical">必须先完整读取 scope-lock，重点看：修改范围、禁止事项、接口契约、完成标准。</boundary>
-  <boundary priority="critical">只读取白名单文件及其直接类型/签名依赖；需要广域上下文时停止并请求 <agent>repo-researcher</agent>。</boundary>
+  <boundary priority="critical">只读取白名单文件及其直接类型/签名依赖；需要广域上下文时停止并请求 <agent>代码库研究员</agent>。</boundary>
   <boundary priority="critical">只修改白名单文件，不顺手修 bug、不重构相邻模块、不新增未来抽象。</boundary>
   <boundary priority="critical"><env>CLAUDE_LEGION_SCOPE_ALLOW</env> 启用时，白名单外 Edit/Write 会被 hook 拒绝；遇到 <error>scope-lock violation</error> 立即停止并在报告中说明需要扩展的原因。</boundary>
 </boundaries>
@@ -76,7 +76,7 @@ when_to_use: 仅当 implementer-frontend / implementer-backend / implementer-mob
 
 <targeted-revision mode="定向修订模式（驳回重做时）">
   <trigger>
-当实现被 code-reviewer 驳回且满足以下条件时，进入定向修订模式而非全面重做：
+当实现被 高级代码审查师 驳回且满足以下条件时，进入定向修订模式而非全面重做：
     <condition>scope-lock 涉及文件数 ≥ 3</condition>
     <condition>review-code 的严重/一般问题集中在 ≤ 2 个文件</condition>
   </trigger>

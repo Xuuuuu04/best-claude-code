@@ -24,7 +24,7 @@ disable-model-invocation: true
   <stat key="每个 Agent 的调用次数" />
   <stat key="各 Agent 的返回 token">IMPL_DONE / REVIEW_PASS / REVIEW_REJECT / TEST_PASS / TEST_BLOCKED / VERDICT_*</stat>
   <stat key="驳回和返工次数">REVIEW_REJECT 计数</stat>
-  <stat key="是否触发 redeliberation">code-reviewer 被同一 scope 调用 ≥2 次且返回 REJECT</stat>
+  <stat key="是否触发 redeliberation">高级代码审查师 被同一 scope 调用 ≥2 次且返回 REJECT</stat>
 </stats>
 </step>
 
@@ -43,7 +43,7 @@ disable-model-invocation: true
   <stat key="哪些 scope-lock 已 accepted" />
   <stat key="哪些 impl-report 已产出" />
   <stat key="最新的 review 和 verdict 结果" />
-  <stat key="reviewer 质量反馈段">test-lead 是否标记了漏审</stat>
+  <stat key="reviewer 质量反馈段">质量总监 是否标记了漏审</stat>
 </stats>
 </step>
 
@@ -58,17 +58,17 @@ disable-model-invocation: true
 <step id="2.1" title="逐 Agent 追问">
 对每个本会话中派遣过的 Agent，根据其活动和 token 结果构造追问：
 
-<question-template target="implementer" trigger="收到 IMPL_DONE">
+<question-template target="实现工程师" trigger="收到 IMPL_DONE">
 "本轮实现中是否遇到了 scope-lock 不精确的地方（需要额外摸索/猜测）？只答有/没有。"
 <follow-up condition="回答有">追问具体路径 + 原因 → 写入 agent-memory</follow-up>
 </question-template>
 
-<question-template target="code-reviewer" trigger="发出过 REVIEW_REJECT">
+<question-template target="高级代码审查师" trigger="发出过 REVIEW_REJECT">
 "本轮驳回的根因中，是否有跨 scope 通用的模式（如某类字段判断容易出错）？只答有/没有。"
 <follow-up condition="回答有">追问具体模式 → 写入 agent-memory</follow-up>
 </question-template>
 
-<question-template target="test-lead" trigger="发出过 VERDICT">
+<question-template target="质量总监" trigger="发出过 VERDICT">
 "本轮是否有 reviewer 漏审（reviewer PASS 但 tester 发现 [严重]/[一般]≥3）？"
 <follow-up condition="回答有">记录漏审 reviewer + 漏审项 → 写入 agent-memory</follow-up>
 </question-template>
@@ -84,10 +84,10 @@ disable-model-invocation: true
 以下场景<em>必须追问</em>，不可跳过：
 
 <triggers>
-  <trigger condition="同一 scope-lock REVIEW_REJECT ≥2 次" target="code-reviewer" question="驳回根因是否可复用" />
-  <trigger condition="implementer turns >50" target="implementer" question="摸索时间是否源于 scope-lock 不精确" />
-  <trigger condition="接口字段方向被 reviewer 揪出" target="implementer" question="是否已内化为检查项" />
-  <trigger condition="test-lead 判定 reviewer 漏审" target="该 reviewer" question="漏审原因，如何防止重复" />
+  <trigger condition="同一 scope-lock REVIEW_REJECT ≥2 次" target="高级代码审查师" question="驳回根因是否可复用" />
+  <trigger condition="实现工程师 turns >50" target="实现工程师" question="摸索时间是否源于 scope-lock 不精确" />
+  <trigger condition="接口字段方向被 reviewer 揪出" target="实现工程师" question="是否已内化为检查项" />
+  <trigger condition="质量总监 判定 reviewer 漏审" target="该 reviewer" question="漏审原因，如何防止重复" />
 </triggers>
 
 </step>
@@ -240,7 +240,7 @@ disable-model-invocation: true
   <scope type="修改 Skill" condition="≥3 条相关 feedback" constraint="保持 SKILL.md ≤500 行；长内容进 references" />
   <scope type="新 Skill" condition="≥3 次同一类问题未被现有 Skill 覆盖" constraint="遵守 skill-architecture-standard" />
   <scope type="Agent 升级（改 prompt/tools/skills）" condition="基于明确的认知缺口" constraint="不改变 Agent 的核心认知模式" />
-  <scope type="新增 Agent" condition="基于现有 25 Agent 无法覆盖的认知模式" constraint="极高门槛：必须证明旧角色无法覆盖、非按技术栈加人" />
+  <scope type="新增 Agent" condition="基于现有 38 Agent 无法覆盖的认知模式" constraint="极高门槛：必须证明旧角色无法覆盖、非按技术栈加人" />
   <scope type="dispatch-table 优化" condition="基于调度失误的 pattern" constraint="不破坏现有门控条件" />
 </upgrade-scope>
 </step>

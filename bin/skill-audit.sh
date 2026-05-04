@@ -69,6 +69,34 @@ SCAFFOLDING_PATTERNS=(
   "千万不要忘记"
 )
 
+extract_frontmatter_description() {
+  local file="$1"
+  awk '
+    /^---$/ {
+      if (!in_fm) { in_fm = 1; next }
+      exit
+    }
+    !in_fm { next }
+    collecting {
+      if ($0 ~ /^[A-Za-z0-9_-]+:/) { exit }
+      line = $0
+      sub(/^[[:space:]]+/, "", line)
+      if (length(line) > 0) { print line }
+      next
+    }
+    /^description:[[:space:]]*/ {
+      val = $0
+      sub(/^description:[[:space:]]*/, "", val)
+      if (val == ">" || val == "|") {
+        collecting = 1
+        next
+      }
+      print val
+      exit
+    }
+  ' "$file" | tr '\n' ' '
+}
+
 # ─────────────────────────────────────────────────────────────
 # 审计单个 Skill
 # ─────────────────────────────────────────────────────────────
@@ -98,7 +126,7 @@ audit_skill() {
 
   # ── 2. description 字符数 ──
   local desc
-  desc="$(awk '/^---$/{f=!f; next} f && /^description:/{sub(/^description: */, ""); print}' "$skill_md" | head -1)"
+  desc="$(extract_frontmatter_description "$skill_md")"
   local desc_len=${#desc}
   local desc_status=""
   if [[ "$desc_len" -gt "$DESC_HARD_MAX" ]]; then
@@ -199,7 +227,7 @@ echo "─── Agent description 字符数检查 ───"
 agent_warn=0
 for f in "$LEGION_DIR/agents"/*.md; do
   [[ -f "$f" ]] || continue
-  local_desc="$(awk '/^---$/{f=!f; next} f && /^description:/{getline; while ($0 !~ /^[a-z]+:/) {print; getline}}' "$f" | head -3 | tr -d '\n')"
+  local_desc="$(extract_frontmatter_description "$f")"
   local_desc_len=${#local_desc}
   if [[ "$local_desc_len" -gt "$DESC_HARD_MAX" ]]; then
     echo "❌ $(basename "$f" .md): description $local_desc_len 字符 > 1536"

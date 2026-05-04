@@ -36,7 +36,7 @@
         <list>
           <item>所有强制审计<strong>必须</strong>发出裁决（六级之一）</item>
           <item>禁止静默跳过</item>
-          <item>test-lead 裁决前调用 <cmd>bin/verify-artifacts.sh</cmd>；非零退出阻塞 verdict</item>
+          <item>质量总监 裁决前调用 <cmd>bin/verify-artifacts.sh</cmd>；非零退出阻塞 verdict</item>
           <item>最终 verdict 标记 <code>submission-ready: yes/no</code></item>
           <item>适用于：交付/上线/投稿/客户验收</item>
         </list>
@@ -81,7 +81,7 @@
       每项强制审计必须写入 JSON artifact（可附带 Markdown 人类可读版本），至少包含：
       <code-block language="json"><![CDATA[
 {
-  "audit_skill": "code-reviewer",
+  "audit_skill": "高级代码审查师",
   "verdict": "PASS",
   "reason_code": "all_checks_passed",
   "summary": "审查了 5 个文件，无安全问题。",
@@ -100,11 +100,11 @@
 
   <section id="subskill-contract">
     <requirement>
-      子审计 Skill（code-reviewer、security-auditor 等）遵循"Always Emit, Never Block"合约：
+      子审计 Skill（高级代码审查师、高级安全审计师 等）遵循"Always Emit, Never Block"合约：
       <list>
         <item>始终发出 verdict artifact，即使检测器阴性或出错</item>
         <item>自身不阻塞父流程 — 仅发出裁决</item>
-        <item>阻塞决策集中在单一位置：test-lead 的 assurance 判断 + verify-artifacts.sh</item>
+        <item>阻塞决策集中在单一位置：质量总监 的 assurance 判断 + verify-artifacts.sh</item>
       </list>
     </requirement>
   </section>

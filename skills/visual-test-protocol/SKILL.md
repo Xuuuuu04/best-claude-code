@@ -1,7 +1,7 @@
 ---
 name: visual-test-protocol
-description: 视觉测试协议。为 visual-tester 提供截图、视觉回归和关键交互验证方法。
-when_to_use: 仅当 visual-tester Agent 在验证用户可见 UI 变更时加载（含截图、视觉回归、关键交互、暗色模式）。纯后端 / 接口 / 配置变更不应触发。
+description: 视觉测试协议。为 高级视觉测试师 提供截图、视觉回归和关键交互验证方法。
+when_to_use: 仅当 高级视觉测试师 Agent 在验证用户可见 UI 变更时加载（含截图、视觉回归、关键交互、暗色模式）。纯后端 / 接口 / 配置变更不应触发。
 ---
 
 <skill name="visual-test-protocol">
@@ -17,10 +17,10 @@ when_to_use: 仅当 visual-tester Agent 在验证用户可见 UI 变更时加载
 </principles>
 
 <boundary-with-functional-test>
-  <responsibility agent="visual-tester">可见性、布局、状态切换的视觉差异、暗色模式、响应式</responsibility>
-  <responsibility agent="functional-tester">功能行为正确性、API 联通、权限控制</responsibility>
+  <responsibility agent="高级视觉测试师">可见性、布局、状态切换的视觉差异、暗色模式、响应式</responsibility>
+  <responsibility agent="高级功能测试师">功能行为正确性、API 联通、权限控制</responsibility>
   <overlap-scenario name="可见但不可达的按钮">
-视觉报"按钮显示正确"，功能报"点击无效"。两份证据各自独立，由 test-lead 合并裁决。
+视觉报"按钮显示正确"，功能报"点击无效"。两份证据各自独立，由 质量总监 合并裁决。
   </overlap-scenario>
 </boundary-with-functional-test>
 

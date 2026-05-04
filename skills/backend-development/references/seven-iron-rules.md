@@ -7,9 +7,9 @@
 > - 《Patterns of Enterprise Application Architecture》Martin Fowler
 > - Google SRE Handbook
 >
-> 本文档保留方法论与"7 Iron Rules"原则，已根据 Agent Legion implementer-backend 工作流改写。
+> 本文档保留方法论与"7 Iron Rules"原则，已根据 Agent Legion 高级后端工程师 工作流改写。
 
-适用：implementer-backend 在搭建新服务、改造既有服务、code review 时。
+适用：高级后端工程师 在搭建新服务、改造既有服务、code review 时。
 
 ---
 

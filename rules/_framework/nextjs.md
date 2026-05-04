@@ -20,10 +20,10 @@ paths:
   <convention>Pages Router 仍被支持但不再扩展新特性</convention>
 </rule>
 
-<rule name="nextjs-server-vs-client-components">
+<rule name="nextjs-server-vs-客户需求整理师-components">
   <description>默认 Server Component</description>
   <convention>Server Component：可直接访问数据库、文件系统；不含事件处理、hooks（useState 等）；更小 bundle</convention>
-  <convention>"use client" 标记 Client Component：交互、状态、effect；放在叶子节点（而非整棵树）</convention>
+  <convention>"use 客户需求整理师" 标记 Client Component：交互、状态、effect；放在叶子节点（而非整棵树）</convention>
   <convention>原则：能用 Server Component 就用，尽量把客户端状态推到叶子。</convention>
 </rule>
 
@@ -122,7 +122,7 @@ export async function createPost(formData: FormData) {
 <rule name="nextjs-anti-patterns">
   <constraint severity="blocker">把 fetch 放 Client Component（触发 CORS、暴露 API）</constraint>
   <constraint severity="blocker">Server Action 不做鉴权</constraint>
-  <constraint severity="warning">大组件不 use client 分离</constraint>
+  <constraint severity="warning">大组件不 use 客户需求整理师 分离</constraint>
   <constraint severity="blocker">在 Server Component 用 useState（不存在）</constraint>
   <constraint severity="blocker">getServerSideProps / getStaticProps 与 App Router 混用</constraint>
 </rule>

@@ -20,8 +20,8 @@ when_to_use: >
 ## 何时追踪
 
 每次以下 Agent 完成审查后：
-- code-reviewer、security-auditor、functional-tester、visual-tester
-- academic-paper-reviewer、research-reviewer、content-reviewer
+- 高级代码审查师、高级安全审计师、高级功能测试师、高级视觉测试师
+- 顶会顶刊审稿专家、高级调研审查师、高级内容审查师
 
 不追踪：纯信息性调用（非审查功能）。
 
@@ -37,7 +37,7 @@ when_to_use: >
         └── 001-{purpose}.meta.json
 ```
 
-- `{agent-name}`：触发审查的 Agent 名称（如 `code-reviewer`）
+- `{agent-name}`：触发审查的 Agent 名称（如 `高级代码审查师`）
 - `{YYYY-MM-DD}_run{NN}`：日期 + 序号（从 01 开始）
 - `{purpose}`：短 kebab-case 标签（如 `scope-lock-review`、`security-audit`）
 
@@ -46,10 +46,10 @@ when_to_use: >
 ### run.meta.json
 ```json
 {
-  "agent": "code-reviewer",
+  "agent": "高级代码审查师",
   "run_id": "2026-05-01_run01",
   "started_at": "2026-05-01T14:30:00+08:00",
-  "executor": "implementer-frontend",
+  "executor": "高级前端工程师",
   "task_id": "feat-20260501-01"
 }
 ```

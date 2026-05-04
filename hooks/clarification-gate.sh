@@ -1,10 +1,11 @@
 #!/bin/bash
 # clarification-gate.sh — Agent Legion Router · 需求澄清门
-# 触发：UserPromptSubmit hook（同事件上游是 intent-classify.sh）
+# 触发：UserPromptSubmit hook（在 review-gate 之前）
 #
 # 目的：
-#   拦截"模糊 / 转述 / 缺关键信息"的请求，给出 3-5 个精准追问。
-#   避免主会话"假设性推进"导致改错方向。
+#   1. 缺截图/图片/日志/目标环境等关键资产时硬拦截。
+#   2. 普通模糊需求不粗暴拦截，而是注入 UNDERSTANDING-CHECK，要求主会话先理解自检并 AskUserQuestion。
+#   3. 用户明确 bypass 时回放原始请求，并要求主会话记录 assumptions。
 #
 # 设计原则（极度保守，避免骚扰）：
 #   1. 只对明确的"unclear"信号 block；medium/large 即便信号少也放行
@@ -14,6 +15,7 @@
 #
 # 返回：
 #   block 时：{"decision":"block","reason":"追问文本"}
+#   soft 时：hookSpecificOutput.additionalContext
 #   放行时：exit 0（无输出）
 
 set -uo pipefail
@@ -72,24 +74,34 @@ for p in "${BYPASS_PATTERNS[@]}"; do
   fi
 done
 
-# ─── 放行条件：已提供足够信息 ───────────────────────────────────────────────
+# ─── 理解检查：资产、路径、代码、模糊信号 ───────────────────────────────────
 
-# 长 prompt（用户已在努力描述）
-if [ "$LEN" -ge 500 ]; then
-  exit 0
+HAS_ATTACHMENT=0
+if command -v jq >/dev/null 2>&1; then
+  ATTACH_COUNT="$(echo "$INPUT" | jq '[.attachments[]?, .images[]?, .files[]?, .pastedContents[]?] | length' 2>/dev/null || echo 0)"
+  [ "${ATTACH_COUNT:-0}" -gt 0 ] && HAS_ATTACHMENT=1
 fi
 
-# 含文件路径、代码片段、错误堆栈 → 放行
-if echo "$PROMPT" | grep -qE '\.[a-z]{1,5}[^a-z]|src/|/src|\\\\.*\\\\|file:|error:|exception|at \w+\.|line [0-9]+'; then
-  exit 0
+HAS_PATH_OR_CODE=0
+if echo "$PROMPT" | grep -qE '\.[a-z]{1,5}[^a-z]|src/|/src|\\\\.*\\\\|file:|error:|exception|at \w+\.|line [0-9]+|```|^[[:space:]]{2,}[a-zA-Z]|L[0-9]+|:[0-9]+:'; then
+  HAS_PATH_OR_CODE=1
 fi
 
-# 含代码块 / 行号引用
-if echo "$PROMPT" | grep -qE '```|^[[:space:]]{2,}[a-zA-Z]|L[0-9]+|:[0-9]+:'; then
-  exit 0
+MISSING_ASSET=0
+ASSET_KIND=""
+if echo "$NORMALIZED" | grep -qE '截图|图片|图里|这张图|设计稿|原图|附件|看图|圈出|参考图|海报|照片'; then
+  if [ "$HAS_ATTACHMENT" -eq 0 ] && [ "$HAS_PATH_OR_CODE" -eq 0 ]; then
+    MISSING_ASSET=1
+    ASSET_KIND="截图/图片/设计稿"
+  fi
+fi
+if echo "$NORMALIZED" | grep -qE '报错|错误|崩溃|启动不了|接口不通|访问不到|失败日志|日志'; then
+  if [ "$HAS_PATH_OR_CODE" -eq 0 ] && ! echo "$NORMALIZED" | grep -qE 'error|exception|failed|stack|404|500|403|401'; then
+    MISSING_ASSET=1
+    ASSET_KIND="${ASSET_KIND:-错误日志/复现信息}"
+  fi
 fi
 
-# ─── Unclear 触发模式（必须明确有"转述/模糊"信号才 block） ────────────────
 UNCLEAR_PATTERNS=(
   '客户说' '客户发' '客户反馈' '客户给我' '客户方' '甲方'
   '他说' '他们说' '对方说' '他要我'
@@ -98,6 +110,7 @@ UNCLEAR_PATTERNS=(
   '帮我看看' '瞅瞅' '看一下.*情况'
   '搞一下' '弄一下' '整一下' '处理一下'
   '随便.*改改' '大概.*这样'
+  '优化一下' '改善一下' '体验.*不好' '质量.*不行'
 )
 
 UNCLEAR_HIT=0
@@ -109,12 +122,10 @@ for p in "${UNCLEAR_PATTERNS[@]}"; do
   fi
 done
 
-# 低于阈值放行（单个弱信号不 block）
-if [ "$UNCLEAR_HIT" -lt 1 ]; then
+# 信息充分且无模糊信号 → 放行
+if [ "$MISSING_ASSET" -eq 0 ] && [ "$UNCLEAR_HIT" -lt 1 ]; then
   exit 0
 fi
-
-# ─── 构造精准追问（根据信号类型定制问题） ───────────────────────────────────
 
 # 检测任务领域线索
 DOMAIN_HINT=""
@@ -132,10 +143,9 @@ elif echo "$NORMALIZED" | grep -qE '前端|ui|页面|样式|css|frontend'; then
   DOMAIN_HINT="frontend"
 fi
 
-# 通用问题
-Q_COMMON='1. 发生位置：线上 / staging / 本地开发环境？
-2. 能提供错误日志、截图、或最小复现步骤吗？
-3. 期待的正确行为是什么？（一句话即可）'
+Q_COMMON='1. 目标：你希望最终变成什么状态？（一句话即可）
+2. 证据：请提供截图/日志/复现步骤中最关键的一项。
+3. 验收：做到什么程度算通过？'
 
 # 领域专项问题（加在通用之前）
 case "$DOMAIN_HINT" in
@@ -163,6 +173,9 @@ case "$DOMAIN_HINT" in
 esac
 
 REASON=$'⚠️ Clarification Gate — 信息不足以开工\n\n检测到模糊/转述信号，为避免改错方向，请先回答：\n\n'
+if [ "$MISSING_ASSET" -eq 1 ]; then
+  REASON=$'⚠️ Clarification Gate — 缺少关键资产\n\n当前请求提到了 '"$ASSET_KIND"$'，但消息里没有可用附件、路径或日志。请先补充：\n\n'
+fi
 if [ -n "$Q_DOMAIN" ]; then
   REASON+="$Q_DOMAIN"$'\n'
 fi
@@ -177,24 +190,35 @@ LOG_FILE="$LOG_DIR/clarification-gate.jsonl"
 TS="$(date +%Y-%m-%dT%H:%M:%S%z)"
 PROMPT_PREVIEW="$(echo "$PROMPT" | head -c 200 | tr '\n' ' ')"
 
+ACTION="context"
+[ "$MISSING_ASSET" -eq 1 ] && ACTION="block"
+
 if command -v jq >/dev/null 2>&1; then
   jq -c -n --arg ts "$TS" --arg sig "$MATCHED_SIGNAL" --arg dom "$DOMAIN_HINT" \
-           --arg preview "$PROMPT_PREVIEW" --argjson hits "$UNCLEAR_HIT" \
-    '{timestamp:$ts, action:"block", signal:$sig, domain:$dom, hits:$hits, preview:$preview}' \
+           --arg preview "$PROMPT_PREVIEW" --arg action "$ACTION" --arg asset "$ASSET_KIND" \
+           --argjson hits "$UNCLEAR_HIT" \
+    '{timestamp:$ts, action:$action, signal:$sig, domain:$dom, missing_asset:$asset, hits:$hits, preview:$preview}' \
     >> "$LOG_FILE" 2>/dev/null || true
-
-  # 落盘 pending：bypass 时回放给 AI
-  jq -c -n --arg p "$PROMPT" --argjson ts "$(date +%s)" \
-    '{prompt:$p, timestamp:$ts}' > "$PENDING_FILE" 2>/dev/null || true
 fi
 
-# ─── 返回 block 决策 ───────────────────────────────────────────────────────
-if command -v jq >/dev/null 2>&1; then
-  jq -c -n --arg reason "$REASON" \
-    '{decision:"block", reason:$reason, hookSpecificOutput:{hookEventName:"UserPromptSubmit", additionalContext:"[CLARIFICATION-GATE] blocked; user must provide more detail or say '"'"'直接做'"'"' to bypass"}}'
-else
-  # 无 jq 降级：直接 plain stdout + exit 0（退回放行，因为无法正确构造 block JSON）
+if [ "$MISSING_ASSET" -eq 1 ]; then
+  # 落盘 pending：bypass 时回放给 AI
+  if command -v jq >/dev/null 2>&1; then
+    jq -c -n --arg p "$PROMPT" --argjson ts "$(date +%s)" \
+      '{prompt:$p, timestamp:$ts}' > "$PENDING_FILE" 2>/dev/null || true
+  fi
+  if command -v jq >/dev/null 2>&1; then
+    jq -c -n --arg reason "$REASON" \
+      '{decision:"block", reason:$reason, hookSpecificOutput:{hookEventName:"UserPromptSubmit", additionalContext:"[CLARIFICATION-GATE] blocked: missing asset; user must provide asset or say 直接做 to bypass"}}'
+  fi
   exit 0
+fi
+
+# ─── 普通模糊：不硬拦，注入理解检查上下文 ───────────────────────────────────
+if command -v jq >/dev/null 2>&1; then
+  CTX=$'[UNDERSTANDING-CHECK] 本轮用户输入含模糊/转述/验收不明信号。主会话必须先做理解自检：目标、对象、证据资产、验收标准、不确定点。若关键缺口会改变执行路径，先调用 AskUserQuestion；若低风险且用户允许自行处理，写入 DispatchTicket.understanding.assumptions 后再推进。不要输出原始思维链，只输出理解摘要和可选项。'
+  jq -c -n --arg ctx "$CTX" \
+    '{hookSpecificOutput:{hookEventName:"UserPromptSubmit", additionalContext:$ctx}}'
 fi
 
 exit 0

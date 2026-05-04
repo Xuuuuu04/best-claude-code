@@ -5,9 +5,9 @@
 > - Apple Human Interface Guidelines（公开文档）
 > - Apple Developer Documentation（公开文档）
 >
-> 本文档保留方法论结构，已根据 Agent Legion 的 implementer-mobile 工作流改写。Swift / SwiftUI / UIKit / SF Symbols 是 Apple Inc. 商标。
+> 本文档保留方法论结构，已根据 Agent Legion 的 高级移动端工程师 工作流改写。Swift / SwiftUI / UIKit / SF Symbols 是 Apple Inc. 商标。
 
-适用：implementer-mobile 接到 iOS 任务时。
+适用：高级移动端工程师 接到 iOS 任务时。
 
 ---
 

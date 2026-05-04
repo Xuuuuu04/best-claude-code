@@ -1,13 +1,13 @@
 ---
 name: design-system-protocol
-description: 设计系统协议。为 visual-designer 提供 token 体系、组件状态矩阵、布局规则和 A11y 校验框架。
-when_to_use: 仅当 visual-designer Agent 在做 design tokens / 组件规范 / 布局规则 / 暗色模式 / A11y 设计基线时加载。视觉测试（visual-tester）和前端实现（implementer-frontend）不应触发。
+description: 设计系统协议。为 视觉设计专家 提供 token 体系、组件状态矩阵、布局规则和 A11y 校验框架。
+when_to_use: 仅当 视觉设计专家 Agent 在做 design tokens / 组件规范 / 布局规则 / 暗色模式 / A11y 设计基线时加载。视觉测试（高级视觉测试师）和前端实现（高级前端工程师）不应触发。
 ---
 
 <skill name="design-system-protocol">
 
 <identity>
-与本目录 `visual-design-protocol` 的关系：本协议负责**token 工程**（数学关系、A11y 对比度、组件状态矩阵）。审美方向（气质、情绪、差异化）由 `visual-design-protocol` 负责。两者互补：visual-design-protocol 定调子，本协议定数值。前端实现时，implementer-frontend 加载 visual-design-protocol，visual-designer 加载本协议。
+与本目录 `visual-design-protocol` 的关系：本协议负责**token 工程**（数学关系、A11y 对比度、组件状态矩阵）。审美方向（气质、情绪、差异化）由 `visual-design-protocol` 负责。两者互补：visual-design-protocol 定调子，本协议定数值。前端实现时，高级前端工程师 加载 visual-design-protocol，视觉设计专家 加载本协议。
 </identity>
 
 <knowledge domain="token-hierarchy">

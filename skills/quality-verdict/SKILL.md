@@ -1,7 +1,7 @@
 ---
 name: quality-verdict
-description: 最终质量裁决协议。为 test-lead 提供功能 / 视觉 / 安全三证据流的综合判断方法。
-when_to_use: 仅当 test-lead Agent 在里程碑 / 上线前裁决（PASS / CONDITIONAL PASS / BLOCKED）时加载。单一阶段测试报告产出（functional-tester / visual-tester / security-auditor）不应触发。
+description: 最终质量裁决协议。为 质量总监 提供功能 / 视觉 / 安全三证据流的综合判断方法。
+when_to_use: 仅当 质量总监 Agent 在里程碑 / 上线前裁决（PASS / CONDITIONAL PASS / BLOCKED）时加载。单一阶段测试报告产出（高级功能测试师 / 高级视觉测试师 / 高级安全审计师）不应触发。
 ---
 
 <skill name="quality-verdict">
@@ -50,7 +50,7 @@ when_to_use: 仅当 test-lead Agent 在里程碑 / 上线前裁决（PASS / COND
     <item>CONDITIONAL PASS：审计累计 WARN ≥3 但无 FAIL，或审稿人 Borderline 但无严重</item>
     <item>BLOCKED：任一审计 FAIL / 审稿人 REJECT 含严重 / 关键证据缺失</item>
   </list>
-  <note>学术项目的裁决不由单一 reviewer 决定，test-lead 需综合审计 verdict + 审稿 verdict + assurance 等级做最终判断。</note>
+  <note>学术项目的裁决不由单一 reviewer 决定，质量总监 需综合审计 verdict + 审稿 verdict + assurance 等级做最终判断。</note>
 </academic-verdict-rules>
 
 <output-requirements>

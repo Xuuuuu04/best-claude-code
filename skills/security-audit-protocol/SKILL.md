@@ -1,7 +1,7 @@
 ---
 name: security-audit-protocol
-description: 安全审计协议（流程总纲）。为 security-auditor 提供专项审查步骤、证据收集和 verdict 模板。聚焦"如何做安全审查"，含 OWASP Top 10 检查细则（references/checklist.md）。
-when_to_use: 仅当 security-auditor Agent 在执行专项安全审查（认证 / 授权 / 输入验证 / 敏感数据 / 依赖风险 / 日志泄露）时加载。code-reviewer 一般审查 / functional-tester 不应触发。
+description: 安全审计协议（流程总纲）。为 高级安全审计师 提供专项审查步骤、证据收集和 verdict 模板。聚焦"如何做安全审查"，含 OWASP Top 10 检查细则（references/checklist.md）。
+when_to_use: 仅当 高级安全审计师 Agent 在执行专项安全审查（认证 / 授权 / 输入验证 / 敏感数据 / 依赖风险 / 日志泄露）时加载。高级代码审查师 一般审查 / 高级功能测试师 不应触发。
 ---
 
 <skill name="security-audit-protocol">

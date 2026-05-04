@@ -33,6 +33,7 @@ IFS=$'\n\t'
 # 注意：脚本顶部设置了 IFS=$'\n\t'，空格不再是分隔符，故用数组展开
 VALID_TYPES=(
   requirements client-brief creative dispatch
+  dispatch-ticket
   architecture scope-lock scope-plan schema
   ml-report impl-report
   review-requirements review-architecture review-code

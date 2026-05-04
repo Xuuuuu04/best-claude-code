@@ -1,10 +1,10 @@
 ---
 name: freelance-bid-protocol
 description: >
-  接单报价协议。为 freelance-bidder 提供外包项目的工时估算、风险评估、
+  接单报价协议。为 接单报价师 提供外包项目的工时估算、风险评估、
   报价策略、提案撰写和合同条款审查清单。基于2026年外包市场调研数据。
 when_to_use: >
-  仅当 freelance-bidder Agent 在评估外包项目报价时加载。
+  仅当 接单报价师 Agent 在评估外包项目报价时加载。
   不适用于全职薪资谈判、内部项目估算、学术研究报价。
 ---
 

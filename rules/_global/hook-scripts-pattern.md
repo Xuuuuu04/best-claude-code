@@ -185,7 +185,7 @@ rm -rf "$TEST_DIR"
 
   <section id="review-checklist">
     <requirement>
-      <agent>code-reviewer</agent> 与 <agent>security-auditor</agent> 在审查 hook 脚本修改时，除了通用代码审查，还要对照本规范：
+      <agent>高级代码审查师</agent> 与 <agent>高级安全审计师</agent> 在审查 hook 脚本修改时，除了通用代码审查，还要对照本规范：
       <checklist>
         <check id="hook-shebang">脚本头部是 <code>set -uo pipefail</code>，没有单独的 <code>set -e</code></check>
         <check id="hook-defensive">每个 git / jq / 外部命令都有容错</check>

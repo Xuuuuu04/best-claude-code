@@ -130,6 +130,16 @@ if [ -f "$SETTINGS_PATH" ]; then
   else
     warn "PreToolUse 未启用 scope-lock-guard（文档与默认配置不一致）"
   fi
+  if grep -q "orchestrator-edit-guard.sh" "$SETTINGS_PATH" 2>/dev/null; then
+    pass "PreToolUse 已启用 orchestrator-edit-guard"
+  else
+    warn "PreToolUse 未启用 orchestrator-edit-guard（主会话可能越权改业务文件）"
+  fi
+  if grep -q "stop-quality-gate.sh" "$SETTINGS_PATH" 2>/dev/null; then
+    pass "Stop 已启用 stop-quality-gate"
+  else
+    warn "Stop 未启用 stop-quality-gate（可能无证据收工）"
+  fi
 fi
 
 # ── 3. Agents ──────────────────────────────────────────────────────────────
@@ -167,31 +177,29 @@ for f in "$LEGION_DIR"/agents/*.md; do
   MODE="$(awk '/^---$/{c++; if(c==2)exit; next} c==1 && /^permissionMode:/ {sub(/^permissionMode:[[:space:]]*/, ""); print; exit}' "$f")"
   MEMORY_SCOPE="$(awk '/^---$/{c++; if(c==2)exit; next} c==1 && /^memory:/ {sub(/^memory:[[:space:]]*/, ""); print; exit}' "$f")"
   case "$BASENAME" in
-    client|creative|repo-researcher|tech-researcher|product-analyst|requirements-reviewer|pm|architect|scope-planner|architecture-reviewer|code-reviewer|security-auditor|functional-tester|visual-tester|test-lead|doc-writer|visual-designer|prompt-engineer)
+    客户需求整理师|创意策划师|代码库研究员|技术调研专家|资深需求分析师|高级需求审查师|项目管理师|资深系统架构师|资深范围规划师|高级架构审查师|高级代码审查师|高级安全审计师|高级功能测试师|高级视觉测试师|质量总监|文档工程师|视觉设计专家|Claude\ Code\ 工作流与提示词设计大师)
       if [ "$MODE" = "bypassPermissions" ]; then
         warn "agents/$BASENAME.md 使用 bypassPermissions（建议收紧）"
       fi
       ;;
-    implementer-frontend|implementer-backend|implementer-mobile|miniprogram-dev|database-engineer|ml-engineer)
+    高级前端工程师|高级后端工程师|高级移动端工程师|高级桌面应用工程师|小程序开发专家|资深数据库工程师|机器学习工程师|仓颉语言开发专家|华为昇腾开发专家|多媒体内容生成师)
       if [ "$MODE" = "bypassPermissions" ]; then
         warn "agents/$BASENAME.md 使用 bypassPermissions（建议改为 acceptEdits）"
       fi
       ;;
-    devops)
+    高级运维工程师)
       if [ "$MODE" = "bypassPermissions" ]; then
         warn "agents/$BASENAME.md 使用 bypassPermissions（高风险）"
       fi
       ;;
   esac
 
-  if printf '%s\n' "$BASENAME" | grep -Eq '^(client|creative|product-analyst|requirements-reviewer|pm|architect|scope-planner|architecture-reviewer|code-reviewer|security-auditor|functional-tester|visual-tester|test-lead|repo-researcher|tech-researcher|doc-writer|visual-designer|prompt-engineer|database-engineer|ml-engineer|miniprogram-dev)$'; then
-    if ! grep -q "^tools: .*Edit" "$f" 2>/dev/null || ! grep -q "^tools: .*Write" "$f" 2>/dev/null; then
-      fail "agents/$BASENAME.md 缺 Edit/Write，无法落盘 artifact"
-    fi
+  if ! grep -q "^tools: .*Edit" "$f" 2>/dev/null || ! grep -q "^tools: .*Write" "$f" 2>/dev/null; then
+    fail "agents/$BASENAME.md 缺 Edit/Write，无法落盘 artifact"
   fi
 
   case "$BASENAME" in
-    client|creative|visual-designer|prompt-engineer)
+    Claude\ Code\ 工作流与提示词设计大师|创意策划师|学术论文写作专家|客户需求整理师|就业教练|视觉设计专家|顶会顶刊审稿专家)
       [ "${MEMORY_SCOPE:-}" != "user" ] && warn "agents/$BASENAME.md memory=${MEMORY_SCOPE:-} (expected user per LEGION)" && MEMORY_DRIFT=$((MEMORY_DRIFT + 1))
       ;;
     *)
@@ -621,8 +629,8 @@ print(len(d.get('hooks', {}).get('UserPromptSubmit', [{}])[0].get('hooks', [])))
   fi
 fi
 
-# 检查 hook 脚本（v3.9：intent-classify 已退役，档位由模型自判）
-for h in clarification-gate.sh review-gate.sh; do
+# 检查 hook 脚本（v3.9：旧档位分类 hook 已退役，档位由模型自判）
+for h in clarification-gate.sh review-gate.sh orchestrator-edit-guard.sh stop-quality-gate.sh; do
   p="$LEGION_DIR/hooks/$h"
   if [ -x "$p" ] && bash -n "$p" 2>/dev/null; then
     pass "hooks/$h 可执行 + 语法正确"
@@ -633,8 +641,30 @@ for h in clarification-gate.sh review-gate.sh; do
   fi
 done
 
-# v3.9：档位改为模型自判，不再依赖 intent-classify
-info "任务档位：模型自判（v3.9），hook 仅保留 clarification-gate + review-gate"
+# v4.7：档位改为主会话自判 + DispatchTicket，hook 只做底线校验
+RETIRED_TIER_LOG="intent-classify"".jsonl"
+if grep -q "$RETIRED_TIER_LOG" "$LEGION_DIR/statusline.sh" 2>/dev/null; then
+  warn "statusline 仍读取退役档位日志"
+else
+  pass "statusline 使用 DispatchTicket 状态，不依赖退役档位日志"
+fi
+if grep -q "dispatch-ticket" "$LEGION_DIR/rules/_global/artifact-protocol.md" 2>/dev/null; then
+  pass "artifact-protocol 已登记 dispatch-ticket"
+else
+  warn "artifact-protocol 缺 dispatch-ticket 类型"
+fi
+if grep -q "NEEDS_USER" "$LEGION_DIR/hooks/subagent-stop-log.sh" 2>/dev/null; then
+  pass "subagent-stop-log 支持 NEEDS_USER 状态回写"
+else
+  warn "subagent-stop-log 缺 NEEDS_USER 状态回写"
+fi
+if grep -q "final_confirmation" "$LEGION_DIR/output-styles/legion-dispatch.md" 2>/dev/null \
+   && grep -q "final_confirmation" "$LEGION_DIR/statusline.sh" 2>/dev/null; then
+  pass "最终用户确认字段已接入协议与 statusline"
+else
+  warn "final_confirmation 未完整接入协议/statusline"
+fi
+info "任务档位：主会话语义自判；DispatchTicket 记录判断；hook 校验票据和证据"
 
 # ── 18. Unfinished Tasks ────────────────────────────────────────────────────
 section "18. Unfinished Tasks"
