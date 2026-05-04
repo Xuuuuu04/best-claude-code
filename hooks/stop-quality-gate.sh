@@ -28,6 +28,16 @@ QUALITY="$(jq -r '.quality_strategy // "adversarial-default"' "$STATE_FILE" 2>/d
 TASK_ID="$(jq -r '.task_id // "unknown-task"' "$STATE_FILE" 2>/dev/null || echo "unknown-task")"
 FINAL_CONFIRMATION="$(jq -r '.final_confirmation // empty' "$STATE_FILE" 2>/dev/null || echo "")"
 
+if [ "$PHASE" = "done" ] && { [ "$FINAL_CONFIRMATION" = "asked" ] || [ "$FINAL_CONFIRMATION" = "required" ]; }; then
+  TMP_FILE="${STATE_FILE}.tmp.$$"
+  if jq '.phase = "needs_user"' "$STATE_FILE" > "$TMP_FILE" 2>/dev/null; then
+    mv "$TMP_FILE" "$STATE_FILE"
+  else
+    rm -f "$TMP_FILE" 2>/dev/null || true
+  fi
+  exit 0
+fi
+
 if [ "$PHASE" = "done" ] && [ -n "$FINAL_CONFIRMATION" ] && [ "$FINAL_CONFIRMATION" != "accepted" ]; then
   REASON="最终确认未完成：task '$TASK_ID' phase=done 但 final_confirmation='$FINAL_CONFIRMATION'。请先向用户确认接受当前结果，用户接受后再置为 accepted/done。"
   jq -c -n --arg reason "$REASON" '{decision:"block",reason:$reason}'

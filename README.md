@@ -403,7 +403,7 @@ Rule 是 path-specific 的，读取或编辑匹配文件时才激活，避免无
 | `orchestrator-edit-guard` | 防止主会话越权改业务文件 |
 | `subagent-start-mark` | 写 active JSON 状态 |
 | `subagent-stop-log` | 清理 active 状态并写 evidence/gate |
-| `stop-quality-gate` | 证据未闭合时阻止收工 |
+| `stop-quality-gate` | 证据未闭合时阻止收工；`done + asked/required` 会自动回退到 `needs_user`，避免确认问题发出前被错误打断 |
 | `post-edit-lint` | 编辑后轻量 lint |
 | `instructions-audit` | 指令加载审计 |
 | `tool-failure-audit` | 工具失败记录 |

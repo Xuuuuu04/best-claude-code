@@ -521,6 +521,7 @@ git revert <本次 commit hash>
 - [FIX] `hooks/subagent-start-mark.sh`：active subagent 状态从 TSV 改为 JSON，记录 `session_id / agent_id / agent_type / started_at`
 - [FIX] `hooks/subagent-stop-log.sh`：按 `agent_id` 精确清理 active 文件；缺失或不匹配时按同 session + agent_type 删除最老匹配项
 - [FIX] `statusline.sh`：重排为两行布局，窄屏自动压缩标签、任务 ID 和多代理显示；自动清理明显陈旧的 active 文件
+- [FIX] `hooks/stop-quality-gate.sh`：对 `phase=done + final_confirmation=asked/required` 做自动回退到 `needs_user`，避免最终确认问题发出前被 hook error 打断
 - [NEW] `bin/validate-dispatch-ticket.sh`：校验 `phase / gate_status / understanding / iteration / final_confirmation` 的合法组合
 - [NEW] `rules/_global/release-version-consistency.md` / `runtime-state-git-hygiene.md` / `statusline-contract.md`：固化发布版本、运行态文件和 statusline 布局契约
 - [NEW] `skills/release-checklist/SKILL.md`：发布前确定性检查清单

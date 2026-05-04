@@ -863,6 +863,7 @@ providers 配置规范化，清理冗余字段。
 - Subagent 活跃状态从 TSV 升级为 JSON：`session_id / agent_id / agent_type / started_at`
 - `SubagentStop` 清理策略升级：优先按 `agent_id` 精确删除；不匹配时按同 session + agent_type 删除最老匹配项
 - statusline 自动忽略并清理明显陈旧的 active 文件，避免已结束代理继续占位
+- `stop-quality-gate` 增加最终确认容错：若主会话过早写成 `phase=done` 且 `final_confirmation=asked/required`，hook 自动回退到 `needs_user`，避免用户尚未看到确认问题就先看到 hook error
 - 新增 `bin/validate-dispatch-ticket.sh`，校验 `phase / gate_status / understanding / iteration / final_confirmation` 合法组合
 - 最终确认入口闭环：`phase=needs_user` 且 `final_confirmation=required/asked` 时，用户下一条回复必须先分类为 `accepted / continue_requested / specified_check`
 - 新增 3 条发布治理 Rule：`release-version-consistency` / `runtime-state-git-hygiene` / `statusline-contract`

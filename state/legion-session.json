@@ -1,12 +1,12 @@
 {
-  "task_id": "chore-20260504-dispatch-advisor-agent",
+  "task_id": "chore-20260504-stop-confirmation-autorepair",
   "session_id": "",
   "tier": "medium",
   "phase": "done",
-  "intent": "Add a read-only dispatch advisor agent, integrate adversarial quality and single-model delivery risk checks into routing, and clarify every agent description for safer main-session dispatch.",
-  "risk": "medium",
+  "intent": "Fix stop-quality-gate runtime behavior so premature phase=done with final_confirmation=asked/required is auto-repaired to needs_user before asking the user.",
+  "risk": "low",
   "executor": "main-fast-path",
-  "chosen_agents": ["调度顾问师"],
+  "chosen_agents": [],
   "required_gates": ["code", "functional", "verdict"],
   "quality_strategy": "compressed",
   "fast_path_reason": "Harness self-maintenance across shell hooks and docs with local deterministic verification.",
@@ -17,9 +17,9 @@
     "verdict": "pass"
   },
   "evidence": {
-    "code": "bash -n bin/doctor.sh bin/validate-dispatch-ticket.sh; git diff --check",
-    "functional": "39 agent descriptions checked for who/next-hop coverage; validate-rules, test-hook-flags, validate-dispatch-ticket, and doctor completed without failures",
-    "verdict": "doctor Release Readiness passed with README badges Agents=39 Rules=53 Skills=58 and 调度顾问师 read-only tool boundary confirmed",
+    "code": "bash -n hooks/stop-quality-gate.sh bin/validate-dispatch-ticket.sh; git diff --check",
+    "functional": "Simulated Stop hook with phase=done + final_confirmation=asked: hook output was empty, phase auto-repaired to needs_user, final_confirmation stayed asked",
+    "verdict": "doctor and deterministic hook simulation passed; accepted remains user-controlled",
     "impl_count": 1,
     "review_count": 1
   },
@@ -28,19 +28,17 @@
     "confidence": 0.92,
     "unknowns": [],
     "assumptions": [
-      "调度顾问师 should remain read-only and advise rather than dispatch or write state.",
-      "Agent description clarity directly improves main-session routing accuracy.",
-      "调度顾问师 must dynamically read dispatch-table and agents frontmatter instead of relying on a static agent list."
+      "asked/required means the user has not accepted yet, so hook may only move phase back to needs_user and must not set accepted."
     ],
     "missing_assets": []
   },
   "reasoning_mode": "internal_summary",
-  "decision_summary": "Added 调度顾问师 as a read-only reverse advisor, made it dynamically read dispatch-table and agents frontmatter, and normalized all Agent descriptions to reduce routing ambiguity, role overlap, gate skipping, and single-model self-certification risk.",
+  "decision_summary": "Updated stop-quality-gate to self-heal premature done+asked/required into needs_user so final confirmation prompts are shown normally, while accepted remains user-controlled.",
   "iteration": {
     "mode": "until_pass",
     "round": 0,
-    "pass_condition": "Agent count, doctor, rules validation, hook tests, ticket validation, and git diff checks pass."
+    "pass_condition": "Hook syntax, DispatchTicket validation, doctor, and git diff checks pass."
   },
   "final_confirmation": "accepted",
-  "updated_at": "2026-05-04T15:17:58+0800"
+  "updated_at": "2026-05-04T17:16:58+0800"
 }
