@@ -240,7 +240,7 @@ disable-model-invocation: true
   <scope type="修改 Skill" condition="≥3 条相关 feedback" constraint="保持 SKILL.md ≤500 行；长内容进 references" />
   <scope type="新 Skill" condition="≥3 次同一类问题未被现有 Skill 覆盖" constraint="遵守 skill-architecture-standard" />
   <scope type="Agent 升级（改 prompt/tools/skills）" condition="基于明确的认知缺口" constraint="不改变 Agent 的核心认知模式" />
-  <scope type="新增 Agent" condition="基于现有 38 Agent 无法覆盖的认知模式" constraint="极高门槛：必须证明旧角色无法覆盖、非按技术栈加人" />
+  <scope type="新增 Agent" condition="基于现有 39 Agent 无法覆盖的认知模式" constraint="极高门槛：必须证明旧角色无法覆盖、非按技术栈加人" />
   <scope type="dispatch-table 优化" condition="基于调度失误的 pattern" constraint="不破坏现有门控条件" />
 </upgrade-scope>
 </step>

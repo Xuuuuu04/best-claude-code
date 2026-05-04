@@ -3,10 +3,10 @@
   最近升级：2026-05-04（v4.7）
   - 新增 多媒体内容生成师 Agent + 4 个配套 Skill：代码驱动视频/动画生成
   - ARIS 全吸收：Reviewer Independence、assurance-contract、6 级 verdict、学术审计 Agent×3
-  - 数字对齐：Skill 48→58、Rules 48→53、Agents 29→38、版本 v3.9→v4.7
+  - 数字对齐：Skill 48→58、Rules 48→53、Agents 29→39、版本 v3.9→v4.7
 
   历史成果：
-  - 58 Skills / 53 Rules / 38 Agents / 17 Hooks (+3 _lib)
+  - 58 Skills / 53 Rules / 39 Agents / 17 Hooks (+3 _lib)
   - 保持 ≤200 行；新增机制相关说明请放 LEGION.md。
 -->
 
@@ -18,7 +18,7 @@
 
 ## 项目身份
 
-best-claude-code 是公开项目名；Agent Legion 是内部系统名。它是 Claude Code 多 Agent 协作调度系统：38 个专职 Subagent + 58 个 Skill + 53 条 Rule + Router 组成分层门控流水线，从需求分析推进到最终交付。
+best-claude-code 是公开项目名；Agent Legion 是内部系统名。它是 Claude Code 多 Agent 协作调度系统：39 个专职 Subagent + 58 个 Skill + 53 条 Rule + Router 组成分层门控流水线，从需求分析推进到最终交付。
 
 运行环境：Claude Code CLI v2.1.59+；脚本：Bash；数据：jq。
 
@@ -28,7 +28,7 @@ best-claude-code 是公开项目名；Agent Legion 是内部系统名。它是 C
 
 | 模块 | 路径 | 用途 |
 |:--|:--|:--|
-| Agent 定义 | `agents/` | 38 个 Subagent 角色 |
+| Agent 定义 | `agents/` | 39 个 Subagent 角色 |
 | Skill 定义 | `skills/` | 58 个 Skill |
 | Rule 定义 | `rules/` | 53 条规则（global / framework / lang / infra） |
 | **调度真源** | `rules/_global/dispatch-table.md` | 用户信号 → Agent → artifact → 下一跳 → 并发等级 |
@@ -77,7 +77,7 @@ Agent 选择规则、流水线模板、并发硬规则、Rule 层叠处理、Rou
 ## 调度纪律
 
 ### 核心原则
-- **默认调度** — 中高复杂度任务交给 Subagent
+- **默认调度** — 中高复杂度任务交给 Subagent；主会话不确定下一跳/门控/职责边界时先问 调度顾问师
 - **分层门控** — 需求审查 → 架构审查 → 代码审查 → 安全审计 → 功能/视觉测试 → 最终裁决
 - **文件交接** — Agent 间通过 `.claude/artifacts/` 结构化文件交接
 - **并行审慎** — 默认串行；并发等级 S0-S3、门控强制条件、用户态信号详见 dispatch-table.md

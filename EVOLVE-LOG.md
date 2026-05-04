@@ -524,6 +524,8 @@ git revert <本次 commit hash>
 - [NEW] `bin/validate-dispatch-ticket.sh`：校验 `phase / gate_status / understanding / iteration / final_confirmation` 的合法组合
 - [NEW] `rules/_global/release-version-consistency.md` / `runtime-state-git-hygiene.md` / `statusline-contract.md`：固化发布版本、运行态文件和 statusline 布局契约
 - [NEW] `skills/release-checklist/SKILL.md`：发布前确定性检查清单
+- [NEW] `agents/调度顾问师.md`：只读反向自检主会话下一步判断、动态任务理解、职责边界、质量门控和单模型交付风险；每次动态读取 dispatch-table 与 agents frontmatter，不维护静态 Agent 名单
+- [FIX] 全部 Agent frontmatter description 统一覆盖“我是谁 / 能做什么 / 何时调用 / 和谁不同 / 完成后接谁”，降低主会话路由误判
 - [FIX] `bin/doctor.sh`：新增 Release Readiness 检查，覆盖版本漂移、README 数字徽章、hook 计数和 Git hygiene
 - [FIX] `.gitignore`：忽略 settings 备份与 clarification pending 运行态文件
 - [DOC] `README.md` / `CLAUDE.md` / `LEGION.md` / `output-styles/legion-dispatch.md`：统一 v4.7 文档版本，补充最终确认入口分类，移除诱导暴露原始思维链的 CoT/ToT 表述
@@ -531,7 +533,7 @@ git revert <本次 commit hash>
 
 ### 跟踪指标
 
-- Agents：38
+- Agents：39
 - Skills：58
 - Rules：53
 - Hooks：17 个主 hook + 3 个 `_lib` 辅助脚本

@@ -31,7 +31,7 @@
       <constraint severity="blocker">
         禁止并发的场景：
         <list>
-          <item><agent>项目管理师</agent>、<agent>资深系统架构师</agent>、<agent>资深范围规划师</agent>、<agent>质量总监</agent> 这类决策节点</item>
+          <item><agent>调度顾问师</agent>、<agent>项目管理师</agent>、<agent>资深系统架构师</agent>、<agent>资深范围规划师</agent>、<agent>质量总监</agent> 这类决策节点</item>
           <item>数据库迁移、生产部署、依赖升级、全局配置修改</item>
           <item>同一文件、同一目录生成物、同一测试数据库、同一浏览器 session</item>
           <item>任何一个 Agent 需要根据另一个 Agent 的输出继续判断</item>
@@ -45,6 +45,7 @@
     <route signal="取名 / Slogan / 品牌调性 / 文案方向" agent="创意策划师" artifact="creative-*" next="高级内容审查师" concurrency="S1"/>
     <route signal="新功能 / 新页面 / 新接口" agent="资深需求分析师" artifact="requirements-*" next="高级需求审查师" concurrency="S0"/>
     <route signal="需求是否完整 / 能不能开发" agent="高级需求审查师" artifact="review-requirements-*" next="资深系统架构师" concurrency="S0"/>
+    <route signal="主会话不确定下一步 / 职责混同 / 该不该新增 Agent / 单模型交付风险 / 跳过质量门控 / 动态理解漂移 / 调度自检" agent="调度顾问师" artifact="DISPATCH_ADVICE:inline" next="主会话采纳建议 / 项目管理师 / 用户确认" concurrency="S0"/>
     <route signal="下一步 / 推进到哪 / 多阶段调度" agent="项目管理师" artifact="dispatch-*" next="单一推荐 Agent" concurrency="S0"/>
     <route signal="整体架构 / 技术方案 / 跨模块重构" agent="资深系统架构师" artifact="architecture-*" next="资深范围规划师" concurrency="S0"/>
     <route signal="范围锁定 / 拆 scope / 执行批次" agent="资深范围规划师" artifact="scope-lock-*, scope-plan-*" next="高级架构审查师" concurrency="S0"/>
@@ -101,6 +102,7 @@
         <gate-condition agent="质量总监" trigger="scope-lock 总数 ≥ 3，或涉及上线/交付/里程碑" basis="4/5 项目无最终裁决"/>
         <gate-condition agent="质量总监（跨 scope 一致性）" trigger="scope-lock 总数 ≥ 3 → 裁决前强制执行跨 scope 接口契约交叉比对" basis="v3.10 新增：跨 scope 签名不一致是最隐蔽的集成 bug"/>
         <gate-condition agent="高级视觉测试师" trigger="涉及用户可见 UI 变更（页面/组件/样式）" basis="仅 1/5 项目有视觉测试"/>
+        <gate-condition agent="调度顾问师" trigger="主会话准备压缩或跳过质量门控，且 ticket.quality_strategy 从 full/adversarial-default 降级" basis="切断单模型自证和调度理解漂移"/>
 
         <gate-condition agent="质量总监（assurance submission）" trigger="assurance = submission 时，所有强制 reviewer 必须发出六级裁决（PASS/WARN/FAIL/NOT_APPLICABLE/BLOCKED/ERROR）之一" basis="ARIS 吸收：draft vs submission 动态门控"/>
         <gate-condition agent="质量总监（artifact 完整性）" trigger="assurance = submission 时，裁决前必须调用 verify-artifacts.sh 验证必需 artifact 存在且无 STALE" basis="ARIS 吸收：外部 verifier 阻塞机制"/>

@@ -12,7 +12,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](./LICENSE)
 [![Status: v4.7](https://img.shields.io/badge/Status-v4.7-f59e0b?style=flat-square)](#版本状态)
 [![Language](https://img.shields.io/badge/Language-中文优先-ef4444?style=flat-square)](#多语言与技术栈)
-[![Agents](https://img.shields.io/badge/Agents-38-3b82f6?style=flat-square)](#agent-矩阵)
+[![Agents](https://img.shields.io/badge/Agents-39-3b82f6?style=flat-square)](#agent-矩阵)
 [![Skills](https://img.shields.io/badge/Skills-58-06b6d4?style=flat-square)](#skill-体系)
 [![Rules](https://img.shields.io/badge/Rules-53-8b5cf6?style=flat-square)](#rule-体系)
 [![Hooks](https://img.shields.io/badge/Hooks-17%2B3-10b981?style=flat-square)](#hook-安全网)
@@ -45,7 +45,7 @@ best-claude-code 的核心判断是：
 
 **干净上下文 + 明确职责 + 结构化证据 > 混乱上下文 + 最强模型硬抗。**
 
-系统通过 38 个 Subagent、58 个 Skill、53 条 Rule、17 个主 Hook 和 3 个 hook 辅助库，把 Claude Code 组织成一个可调度、可审查、可进化的工程团队。
+系统通过 39 个 Subagent、58 个 Skill、53 条 Rule、17 个主 Hook 和 3 个 hook 辅助库，把 Claude Code 组织成一个可调度、可审查、可进化的工程团队。
 
 ---
 
@@ -119,6 +119,7 @@ flowchart TB
     D --> M[Memory<br/>跨会话学习]
 
     T --> PM[项目管理师]
+    T --> ADVISOR[调度顾问师<br/>只读反向自检]
     PM --> REQ[需求与规格层]
     PM --> ARCH[架构与范围层]
     PM --> IMPL[实现层]
@@ -173,7 +174,7 @@ flowchart LR
     end
 
     subgraph L2[智能层]
-      AGENTS[38 Subagents]
+      AGENTS[39 Subagents]
       SKILLS[58 Skills]
       RULES[53 Rules]
       MEMORY[Memory]
@@ -319,7 +320,7 @@ flowchart LR
 | 认知层 | Agent | 典型任务 |
 |:--|:--|:--|
 | 需求 | 客户需求整理师 / 资深需求分析师 / 高级需求审查师 | 客户原话整理、需求拆分、验收标准 |
-| 调度 | 项目管理师 | 单跳调度、状态机、返工升级 |
+| 调度 | 调度顾问师 / 项目管理师 | 只读调度自检、单跳调度、状态机、返工升级 |
 | 架构 | 资深系统架构师 / 资深范围规划师 / 高级架构审查师 | ADR、scope-lock、依赖图 |
 | 研究 | 代码库研究员 / 技术调研专家 / 高级调研审查师 | 仓库定位、外部文档、选型审查 |
 | 实现 | 高级前端/后端/移动端/桌面工程师 | 业务功能、组件、API、客户端 |
@@ -330,6 +331,22 @@ flowchart LR
 | 内容 | 文档工程师 / 创意策划师 / 视觉设计专家 / 多媒体内容生成师 | 文档、品牌、设计、视频 |
 | 学术 | 学术论文写作专家 / 顶会顶刊审稿专家 / 引用审计员 / 论文数字审计员 / 定理证明审计员 | 论文写作、审稿、引用、数字和证明审计 |
 | 元治理 | Claude Code 工作流与提示词设计大师 | Agent/Skill/Rule/Output Style 进化 |
+
+### 调度顾问师：反向 Advisor
+
+`调度顾问师` 不是第二个 PM，也不是质量总监。它是主会话的只读反向自检节点，用来切断“一个模型自己理解、自己实现、自己审查、自己宣布完成”的交付风险。
+
+触发它的典型信号：
+
+- 主会话不知道下一步该派谁，或怀疑当前任务理解已经漂移。
+- 准备压缩/跳过质量门控，但用户没有显式要求降级。
+- 新增 Agent 前，需要判断现有 Agent 是否已经覆盖，避免职责膨胀。
+- 用户要求“全面、对抗、质量提高、反复检查、不要单模型自证”。
+- 任务跨多轮后，证据、scope、assumptions 与最新用户输入可能不一致。
+
+它只输出 `DISPATCH_ADVICE`，不得写文件、不得派下游、不得替代 `项目管理师` 推进状态，也不得替代 `质量总监` 做最终裁决。主会话采纳或拒绝建议时，都要把理由写进 `decision_summary`。
+
+它不维护静态 Agent 名单。每次判断前都应读取 `rules/_global/dispatch-table.md` 和 `agents/*.md` 的 frontmatter，因此未来新增普通 Agent 时，只要 description 写清楚，调度顾问师不需要额外补名单。
 
 ---
 
@@ -511,6 +528,7 @@ git rev-parse origin/main
 | DB schema | 数据库工程师 → 迁移 → 回滚方案 | full |
 | 部署上线 | 运维工程师 → release checklist → doctor | security + verdict |
 | 论文写作 | 学术写作 → 顶会审稿 → 引用/数字/证明审计 | academic review |
+| 调度不确定 / 职责混同 | 调度顾问师 → 项目管理师或用户确认 | dispatch-advice |
 | Agent/Rule/Skill 改造 | 提示词设计大师 → doctor → release checklist | meta-governance |
 
 ---
@@ -523,7 +541,7 @@ git rev-parse origin/main
 ├── README.md                  # 项目说明
 ├── LEGION.md                  # 深度维护指南
 ├── EVOLVE-LOG.md              # 进化历史
-├── agents/                    # 38 个 Subagent
+├── agents/                    # 39 个 Subagent
 ├── skills/                    # 58 个 Skill
 ├── rules/                     # 53 条 Rule
 │   ├── _global/
@@ -544,7 +562,7 @@ git rev-parse origin/main
 | 维度 | best-claude-code | 普通 CLAUDE.md 模板 | 静态 Agent 集合 |
 |:--|:--|:--|:--|
 | 主会话定位 | 调度器 | 自由发挥 | 不确定 |
-| Agent 拓扑 | 38 个按认知模式分层 | 无 | 多按技术栈堆叠 |
+| Agent 拓扑 | 39 个按认知模式分层 | 无 | 多按技术栈堆叠 |
 | 质量门控 | 需求/架构/代码/安全/功能/视觉/裁决 | 通常无 | 不稳定 |
 | 状态可见性 | DispatchTicket + statusline | 无 | 少量 |
 | 规则激活 | path-specific Rules | 全局文本 | 不稳定 |
@@ -560,7 +578,7 @@ git rev-parse origin/main
 
 规模：
 
-- 38 Agents
+- 39 Agents
 - 58 Skills
 - 53 Rules
 - 17 main Hooks + 3 `_lib`
@@ -575,6 +593,7 @@ git rev-parse origin/main
 - runtime state Git hygiene Rule
 - statusline contract Rule
 - doctor Release Readiness 检查
+- 调度顾问师：只读反向自检动态理解、职责边界、质量门控和单模型交付风险
 
 ---
 

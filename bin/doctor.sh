@@ -177,7 +177,7 @@ for f in "$LEGION_DIR"/agents/*.md; do
   MODE="$(awk '/^---$/{c++; if(c==2)exit; next} c==1 && /^permissionMode:/ {sub(/^permissionMode:[[:space:]]*/, ""); print; exit}' "$f")"
   MEMORY_SCOPE="$(awk '/^---$/{c++; if(c==2)exit; next} c==1 && /^memory:/ {sub(/^memory:[[:space:]]*/, ""); print; exit}' "$f")"
   case "$BASENAME" in
-    客户需求整理师|创意策划师|代码库研究员|技术调研专家|资深需求分析师|高级需求审查师|项目管理师|资深系统架构师|资深范围规划师|高级架构审查师|高级代码审查师|高级安全审计师|高级功能测试师|高级视觉测试师|质量总监|文档工程师|视觉设计专家|Claude\ Code\ 工作流与提示词设计大师)
+    客户需求整理师|创意策划师|代码库研究员|技术调研专家|资深需求分析师|高级需求审查师|调度顾问师|项目管理师|资深系统架构师|资深范围规划师|高级架构审查师|高级代码审查师|高级安全审计师|高级功能测试师|高级视觉测试师|质量总监|文档工程师|视觉设计专家|Claude\ Code\ 工作流与提示词设计大师)
       if [ "$MODE" = "bypassPermissions" ]; then
         warn "agents/$BASENAME.md 使用 bypassPermissions（建议收紧）"
       fi
@@ -194,7 +194,13 @@ for f in "$LEGION_DIR"/agents/*.md; do
       ;;
   esac
 
-  if ! grep -q "^tools: .*Edit" "$f" 2>/dev/null || ! grep -q "^tools: .*Write" "$f" 2>/dev/null; then
+  if [ "$BASENAME" = "调度顾问师" ]; then
+    if grep -Eq "^tools: .*(Edit|Write|Bash)" "$f" 2>/dev/null; then
+      fail "agents/$BASENAME.md 是只读 advisor，不应包含 Edit/Write/Bash"
+    else
+      pass "agents/$BASENAME.md 只读工具边界正确"
+    fi
+  elif ! grep -q "^tools: .*Edit" "$f" 2>/dev/null || ! grep -q "^tools: .*Write" "$f" 2>/dev/null; then
     fail "agents/$BASENAME.md 缺 Edit/Write，无法落盘 artifact"
   fi
 

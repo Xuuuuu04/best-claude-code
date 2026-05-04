@@ -4,3 +4,5 @@
 - [2026-05-04 14:43 CST] 主进程 -> main-fast-path | 文档/发布 | chore-20260504-statusline-dispatch-loop | 用户确认推送；统一 README/CLAUDE/LEGION/EVOLVE-LOG 到 v4.7，并将 ticket 置为 done/accepted。
 - [2026-05-04 14:49 CST] 主进程 -> main-fast-path | 治理升级 | chore-20260504-statusline-dispatch-loop | 新增 release-version-consistency / runtime-state-git-hygiene / statusline-contract 三条 Rule、release-checklist Skill，并扩展 doctor Release Readiness 检查。
 - [2026-05-04 14:59 CST] 主进程 -> main-fast-path | README/改名 | chore-20260504-statusline-dispatch-loop | README 全面重写为 best-claude-code 文档，补充复杂架构图、状态机、序列图、质量矩阵、多语言技术栈；通过 gh 将仓库改名为 Xuuuuu04/best-claude-code。
+- [2026-05-04 15:17 CST] 主进程 -> main-fast-path | 调度治理 | chore-20260504-dispatch-advisor-agent | 新增只读 调度顾问师，并把动态理解、职责混同、对抗质量门控和单模型交付风险接入 dispatch-table、output-style、README、LEGION、EVOLVE-LOG 与 doctor。
+- [2026-05-04 15:18 CST] 主进程 -> main-fast-path | 调度治理 | chore-20260504-dispatch-advisor-agent | 根据用户追问补强：调度顾问师不得维护静态 Agent 名单，必须动态读取 dispatch-table 与 agents/*.md frontmatter；未来新增普通 Agent 只需写清 description。
