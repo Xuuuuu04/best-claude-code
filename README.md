@@ -22,8 +22,8 @@
 [![Status: v4.7](https://img.shields.io/badge/Status-v4.7-f59e0b?style=flat-square)](#)
 [![Chinese First](https://img.shields.io/badge/Language-中文优先-ef4444?style=flat-square)](#)
 [![Agents](https://img.shields.io/badge/Agents-38-3b82f6?style=flat-square)](#三十-subagent-角色)
-[![Rules](https://img.shields.io/badge/Rules-50-8b5cf6?style=flat-square)](#支持的技术栈)
-[![Skills](https://img.shields.io/badge/Skills-57-06b6d4?style=flat-square)](#系统架构)
+[![Rules](https://img.shields.io/badge/Rules-53-8b5cf6?style=flat-square)](#支持的技术栈)
+[![Skills](https://img.shields.io/badge/Skills-58-06b6d4?style=flat-square)](#系统架构)
 
 <br>
 
@@ -58,9 +58,9 @@ Agent Legion 把 Claude Code 的七种扩展层全部用上，让它们各司其
 | 机制 | 职责 | 在本系统的体现 |
 |:--|:--|:--|
 | **CLAUDE.md** | 调度元协议（始终在线） | 根文件 ~120 行，定义调度器身份和流水线路由 |
-| **Skills** | 可调用的知识 / 工作流 | 57 个，分三类：系统运维命令（disable-model-invocation）、领域协议（Agent 预加载）、参考文档 |
+| **Skills** | 可调用的知识 / 工作流 | 58 个，分三类：系统运维命令（disable-model-invocation）、领域协议（Agent 预加载）、参考文档 |
 | **Subagents** | 隔离上下文的工作者 | 38 个专职角色，覆盖需求/设计/研究/实现/审查/测试/验收/部署/元治理/论文/仓颉/昇腾/就业/外包 |
-| **Rules** | 编码规范与调度真源（按需激活） | 全局规则 + 调度表 + 18 种语言 + 18 种框架 + 3 种基础设施 |
+| **Rules** | 编码规范与调度真源（按需激活） | 53 条，全局规则 + 调度表 + 18 种语言 + 18 种框架 + 3 种基础设施 |
 | **Hooks** | 确定性保障脚本 | 17 个主 hook + 3 个 `_lib` 辅助脚本，覆盖会话启动、压缩恢复、编辑守卫、Subagent 生命周期和质量闸门 |
 | **Memory** | 跨会话持久学习 | Agent 按认知类型分层（思维类 user，执行类 project） |
 | **Output Style** | 调度器行为风格 | 自定义 `legion-dispatch` 强制中文、极简、委派纪律 |

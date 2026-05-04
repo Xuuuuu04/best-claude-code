@@ -520,14 +520,18 @@ git revert <本次 commit hash>
 - [FIX] `hooks/subagent-stop-log.sh`：按 `agent_id` 精确清理 active 文件；缺失或不匹配时按同 session + agent_type 删除最老匹配项
 - [FIX] `statusline.sh`：重排为两行布局，窄屏自动压缩标签、任务 ID 和多代理显示；自动清理明显陈旧的 active 文件
 - [NEW] `bin/validate-dispatch-ticket.sh`：校验 `phase / gate_status / understanding / iteration / final_confirmation` 的合法组合
+- [NEW] `rules/_global/release-version-consistency.md` / `runtime-state-git-hygiene.md` / `statusline-contract.md`：固化发布版本、运行态文件和 statusline 布局契约
+- [NEW] `skills/release-checklist/SKILL.md`：发布前确定性检查清单
+- [FIX] `bin/doctor.sh`：新增 Release Readiness 检查，覆盖版本漂移、README 数字徽章、hook 计数和 Git hygiene
+- [FIX] `.gitignore`：忽略 settings 备份与 clarification pending 运行态文件
 - [DOC] `README.md` / `CLAUDE.md` / `LEGION.md` / `output-styles/legion-dispatch.md`：统一 v4.7 文档版本，补充最终确认入口分类，移除诱导暴露原始思维链的 CoT/ToT 表述
 - [DOC] `Task.md` / `progress-log.md` / `state/legion-session.json`：记录本轮 statusline 与 DispatchTicket 闭环升级证据
 
 ### 跟踪指标
 
 - Agents：38
-- Skills：57
-- Rules：50
+- Skills：58
+- Rules：53
 - Hooks：17 个主 hook + 3 个 `_lib` 辅助脚本
 - `doctor.sh`：0 failures（仍有既有 warnings）
 

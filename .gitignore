@@ -34,6 +34,9 @@ plans/
 settings.json
 settings.local.json
 settings.local.yaml
+settings.json.bak*
+*.bak
+*.bak-*
 .claude.json
 *.cache
 .cache/
@@ -51,6 +54,7 @@ __pycache__/
 artifacts/
 agent-memory/
 agent-memory-local/
+state/clarification-pending-*.json
 # Cost/debug logs produced by hooks; test runs may accidentally write
 # these under ~/.claude itself — never commit
 .claude/

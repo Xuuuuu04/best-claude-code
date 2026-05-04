@@ -751,6 +751,72 @@ if [ -f "$REVIEW_FILE" ] && command -v jq >/dev/null 2>&1; then
   fi
 fi
 
+# ── 20. Release Readiness ──────────────────────────────────────────────────
+section "20. Release Readiness"
+
+README_VERSION="$(grep -oE 'Status-v[0-9]+(\.[0-9]+)*' "$LEGION_DIR/README.md" 2>/dev/null | head -1 | sed 's/^Status-//' || true)"
+CLAUDE_VERSION="$(grep -oE '最近升级：[^（]*（v[0-9]+(\.[0-9]+)*）' "$LEGION_DIR/CLAUDE.md" 2>/dev/null | head -1 | grep -oE 'v[0-9]+(\.[0-9]+)*' || true)"
+LEGION_VERSION="$(python3 - "$LEGION_DIR/LEGION.md" <<'PY' 2>/dev/null || true
+import re
+import sys
+versions = []
+with open(sys.argv[1], encoding="utf-8") as f:
+    for line in f:
+        match = re.match(r"^### (v\d+(?:\.\d+)*)", line)
+        if match:
+            versions.append(match.group(1))
+def key(version):
+    return tuple(int(part) for part in version[1:].split("."))
+print(max(versions, key=key) if versions else "")
+PY
+)"
+EVOLVE_VERSION="$(grep -oE '^## [0-9]{4}-[0-9]{2}-[0-9]{2} · v[0-9]+(\.[0-9]+)*' "$LEGION_DIR/EVOLVE-LOG.md" 2>/dev/null | tail -1 | awk '{print $4}' || true)"
+
+VERSIONS="$README_VERSION $CLAUDE_VERSION $LEGION_VERSION $EVOLVE_VERSION"
+if [ -n "$README_VERSION" ] && [ "$README_VERSION" = "$CLAUDE_VERSION" ] \
+   && [ "$README_VERSION" = "$LEGION_VERSION" ] && [ "$README_VERSION" = "$EVOLVE_VERSION" ]; then
+  pass "发布版本一致：$README_VERSION"
+else
+  warn "发布版本漂移：README=${README_VERSION:-?} CLAUDE=${CLAUDE_VERSION:-?} LEGION=${LEGION_VERSION:-?} EVOLVE=${EVOLVE_VERSION:-?}"
+fi
+
+ACTUAL_AGENTS="$(find "$LEGION_DIR/agents" -maxdepth 1 -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')"
+ACTUAL_SKILLS="$(find "$LEGION_DIR/skills" -maxdepth 2 -name 'SKILL.md' -type f 2>/dev/null | wc -l | tr -d ' ')"
+ACTUAL_RULES="$(find "$LEGION_DIR/rules" -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')"
+ACTUAL_HOOK_MAIN="$(find "$LEGION_DIR/hooks" -maxdepth 1 -type f -name '*.sh' 2>/dev/null | wc -l | tr -d ' ')"
+ACTUAL_HOOK_LIB="$(find "$LEGION_DIR/hooks/_lib" -maxdepth 1 -type f -name '*.sh' 2>/dev/null | wc -l | tr -d ' ')"
+
+README_AGENT_BADGE="$(grep -oE 'Agents-[0-9]+' "$LEGION_DIR/README.md" 2>/dev/null | head -1 | cut -d- -f2 || true)"
+README_RULE_BADGE="$(grep -oE 'Rules-[0-9]+' "$LEGION_DIR/README.md" 2>/dev/null | head -1 | cut -d- -f2 || true)"
+README_SKILL_BADGE="$(grep -oE 'Skills-[0-9]+' "$LEGION_DIR/README.md" 2>/dev/null | head -1 | cut -d- -f2 || true)"
+
+if [ "$README_AGENT_BADGE" = "$ACTUAL_AGENTS" ] && [ "$README_RULE_BADGE" = "$ACTUAL_RULES" ] \
+   && [ "$README_SKILL_BADGE" = "$ACTUAL_SKILLS" ]; then
+  pass "README 数字徽章一致：Agents=$ACTUAL_AGENTS Rules=$ACTUAL_RULES Skills=$ACTUAL_SKILLS"
+else
+  warn "README 数字徽章漂移：badge A/R/S=${README_AGENT_BADGE:-?}/${README_RULE_BADGE:-?}/${README_SKILL_BADGE:-?} actual=$ACTUAL_AGENTS/$ACTUAL_RULES/$ACTUAL_SKILLS"
+fi
+
+if grep -q "${ACTUAL_HOOK_MAIN} 个主 hook 脚本 + ${ACTUAL_HOOK_LIB} 个" "$LEGION_DIR/CLAUDE.md" 2>/dev/null \
+   && grep -q "${ACTUAL_HOOK_MAIN} 个主 hook + ${ACTUAL_HOOK_LIB} 个" "$LEGION_DIR/README.md" 2>/dev/null; then
+  pass "Hook 文档计数一致：${ACTUAL_HOOK_MAIN} main + ${ACTUAL_HOOK_LIB} _lib"
+else
+  warn "Hook 文档计数可能漂移：actual ${ACTUAL_HOOK_MAIN} main + ${ACTUAL_HOOK_LIB} _lib"
+fi
+
+if git -C "$LEGION_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+  RUNTIME_STATUS="$(git -C "$LEGION_DIR" status --short --untracked-files=all 2>/dev/null \
+    | grep -E '(^.. settings\.json\.bak|^.. .*\.bak($|-)|^.. state/clarification-pending-|^.. logs/|^.. sessions/|^.. projects/|^.. tasks/|^.. shell-snapshots/|^.. history\.jsonl|^.. stats-cache\.json|^.. telemetry/)' || true)"
+  if [ -z "$RUNTIME_STATUS" ]; then
+    pass "Git hygiene：未发现待提交运行态/备份文件"
+  else
+    warn "Git hygiene：发现运行态/备份文件可能未忽略"
+    printf "%s\n" "$RUNTIME_STATUS" | sed 's/^/    /'
+  fi
+else
+  info "Git hygiene：非 git 仓库，跳过"
+fi
+
 # ── 汇总 ────────────────────────────────────────────────────────────────────
 echo ""
 echo "═════════════════════════════════════════════════"

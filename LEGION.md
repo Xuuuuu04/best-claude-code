@@ -855,7 +855,9 @@ providers 配置规范化，清理冗余字段。
 - statusline 自动忽略并清理明显陈旧的 active 文件，避免已结束代理继续占位
 - 新增 `bin/validate-dispatch-ticket.sh`，校验 `phase / gate_status / understanding / iteration / final_confirmation` 合法组合
 - 最终确认入口闭环：`phase=needs_user` 且 `final_confirmation=required/asked` 时，用户下一条回复必须先分类为 `accepted / continue_requested / specified_check`
-- 公开文档统一到 v4.7；当前规模：38 Agents / 57 Skills / 50 Rules / 17 Hooks + 3 `_lib`
+- 新增 3 条发布治理 Rule：`release-version-consistency` / `runtime-state-git-hygiene` / `statusline-contract`
+- 新增 `release-checklist` Skill，固化发布前版本一致性、Git hygiene、doctor/rule/hook 验证和 push 后 HEAD 对齐
+- 公开文档统一到 v4.7；当前规模：38 Agents / 58 Skills / 53 Rules / 17 Hooks + 3 `_lib`
 
 ### v4.0–v4.6（2026-05-01）
 

@@ -18,8 +18,8 @@
   },
   "evidence": {
     "code": "bash -n statusline.sh hooks/subagent-start-mark.sh hooks/subagent-stop-log.sh hooks/clarification-gate.sh bin/validate-dispatch-ticket.sh",
-    "functional": "simulated SubagentStart/SubagentStop active JSON lifecycle, fallback cleanup, stale cleanup, COLUMNS=80/140 statusline rendering, and validator warning path",
-    "verdict": "bin/test-hook-flags.sh, bin/validate-rules.sh, bin/doctor.sh completed with no failures",
+    "functional": "simulated SubagentStart/SubagentStop active JSON lifecycle, fallback cleanup, stale cleanup, COLUMNS=80/140 statusline rendering, validator warning path, and release readiness checks",
+    "verdict": "bin/test-hook-flags.sh, bin/validate-rules.sh, bin/doctor.sh completed with no failures; doctor Release Readiness passed",
     "impl_count": 1,
     "review_count": 1
   },
@@ -38,8 +38,8 @@
   "iteration": {
     "mode": "until_pass",
     "round": 0,
-    "pass_condition": "Syntax checks, hook simulations, statusline render checks, and existing doctor/rule/hook tests pass."
+    "pass_condition": "Syntax checks, hook simulations, statusline render checks, release readiness checks, and existing doctor/rule/hook tests pass."
   },
   "final_confirmation": "accepted",
-  "updated_at": "2026-05-04T14:43:00+0800"
+  "updated_at": "2026-05-04T14:49:54+0800"
 }
