@@ -1,0 +1,9 @@
+{
+  "id": "4",
+  "subject": "小程序构建检查",
+  "description": "运行 npm run build:mp-weixin 检查 miniapp/ 小程序端是否能正常构建。关注编译错误。",
+  "activeForm": "检查小程序构建",
+  "status": "pending",
+  "blocks": [],
+  "blockedBy": []
+}

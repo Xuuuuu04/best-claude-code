@@ -1,0 +1,9 @@
+{
+  "id": "1",
+  "subject": "后端构建与测试检查",
+  "description": "运行 mvn clean test 检查后端是否能正常构建和通过所有测试。关注测试失败、编译错误等问题。在 backend/ 目录下执行。",
+  "activeForm": "检查后端构建与测试",
+  "status": "pending",
+  "blocks": [],
+  "blockedBy": []
+}

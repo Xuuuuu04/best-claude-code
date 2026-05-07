@@ -1,0 +1,9 @@
+{
+  "id": "2",
+  "subject": "后端代码质量审查",
+  "description": "审查后端最近变更的文件（git status 显示的修改文件），重点关注 TTS 相关的 Controller/Service/DTO 改动，检查代码质量问题、潜在 bug、安全风险。",
+  "activeForm": "审查后端代码质量",
+  "status": "pending",
+  "blocks": [],
+  "blockedBy": []
+}

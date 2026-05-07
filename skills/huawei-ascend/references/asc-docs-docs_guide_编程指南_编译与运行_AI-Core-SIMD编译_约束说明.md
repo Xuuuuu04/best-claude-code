@@ -1,0 +1,28 @@
+# 约束说明<a name="ZH-CN_TOPIC_0000002507564342"></a>
+
+-   在同一个编译单元，若存在多个核函数，暂不支持自动推导Kernel类型，需要开发者手动设置Kernel类型。
+    -   特别地，针对如下型号，无论是否是同一个编译单元多个核函数的场景，均不支持在开发者未设置Kernel类型时进行自动推导。建议开发者手动设置Kernel类型。
+        -   Ascend 950PR/Ascend 950DT
+        -   Atlas 推理系列产品
+
+    -   针对Atlas 推理系列产品  ，暂不支持设置Kernel类型为KERNEL\_TYPE\_MIX\_VECTOR\_CORE。
+
+-   KERNEL\_TASK\_TYPE\_DEFAULT接口需在核函数中进行调用。
+-   纯Scalar算子无法实现自动推导
+
+    需手动标记Kernel函数类型，推荐设置为纯Vector类型，添加\_\_vector\_\_ attribute进行标记：
+
+    ```
+    __global__ __vector__ __aicore__ void func0(__gm__ uint8* Addr) {
+        Addr[1] = Addr[0];
+        AscendC::printf("Hello world");
+    } 
+    ```
+-   bfloat16\_t等数据类型在Host侧不支持，使用这些数据类型时，Host和Device不能写在同一个实现文件里。Host侧不支持的数据类型如下：
+
+    Ascend 950PR/Ascend 950DT：bfloat16\_t、hifloat8\_t、fp8\_e5m2\_t、fp8\_e4m3fn\_t、fp8\_e8m0\_t、fp4x2\_e2m1\_t、fp4x2\_e1m2\_t、int4x2\_t。
+
+    Atlas A2 训练系列产品/Atlas A2 推理系列产品：bfloat16\_t。
+
+    Atlas A3 训练系列产品/Atlas A3 推理系列产品：bfloat16\_t。
+

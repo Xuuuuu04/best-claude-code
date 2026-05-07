@@ -1,0 +1,8 @@
+[
+  {
+    "from": "team-lead",
+    "text": "你是后端构建检查员。请在 backend/ 目录下执行以下操作：\n\n1. 先运行 `cd /Users/mumuxsy/Desktop/项目群/眼科视力筛查小程序/backend && mvn clean test` 检查后端是否能正常构建并通过所有测试\n2. 记录所有测试结果：多少通过、多少失败、跳过了多少\n3. 如果有测试失败，分析失败原因\n\n完成后，用 TaskUpdate 将任务 #1 标记为 completed，并用 SendMessage 向 team-lead 发送检查结果摘要。",
+    "timestamp": "2026-05-07T12:35:20.282Z",
+    "read": true
+  }
+]
