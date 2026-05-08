@@ -1,12 +1,16 @@
 <!--
   CLAUDE.md 维护者备注（HTML 注释，注入前剥离，不消耗 context tokens）
-  最近升级：2026-05-04（v4.7）
-  - 新增 多媒体内容生成师 Agent + 4 个配套 Skill：代码驱动视频/动画生成
-  - ARIS 全吸收：Reviewer Independence、assurance-contract、6 级 verdict、学术审计 Agent×3
-  - 数字对齐：Skill 48→58、Rules 48→53、Agents 29→39、版本 v3.9→v4.7
+  最近升级：2026-05-08（v5.0）
+  - Agent Teams 集成（实验性）：S4 并发等级、Teams 并发模板、TeammateIdle hook
+  - 新 Hook 事件：TaskCreated/TaskCompleted/FileChanged/PostToolUseFailure/CwdChanged/StopFailure
+  - Prompt-based hook 支持（clarification-gate 语义升级）
+  - Channels 触发路由（CI/PR/告警 → Agent 自动调度）
+  - Routines 定时任务调度表
+  - Session Forking 机制速查
+  - 数字对齐：Hooks 17→20、新增 §3.13-§3.16 机制速查、版本 v4.7→v5.0
 
   历史成果：
-  - 58 Skills / 53 Rules / 39 Agents / 17 Hooks (+3 _lib)
+  - 58 Skills / 53 Rules / 39 Agents / 20 Hooks (+3 _lib)
   - 保持 ≤200 行；新增机制相关说明请放 LEGION.md。
 -->
 
@@ -18,9 +22,9 @@
 
 ## 项目身份
 
-best-claude-code 是公开项目名；Agent Legion 是内部系统名。它是 Claude Code 多 Agent 协作调度系统：39 个专职 Subagent + 58 个 Skill + 53 条 Rule + Router 组成分层门控流水线，从需求分析推进到最终交付。
+best-claude-code 是公开项目名；Agent Legion 是内部系统名。它是 Claude Code 多 Agent 协作调度系统：39 个专职 Subagent + 58 个 Skill + 53 条 Rule + 20 个 Hook + Router 组成分层门控流水线，从需求分析推进到最终交付。支持 Agent Teams 并行协作（实验性）、Channels 外部事件触发、Routines 定时任务。
 
-运行环境：Claude Code CLI v2.1.59+；脚本：Bash；数据：jq。
+运行环境：Claude Code CLI v2.1.59+（Agent Teams 需 v2.1.32+，Channels 需 v2.1.80+）；脚本：Bash；数据：jq。
 
 ---
 
@@ -32,7 +36,7 @@ best-claude-code 是公开项目名；Agent Legion 是内部系统名。它是 C
 | Skill 定义 | `skills/` | 58 个 Skill |
 | Rule 定义 | `rules/` | 53 条规则（global / framework / lang / infra） |
 | **调度真源** | `rules/_global/dispatch-table.md` | 用户信号 → Agent → artifact → 下一跳 → 并发等级 |
-| Hook 脚本 | `hooks/` | 17 个主 hook 脚本 + 3 个 `_lib/` 辅助脚本 |
+| Hook 脚本 | `hooks/` | 20 个主 hook 脚本 + 3 个 `_lib/` 辅助脚本 |
 | Output Style | `output-styles/legion-dispatch.md` | 主会话调度器行为协议 |
 | 诊断工具 | `bin/doctor.sh` `bin/skill-audit.sh` | 系统健康自检 |
 
@@ -59,6 +63,7 @@ best-claude-code 是公开项目名；Agent Legion 是内部系统名。它是 C
 | `/bcc-doctor` | 每周——系统健康检查（配置/Agent/Skill/Rule/Hook 漂移） |
 | `/bcc-loop-dev {任务}` | 顶级自主开发模式——全部 Agent 团队自动循环迭代，人工仅在安全+不可逆时介入 |
 | `/bcc-fast-fix {文件+改动}` | 极速修复——主会话直接改、验、交，不派任何 Agent |
+| `/bcc-teams {任务}` | 大型任务——Agent Teams 并行协作模式（需 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1） |
 
 业务流水线（新功能/Bug修复/重构/迁移/性能优化/部署/续跑）通过**自然语言直接描述**触发，无需显式命令。
 
@@ -68,7 +73,7 @@ best-claude-code 是公开项目名；Agent Legion 是内部系统名。它是 C
 
 完整路由、artifact、下一跳、并发等级见 `rules/_global/dispatch-table.md`。
 
-**冲突仲裁**：本文件、output-style、Skill 流水线与调度表冲突时，**以调度表为准**。每次派 Agent 前先确认：用户信号匹配哪一行、产出哪个 artifact、下一跳是谁、并发等级是 `S0/S1/S2/S3`。
+**冲突仲裁**：本文件、output-style、Skill 流水线与调度表冲突时，**以调度表为准**。每次派 Agent 前先确认：用户信号匹配哪一行、产出哪个 artifact、下一跳是谁、并发等级是 `S0/S1/S2/S3/S4`。
 
 Agent 选择规则、流水线模板、并发硬规则、Rule 层叠处理、Router 分档、接口字段对账（含 few-shot 反例）全部见调度表。
 
@@ -80,7 +85,7 @@ Agent 选择规则、流水线模板、并发硬规则、Rule 层叠处理、Rou
 - **默认调度** — 中高复杂度任务交给 Subagent；主会话不确定下一跳/门控/职责边界时先问 调度顾问师
 - **分层门控** — 需求审查 → 架构审查 → 代码审查 → 安全审计 → 功能/视觉测试 → 最终裁决
 - **文件交接** — Agent 间通过 `.claude/artifacts/` 结构化文件交接
-- **并行审慎** — 默认串行；并发等级 S0-S3、门控强制条件、用户态信号详见 dispatch-table.md
+- **并行审慎** — 默认串行；并发等级 S0-S4（S4=Agent Teams）、门控强制条件、用户态信号详见 dispatch-table.md
 
 ### 快路径边界
 
@@ -89,8 +94,7 @@ Agent 选择规则、流水线模板、并发硬规则、Rule 层叠处理、Rou
 - 单文件、≤20 行、无 schema / 依赖 / 接口变更的低风险业务修复
 
 **禁止**走快路径：
-- 多文件改动、跨模块重构、探索性修复
-- 数据库 schema、依赖升级、部署发布
+- 多文件改动、跨模块重构、探索性修复、数据库 schema、依赖升级、部署发布
 - 认证、权限、安全、支付、数据持久化
 
 快路径必须满足两件事：`executor=main-fast-path`，且 `fast_path_reason` 写明为什么主会话可直接处理。用户明确要求“你直接快速解决”时可用 `quality_strategy=compressed`，但仍需最小验证和风险说明。
@@ -117,9 +121,7 @@ Agent 选择规则、流水线模板、并发硬规则、Rule 层叠处理、Rou
 
 ## 交接文件规范
 
-artifact 命名与生命周期遵循 `rules/_global/artifact-protocol.md` + `dotclaude-layout.md`。调度下一阶段时传入相关文件路径作为输入。
-
----
+artifact 命名与生命周期遵循 `rules/_global/artifact-protocol.md` + `dotclaude-layout.md`。
 
 ## 进化协议
 
@@ -181,15 +183,15 @@ artifact 命名与生命周期遵循 `rules/_global/artifact-protocol.md` + `dot
 
 context 压缩时（auto-compact 或 `/compact`）必须保留以下内容，超长截断时优先保 这些：
 
-1. **当前 task-id**（任何 `feat-YYYYMMDD-NN` / `bug-YYYYMMDD-NN` 形式）
-2. **未完成 artifact 路径**：scope-lock-* / impl-report-* / review-* 中状态非 `accepted` 的
-3. **失败原因摘要**：最近一次 BLOCKED / FAILED / NEEDS_USER 的 agent 报告关键信息
-4. **不可逆动作待批**：用户尚未确认的 git push --force / 生产部署 / schema 迁移
-5. **当前 batch 进度**：scope-plan 中已完成 vs 待跑的 scope-lock 列表
-6. **接口字段对账证据**：实现工程师 已 grep 到的字典文件路径 + 关键枚举值
-7. **客户态信号**：用户消息里 "返工" / "客户不满" / "终极摸排" 等情绪词触发的强制门控状态
+1. **当前 task-id**
+2. **未完成 artifact 路径**（状态非 `accepted` 的）
+3. **失败原因摘要**：最近 BLOCKED/FAILED/NEEDS_USER 关键信息
+4. **不可逆动作待批**：git push --force / 生产部署 / schema 迁移
+5. **当前 batch 进度**：scope-plan 中已完成 vs 待跑
+6. **接口字段对账证据**：字典文件路径 + 关键枚举值
+7. **客户态信号**：情绪词触发的强制门控状态
 
-可丢弃：已 commit 的 diff（git log 可查）、工具调用中间输出、artifact 完整内容（路径+状态即可）、主会话客套对话
+可丢弃：已 commit 的 diff、工具调用中间输出、artifact 完整内容（路径+状态即可）、客套对话
 
 ---
 

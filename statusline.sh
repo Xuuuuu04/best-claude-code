@@ -173,6 +173,33 @@ if [ -n "$SESSION_ID" ]; then
   fi
 fi
 
+# ── 1c. Agent Teams badge (if team config exists) ─────────────────────────
+TEAMS_SEG=""
+TEAMS_DIR="$HOME/.claude/teams"
+if [ -d "$TEAMS_DIR" ] && command -v jq >/dev/null 2>&1; then
+  TEAM_COUNT=0
+  IDLE_COUNT=0
+  for TEAM_DIR in "$TEAMS_DIR"/*/; do
+    [ -d "$TEAM_DIR" ] || continue
+    CONFIG_FILE="${TEAM_DIR}config.json"
+    [ -f "$CONFIG_FILE" ] || continue
+    MEMBERS="$(jq -r '.members // [] | length' "$CONFIG_FILE" 2>/dev/null || echo 0)"
+    [ "$MEMBERS" -gt 0 ] || continue
+    TEAM_COUNT=$(( TEAM_COUNT + 1 ))
+    IDLE_MEMBERS="$(jq -r '[.members[] | select(.status == "idle" or .status == "stopped")] | length' "$CONFIG_FILE" 2>/dev/null || echo 0)"
+    IDLE_COUNT=$(( IDLE_COUNT + IDLE_MEMBERS ))
+  done
+  if [ "$TEAM_COUNT" -gt 0 ]; then
+    C_TEAMS="\033[38;2;139;92;246m"
+    ICO_TEAMS="⬡"
+    if [ "$COMPACT" -eq 1 ]; then
+      TEAMS_SEG=" ${C_TEAMS}${ICO_TEAMS}${TEAM_COUNT}T${RESET}"
+    else
+      TEAMS_SEG=" ${C_TEAMS}${ICO_TEAMS} 团队 ${TEAM_COUNT}${RESET}"
+    fi
+  fi
+fi
+
 # ── 2. Model ────────────────────────────────────────────────────────────────
 MODEL="$(jq_get '.model.display_name')"
 [ -z "$MODEL" ] && MODEL="$(jq_get '.model.id')"
@@ -497,6 +524,7 @@ fi
 
 LINE1="$LEGION_SEG"
 [ -n "$AGENT_SEG" ] && LINE1="${LINE1}${AGENT_SEG}"
+[ -n "$TEAMS_SEG" ] && LINE1="${LINE1}${TEAMS_SEG}"
 [ -n "$MODEL_SEG" ] && LINE1="${LINE1}${SEP}${MODEL_SEG}"
 [ -n "$PERMISSION_SEG" ] && LINE1="${LINE1}${SEP}${PERMISSION_SEG}"
 [ -n "$STYLE_SEG" ] && LINE1="${LINE1}${SEP}${STYLE_SEG}"
