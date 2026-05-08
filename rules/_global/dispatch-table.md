@@ -10,6 +10,7 @@
     <concurrency-level id="S1" name="只读研究 / 只读审查" allow-concurrent="true" requirement="输入 artifact 固定，输出文件互不覆盖"/>
     <concurrency-level id="S2" name="独立 scope-lock 实现" allow-concurrent="conditional" requirement="文件白名单无交集，依赖图无前后关系，验证命令可独立运行"/>
     <concurrency-level id="S3" name="测试 / 截图 / 验证" allow-concurrent="conditional" requirement="共享环境不会互相污染；否则串行"/>
+    <concurrency-level id="S4" name="Agent Teams 并行协作" allow-concurrent="true" requirement="Teammates 各自隔离上下文，通过消息协调；共享任务列表和 mailbox；文件白名单无交集；需 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1"/>
   </section>
 
   <section id="concurrency-hard-rules">
@@ -74,6 +75,10 @@
     <route signal="简历优化 / 面试准备 / 薪资谈判" agent="就业教练" artifact="career-*" next="用户确认" concurrency="S0"/>
     <route signal="论文写作 / 学术研究 / 毕业论文 / 期刊投稿 / rebuttal" agent="学术论文写作专家" artifact="paper-plan-*, paper-*, audit-*" next="顶会顶刊审稿专家 或 audit agents" concurrency="S0"/>
     <route signal="宣传视频 / 产品动画 / 品牌推广 / 幻灯片演示 / 社交媒体视频" agent="多媒体内容生成师" artifact="storyboard-*, media-impl-*, media-render-*" next="用户确认 / 下游消费" concurrency="S0"/>
+    <route signal="大型功能开发（≥2 独立 scope-lock）且启用 Agent Teams" agent="Agent Teams: Team Lead + Teammates" artifact="impl-report-*, review-code-*" next="高级代码审查师 → 高级安全审计师 → 质量总监" concurrency="S4" note="实验性；Teammates 引用 Subagent 定义复用 tools/model；skills/mcpServers 不继承"/>
+    <route signal="CI 结果推送（Channel）" agent="高级功能测试师" artifact="review-functional-*" next="质量总监 或继续测试" concurrency="S3" note="Channel 触发；需 --channels 启用"/>
+    <route signal="PR 事件推送（Channel）" agent="高级代码审查师" artifact="review-code-*" next="高级安全审计师 或质量总监" concurrency="S1" note="Channel 触发；需 --channels 启用"/>
+    <route signal="监控告警推送（Channel）" agent="高级运维工程师" artifact="incident-*" next="质量总监 或用户确认" concurrency="S0" note="Channel 触发；需 --channels 启用"/>
   </section>
 
   <section id="standard-pipelines">
@@ -294,6 +299,79 @@ Batch {n} 回收：{完成数}/{总数}
 失败项：{无 / 列表}
 下一跳：{agent}
       ]]></code-block>
+    </requirement>
+  </section>
+
+  <section id="agent-teams-template">
+    <requirement>
+      Agent Teams 并发模板（实验性，需 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1）：
+
+      启用条件：
+      <list>
+        <item>任务档位 large 且涉及 ≥2 个独立 scope-lock</item>
+        <item>scope-lock 文件白名单无交集</item>
+        <item>用户明确同意启用 Agent Teams 模式</item>
+      </list>
+
+      Teammates 分配策略：
+      <code-block language="text"><![CDATA[
+Team Lead：主会话（调度器）
+Teammate 1：高级前端工程师 → scope-lock-frontend-*
+Teammate 2：高级后端工程师 → scope-lock-backend-*
+...
+消息协议：Teammates 通过 SendMessage 通信；Lead 通过 Shift+Down 操控
+回收：全部 Teammates idle → Lead 汇总 → 进入 高级代码审查师
+      ]]></code-block>
+
+      安全约束：
+      <list>
+        <item>Teammates 引用 Subagent 定义时，skills 和 mcpServers 不继承——需在项目/用户设置中配置</item>
+        <item>并发安全仍由 dispatch-table S0-S4 等级控制</item>
+        <item>Team Lead 负责文件冲突检测和回收顺序</item>
+        <item>TeammateIdle hook 可发送反馈让 teammate 继续工作（exit code 2）</item>
+      </list>
+    </requirement>
+  </section>
+
+  <section id="channels-routing">
+    <requirement>
+      Channels 触发路由（研究预览，需 v2.1.80+ 和 --channels 启用）：
+
+      Channel 事件 → Agent 路由映射：
+      <list>
+        <item>CI pipeline 完成 → 高级功能测试师（自动调整测试策略）</item>
+        <item>GitHub PR 事件 → 高级代码审查师（自动启动 code-review）</item>
+        <item>监控告警 → 高级运维工程师（自动响应）</item>
+        <item>Telegram/Discord/iMessage 消息 → 主会话（用户远程交互）</item>
+      </list>
+
+      Channel 触发的 DispatchTicket 自动创建规则：
+      <list>
+        <item>ticket.executor = "channel:{source}"</item>
+        <item>ticket.tier = "medium"（默认，可由 agent 根据内容升级）</item>
+        <item>ticket.phase = "implement"（跳过需求分析，直接进入执行）</item>
+        <item>ticket.fast_path_reason = "channel-triggered"</item>
+      </list>
+    </requirement>
+  </section>
+
+  <section id="routines-scheduling">
+    <requirement>
+      Routines / 定时任务调度表：
+
+      | 节奏 | 触发方式 | 命令/Agent | 目的 |
+      |:--|:--|:--|:--|
+      | 每日 09:00 | Desktop 定时任务 | `/bcc-doctor` | 系统健康检查 |
+      | 每周日 10:00 | Cloud Routine | 高级安全审计师 | 安全审计 |
+      | 每次推送 main | GitHub webhook → Channel | 高级代码审查师 | 自动 code review |
+      | 会话内 | `/loop` | `/bcc-loop-dev` | 自主开发循环 |
+
+      Routines 与 /bcc-* 命令映射：
+      <list>
+        <item>/bcc-doctor → 每日 Desktop 定时任务</item>
+        <item>/bcc-update-memory → 每周 Cloud Routine</item>
+        <item>/bcc-loop-dev → 会话内 /loop</item>
+      </list>
     </requirement>
   </section>
 

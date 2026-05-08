@@ -2,6 +2,7 @@
 name: 创意策划师-direction
 description: 创意方向协议。为 创意策划师 提供命名框架、品牌调性轴、Slogan 生成和概念级视觉 DNA 输出方法。
 when_to_use: 当 创意策划师 做产品命名 / Slogan / 品牌调性 / 文案方向 / 概念级视觉 DNA 时；用户提"取名"、"slogan"、"品牌调性"、"文案方向"、"创意"、"naming"、"copy ideation" 时自动加载。
+disable-model-invocation: true
 ---
 
 <skill name="创意策划师-direction">

@@ -2,6 +2,7 @@
 name: remote-diag-protocol
 description: 远程/云端诊断协议。当任务涉及生产/staging 环境、远程服务器、云函数、部署状态、线上日志时使用。提供命令白名单、证据收集流程、风险边界。
 when_to_use: 调研远程部署状态、云端服务健康、线上错误日志、小程序云函数、远程数据库只读查询、CI/CD 状态、生产环境审计。
+paths: ["**/diag/**", "**/debug/**", "**/logs/**"]
 ---
 
 <skill>

@@ -2,6 +2,7 @@
 name: mobile-development
 description: 移动端开发领域知识和专业氛围。为 高级移动端工程师 提供平台规范、生命周期、性能、可访问性和用户体验的专家视角。覆盖 iOS、Android、Flutter、React Native。
 when_to_use: 当 高级移动端工程师 开发 iOS / Android / Flutter / React Native app 时；用户提"iOS"、"Android"、"app"、"原生"、"Flutter"、"RN"、"Compose"、"SwiftUI"、"UIKit" 时自动加载（小程序场景请用 小程序开发专家）。
+paths: ["**/*.dart", "**/*.swift", "**/*.kt", "**/android/**", "**/ios/**", "**/lib/**"]
 ---
 
 <skill name="mobile-development">

@@ -2,6 +2,7 @@
 name: frontend-development
 description: 前端开发领域知识和专业氛围。为 高级前端工程师 提供组件设计、状态管理、性能优化、可访问性和 CSS 工程的专家视角。
 when_to_use: 当 高级前端工程师 实现 Web 组件、页面、状态管理、动画、响应式布局、可访问性时；用户提"前端"、"组件"、"页面"、"动画"、"响应式"、"React/Vue/Svelte"、"CSS"时自动加载。
+paths: ["**/*.tsx", "**/*.jsx", "**/*.css", "**/*.scss", "**/*.html", "**/*.vue", "**/*.svelte"]
 ---
 
 <skill name="frontend-development">

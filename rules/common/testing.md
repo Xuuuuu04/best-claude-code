@@ -1,3 +1,12 @@
+---
+paths:
+  - "**/*.test.*"
+  - "**/*.spec.*"
+  - "**/tests/**"
+  - "**/test/**"
+  - "**/__tests__/**"
+---
+
 # Testing Requirements
 
 ## Minimum Test Coverage: 80%

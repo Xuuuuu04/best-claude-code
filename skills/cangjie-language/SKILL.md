@@ -2,6 +2,7 @@
 name: cangjie-language
 description: 仓颉语言开发专家。覆盖类型系统、语法、并发、网络、宏、C互操作、标准库、扩展库、编译构建的完整知识。Use proactively for 仓颉/CangJie 开发、仓颉代码审查、仓颉项目架构设计。
 when_to_use: 当用户提到仓颉/CangJie、仓颉代码、仓颉项目、cjpm 或华为自研编程语言时自动加载。
+paths: ["**/*.cj", "**/cangjie/**"]
 ---
 
 <skill name="cangjie-language" domain="仓颉语言开发">

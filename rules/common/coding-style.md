@@ -1,3 +1,8 @@
+---
+paths:
+  - "**/*.{ts,tsx,js,jsx,py,go,rs,java,kt,swift,dart,cpp,c,h,css,scss,html}"
+---
+
 # Coding Style
 
 ## Immutability (CRITICAL)

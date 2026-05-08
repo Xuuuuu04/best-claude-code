@@ -10,12 +10,12 @@
 
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-v2.1.59+-7c3aed?style=flat-square&logo=anthropic)](https://claude.com/claude-code)
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](./LICENSE)
-[![Status: v4.7](https://img.shields.io/badge/Status-v4.7-f59e0b?style=flat-square)](#版本状态)
+[![Status: v5.0](https://img.shields.io/badge/Status-v5.0-f59e0b?style=flat-square)](#版本状态)
 [![Language](https://img.shields.io/badge/Language-中文优先-ef4444?style=flat-square)](#多语言与技术栈)
 [![Agents](https://img.shields.io/badge/Agents-39-3b82f6?style=flat-square)](#agent-矩阵)
 [![Skills](https://img.shields.io/badge/Skills-58-06b6d4?style=flat-square)](#skill-体系)
 [![Rules](https://img.shields.io/badge/Rules-53-8b5cf6?style=flat-square)](#rule-体系)
-[![Hooks](https://img.shields.io/badge/Hooks-17%2B3-10b981?style=flat-square)](#hook-安全网)
+[![Hooks](https://img.shields.io/badge/Hooks-20%2B3-10b981?style=flat-square)](#hook-安全网)
 
 <br>
 

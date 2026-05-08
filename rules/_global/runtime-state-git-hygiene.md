@@ -1,3 +1,9 @@
+---
+paths:
+  - "**/.claude/**"
+  - "**/.git/**"
+---
+
 <rule id="runtime-state-git-hygiene" severity="blocker">
   <rationale>
     Agent Legion 会在本地生成 ticket、clarification pending、日志、备份和运行态文件。运行态文件若进入仓库，会泄露本地上下文、制造假状态，并污染发布提交。

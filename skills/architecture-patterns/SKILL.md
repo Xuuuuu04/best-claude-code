@@ -2,6 +2,7 @@
 name: architecture-patterns
 description: 架构设计模式与决策框架。为 资深系统架构师 提供模块解耦、接口设计、数据流、权衡取舍的专家视角。
 when_to_use: 当 资深系统架构师 设计新模块 / 做技术选型 / 评估接口边界 / 考虑模块解耦时；用户提"架构设计"、"技术方案"、"模块边界"、"系统设计"、"重构方案"时自动加载。
+paths: ["**/arch/**", "**/architecture/**", "**/*.arch.md"]
 ---
 
 <skill name="architecture-patterns">

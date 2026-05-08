@@ -2,6 +2,7 @@
 name: mcp-builder-protocol
 description: MCP Server 构建协议。用于设计、实现、审查 MCP 工具，强调工具 schema、鉴权边界、错误处理、最小权限和可观测性。
 when_to_use: 当用户要设计、实现、调试或审查 MCP server、MCP tools、外部 API 工具接入或 agent 工具协议时使用。
+paths: ["**/mcp/**", "**/.mcp*", "**/mcp*.json"]
 ---
 
 <skill>

@@ -224,4 +224,18 @@
       </checklist>
     </requirement>
   </section>
+
+  <section id="agent-teams-artifacts">
+    <requirement severity="warning">
+      Agent Teams 产出 artifact 规则（实验性）：
+
+      <list>
+        <item>Teammates 产出的 artifact 遵循相同命名规范，但 agent 字段记录 teammate 名称</item>
+        <item>TaskCreated / TaskCompleted hook 自动同步 DispatchTicket 状态到 legion-session.json 的 teams.tasks 数组</item>
+        <item>Team Lead 汇总时需检查所有 Teammates 的 artifact 完整性</item>
+        <item>跨 Teammate 的 artifact 引用需通过 Team Lead 协调（Teammates 不直接共享文件系统写入）</item>
+        <item>Agent Teams 模式下的 DispatchTicket 需包含 teams 字段：{team_name, teammates: [{name, scope, status}]}</item>
+      </list>
+    </requirement>
+  </section>
 </rule>

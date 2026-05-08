@@ -1,3 +1,10 @@
+---
+paths:
+  - ".git/**"
+  - "**/COMMIT_EDITMSG"
+  - "**/.gitignore"
+---
+
 # Git 工作流
 
 ## 提交消息格式
