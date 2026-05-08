@@ -1,3 +1,8 @@
+---
+paths:
+  - ".claude/**"
+---
+
 <rule id="dotclaude-layout" severity="blocker">
   <rationale>
     **强制规范**。所有 agent 在项目级目录下写文件（artifact / log / state / memory）时必须遵守。v3 新增。

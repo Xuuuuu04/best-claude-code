@@ -1,3 +1,10 @@
+---
+paths:
+  - "CLAUDE.md"
+  - "**/CLAUDE.md"
+  - ".claude/**"
+---
+
 <rule id="claudemd-standard" severity="blocker">
   <rationale>
     项目中的 CLAUDE.md 文件必须符合以下规范。此规则由 <cmd>/bcc-init-project</cmd> 和 <cmd>/bcc-update-memory</cmd> 生成时遵循，也指导 <agent>高级架构审查师</agent> 在审查 CLAUDE.md 时的判断。

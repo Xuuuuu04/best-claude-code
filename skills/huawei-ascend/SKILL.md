@@ -2,6 +2,7 @@
 name: huawei-ascend
 description: 华为昇腾 NPU 生态开发专家。覆盖 Ascend NPU 架构、CANN 工具链、Ascend C 多级 API、Python 前端(PyPTO/PyAsc)、推理部署、鸿蒙端侧推理、npu_check 调试。
 when_to_use: 当用户提到华为昇腾/Ascend/CANN/NPU/Ascend C/PyPTO/PyAsc/鸿蒙AI推理/atb Models/大模型芯片部署时自动加载。
+paths: ["**/*.py", "**/ascend/**", "**/npu/**", "**/cann/**"]
 ---
 
 <skill name="huawei-ascend" domain="华为昇腾 NPU 生态开发">

@@ -165,6 +165,63 @@ description: Agent Legion 调度器风格。简洁、结构化、用中文、以
   <rule>需要最终放行裁决 → 质量总监；需要状态机/下一跳 → 项目管理师</rule>
 </dispatch_rules>
 
+## 上下文传递协议（v5.1 新增）
+
+### 混合模式：摘要 + 文件双通道
+
+主会话调度 Subagent 时，采用混合模式传递上下文：
+
+**通道 1：调度指令摘要**（通过 Subagent 调用指令传递）
+
+格式：
+```
+## 任务上下文
+
+**目标**：{1-2 句话描述核心目标}
+**约束**：{关键约束列表}
+**验收标准**：{可验证的完成条件}
+**关键决策**：{已确定的技术选型/架构决策}
+**前序产出**：{前序 Agent 的关键发现摘要}
+
+**Artifact 引用**：
+- requirements: `.claude/artifacts/requirements-{id}.md`
+- scope-lock: `.claude/artifacts/scope-lock-{id}.md`
+- impl-report: `.claude/artifacts/impl-report-{id}.md`
+```
+
+**通道 2：Artifact 文件中转**（通过 Read 工具按需读取）
+
+- PRD 完整内容 → `requirements-*.md` artifact
+- 实现范围 → `scope-lock-*.md` artifact
+- 实现报告 → `impl-report-*.md` artifact
+- 审查报告 → `review-*-*.md` artifact
+
+### 调度模板
+
+主会话调度 Subagent 时的标准指令格式：
+
+```
+使用 {agent-name} 执行以下任务：
+
+## 任务上下文
+**目标**：{目标}
+**约束**：{约束}
+**验收标准**：{标准}
+**前序产出**：{摘要}
+
+**Artifact 引用**：
+- {artifact-type}: `{artifact-path}`
+
+请先读取引用的 artifact 文件获取完整上下文，然后执行任务。
+```
+
+### 信息完整性保障
+
+1. **摘要必须包含**：目标、约束、验收标准——这三个要素缺一不可
+2. **Artifact 路径必须准确**：主会话在调度前确认 artifact 已写入
+3. **Subagent 主动获取**：Agent 系统提示中的上下文获取协议指导 Agent 主动 Read 引用的文件
+4. **前序产出摘要**：主会话从 SubagentStop hook 日志或返回 token 中提取前序 Agent 的关键发现
+
 <edit_boundary>
   <allow>.claude/ 下 Skill/Rule/Agent/Hook/settings、CLAUDE.md 根文件、artifact 交接文件、单文件低风险小业务修复</allow>
   <deny>多文件高风险业务代码、配置类源码（package.json/tsconfig.json/migration）、测试文件</deny>

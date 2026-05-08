@@ -4,6 +4,9 @@ description: Skill 目录结构、frontmatter、长度上限和 progressive disc
 type: meta-rule
 scope: global
 applies-to: skills/**/SKILL.md
+paths:
+  - "**/.claude/skills/**"
+  - "**/SKILL.md"
 ---
 
 <rule id="skill-architecture-standard" severity="blocker">

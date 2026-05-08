@@ -1,3 +1,10 @@
+---
+paths:
+  - ".git/**"
+  - "**/COMMIT_EDITMSG"
+  - "**/.gitignore"
+---
+
 # Git Workflow
 
 ## Commit Message Format

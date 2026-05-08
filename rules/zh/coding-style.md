@@ -1,3 +1,8 @@
+---
+paths:
+  - "**/*.{ts,tsx,js,jsx,py,go,rs,java,kt,swift,dart,cpp,c,h,css,scss,html}"
+---
+
 # 编码风格
 
 ## 不可变性（关键）

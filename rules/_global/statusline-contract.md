@@ -9,6 +9,7 @@
       <list>
         <item>LEGION brand</item>
         <item>活跃 Subagent 摘要</item>
+        <item>Agent Teams 状态（如有活跃团队）</item>
         <item>模型</item>
         <item>权限模式</item>
       </list>

@@ -2,6 +2,7 @@
 name: api-guide
 description: API 设计参考指南。在设计新 API 端点、修改已有 API 或审查 API 契约时提供查询的参考资料。
 when_to_use: 仅当 资深系统架构师 / 高级后端工程师 / 高级代码审查师 在设计或审查 RESTful / GraphQL / RPC API 契约（路径、方法、状态码、错误格式、版本化）时加载。前端调用方、内部函数签名不应触发。
+paths: ["**/api/**", "**/*.openapi.*", "**/*.swagger.*", "**/routes/**"]
 ---
 
 <skill name="api-guide">

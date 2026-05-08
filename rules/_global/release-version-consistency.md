@@ -1,3 +1,11 @@
+---
+paths:
+  - "**/package.json"
+  - "**/Cargo.toml"
+  - "**/pyproject.toml"
+  - "**/go.mod"
+---
+
 <rule id="release-version-consistency" severity="warning">
   <rationale>
     发布时 README 徽章、CLAUDE.md 最近升级、LEGION changelog 和 EVOLVE-LOG 若版本不一致，用户无法判断当前系统真实版本。版本漂移应由确定性脚本拦截，而不是靠人工记忆。

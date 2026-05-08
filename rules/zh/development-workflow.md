@@ -1,3 +1,8 @@
+---
+paths:
+  - "**/*.{ts,tsx,js,jsx,py,go,rs,java,kt,swift,dart,cpp,c,h}"
+---
+
 # 开发工作流
 
 > 此文件扩展 [common/git-workflow.md](./git-workflow.md)，包含 git 操作之前的完整功能开发流程。

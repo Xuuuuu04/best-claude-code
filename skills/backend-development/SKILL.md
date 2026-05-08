@@ -2,6 +2,7 @@
 name: backend-development
 description: 后端开发领域知识和专业氛围。为 高级后端工程师 提供 API 设计、数据库、并发、安全、可观测性和性能优化的专家视角。
 when_to_use: 当 高级后端工程师 实现 API / 服务层 / 数据访问 / 错误处理 / 中间件 / 后台任务时；用户提"后端"、"API 实现"、"接口"、"服务"、"controller"、"service 层"、"中间件"时自动加载。
+paths: ["**/*.py", "**/*.go", "**/*.java", "**/*.rs", "**/*.rb", "**/*.php", "**/*.kt"]
 ---
 
 <skill name="backend-development">

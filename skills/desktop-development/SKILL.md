@@ -7,6 +7,7 @@ when_to_use: >
   当 高级桌面应用工程师 开发桌面应用时；用户提"桌面应用"、"desktop"、"Electron"、
   "Tauri"、"Wails"、"Qt"、"SwiftUI macOS"、".NET MAUI"、"原生桌面"时自动加载。
   Web 应用和移动端场景不适用。
+paths: ["**/*.ts", "**/*.tsx", "**/electron/**", "**/tauri/**", "**/main/**"]
 ---
 
 <skill name="desktop-development">
