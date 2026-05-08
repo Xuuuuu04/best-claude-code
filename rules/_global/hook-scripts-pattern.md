@@ -1,3 +1,9 @@
+---
+paths:
+  - "**/.claude/hooks/**"
+  - "**/hooks/**"
+---
+
 <rule id="hook-scripts-pattern" severity="blocker">
   <rationale>
     适用于所有 Claude Code hook 脚本（位于 <path>.claude/hooks/</path> 或 <path>~/.claude/hooks/</path>）。这些规范来自 Agent Legion 实战中踩过的坑，每条都有过真实事故。

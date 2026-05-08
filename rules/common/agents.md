@@ -1,3 +1,9 @@
+---
+paths:
+  - "agents/**"
+  - "**/.claude/agents/**"
+---
+
 # Agent Orchestration
 
 ## Available Agents

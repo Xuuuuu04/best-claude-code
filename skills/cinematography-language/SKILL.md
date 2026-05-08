@@ -4,6 +4,7 @@ description: >
   电影镜头语言知识库。定义运镜、构图、光影、节奏与情感映射，
   用于指导代码生成视频的视觉叙事质量。
 when_to_use: 多媒体内容生成师 在分镜设计和动画实现阶段预加载。
+paths: ["**/*.storyboard", "**/video/**", "**/animation/**"]
 ---
 
 <skill name="cinematography-language">

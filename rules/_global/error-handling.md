@@ -1,3 +1,8 @@
+---
+paths:
+  - "**/*.{ts,tsx,js,jsx,py,go,rs,java,kt,swift,dart,cpp,c,h}"
+---
+
 <rule id="error-handling" severity="blocker">
   <rationale>适用于所有代码，不分语言。</rationale>
 

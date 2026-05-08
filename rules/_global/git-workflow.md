@@ -1,3 +1,9 @@
+---
+paths:
+  - "**/.git/**"
+  - "**/CHANGELOG*"
+---
+
 <rule id="git-workflow" severity="blocker">
   <rationale>适用于所有项目的 Git 操作规范。</rationale>
 

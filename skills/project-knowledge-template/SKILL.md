@@ -2,6 +2,7 @@
 name: project-knowledge-template
 description: 项目知识库模板。仅供 /bcc-init-project 和 /bcc-update-memory 在具体项目的 .claude/skills/project-knowledge/ 中生成项目级知识，不应承载用户级具体项目事实。
 disable-model-invocation: true
+paths: ["**/.claude/**", "**/CLAUDE.md"]
 ---
 
 <skill name="project-knowledge-template" domain="项目知识库" mode="template" target-path="<project>/.claude/skills/project-knowledge/SKILL.md">

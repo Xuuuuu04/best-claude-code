@@ -64,6 +64,10 @@ best-claude-code 是公开项目名；Agent Legion 是内部系统名。它是 C
 | `/bcc-loop-dev {任务}` | 顶级自主开发模式——全部 Agent 团队自动循环迭代，人工仅在安全+不可逆时介入 |
 | `/bcc-fast-fix {文件+改动}` | 极速修复——主会话直接改、验、交，不派任何 Agent |
 | `/bcc-teams {任务}` | 大型任务——Agent Teams 并行协作模式（需 CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1） |
+| `/bcc-deploy` | 一键部署——构建→测试→部署→验证全链路编排 |
+| `/bcc-security-scan` | 安全扫描——依赖漏洞/代码安全/敏感信息泄露检测 |
+| `/bcc-perf-test` | 性能测试——瓶颈定位/内存泄漏/响应时间分析 |
+| `/bcc-refactor` | 安全重构——影响分析→拆分→验证→回归测试 |
 
 业务流水线（新功能/Bug修复/重构/迁移/性能优化/部署/续跑）通过**自然语言直接描述**触发，无需显式命令。
 
@@ -73,9 +77,9 @@ best-claude-code 是公开项目名；Agent Legion 是内部系统名。它是 C
 
 完整路由、artifact、下一跳、并发等级见 `rules/_global/dispatch-table.md`。
 
-**冲突仲裁**：本文件、output-style、Skill 流水线与调度表冲突时，**以调度表为准**。每次派 Agent 前先确认：用户信号匹配哪一行、产出哪个 artifact、下一跳是谁、并发等级是 `S0/S1/S2/S3/S4`。
+**冲突仲裁**：本文件、output-style、Skill 流水线与调度表冲突时，**以调度表为准**。每次派 Agent 前确认：用户信号匹配行、产出 artifact、下一跳、并发等级 `S0-S4`。
 
-Agent 选择规则、流水线模板、并发硬规则、Rule 层叠处理、Router 分档、接口字段对账（含 few-shot 反例）全部见调度表。
+Agent 选择规则、流水线模板、并发硬规则、Rule 层叠、Router 分档、接口字段对账全部见调度表。
 
 ---
 
@@ -181,20 +185,10 @@ artifact 命名与生命周期遵循 `rules/_global/artifact-protocol.md` + `dot
 
 ## Compact Instructions
 
-context 压缩时（auto-compact 或 `/compact`）必须保留以下内容，超长截断时优先保 这些：
-
-1. **当前 task-id**
-2. **未完成 artifact 路径**（状态非 `accepted` 的）
-3. **失败原因摘要**：最近 BLOCKED/FAILED/NEEDS_USER 关键信息
-4. **不可逆动作待批**：git push --force / 生产部署 / schema 迁移
-5. **当前 batch 进度**：scope-plan 中已完成 vs 待跑
-6. **接口字段对账证据**：字典文件路径 + 关键枚举值
-7. **客户态信号**：情绪词触发的强制门控状态
-
-可丢弃：已 commit 的 diff、工具调用中间输出、artifact 完整内容（路径+状态即可）、客套对话
+context 压缩时必须保留：1.当前 task-id 2.未完成 artifact 路径 3.失败原因摘要 4.不可逆动作待批 5.batch 进度 6.接口字段对账证据 7.客户态信号。可丢弃：已 commit diff、工具中间输出、artifact 完整内容（路径+状态即可）、客套对话。
 
 ---
 
 ## 参考文件
 
-完整机制说明阅读 `README.md` 和 `LEGION.md`，**不要**整篇重新注入运行期协议。运行时开关见 `rules/_global/hook-scripts-pattern.md` § 8（`CLAUDE_HOOK_PROFILE` / `CLAUDE_DISABLED_HOOKS`）。改完 settings.json 后跑 `bash ~/.claude/bin/doctor.sh` 验证 JSON 合法——格式错误会导致 Claude Code 静默不启动。
+完整机制见 `README.md` + `LEGION.md`，**不要**整篇重注入运行期协议。运行时开关见 `rules/_global/hook-scripts-pattern.md` §8。改完 settings.json 后跑 `bash ~/.claude/bin/doctor.sh` 验证 JSON 合法。

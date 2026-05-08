@@ -141,6 +141,37 @@ Claude Code 在模型 + 内置工具之上提供一套扩展层：
 - Subagent 不继承主会话的 Skill，必须显式指定
 - `disable-model-invocation: true` 的 Skill 不能被预加载（因为预加载来自 model-invocable 池）
 
+#### 3.3.1 BCC 命令设计哲学
+
+BCC（Bootstrapped Command Chain）命令是本系统对 Claude Code Skill 机制的核心应用——以 `bcc-` 前缀的 Skill 封装高频开发工作流，通过 `disable-model-invocation: true` 确保仅在用户显式调用时触发。
+
+**三条设计原则**：
+
+1. **快捷入口**（Quick Entry）：一键触发多步骤复杂流程，降低用户认知负担。例：`/bcc-loop-dev` 一条命令启动全 Agent 团队自动迭代。
+2. **流程编排**（Workflow Orchestration）：将分散的多步操作收敛为确定性流程，减少遗漏和歧义。例：`/bcc-deploy` 编排构建→测试→部署→验证全链路。
+3. **质量门控**（Quality Gate）：在关键节点强制执行检查，防止低质量产出流入下游。例：`/bcc-doctor` 在部署前扫描系统健康状态。
+
+**命名规范**：`bcc-{action}-{target}` 或 `bcc-{workflow}`
+- `bcc-{workflow}`：端到端工作流（`bcc-loop-dev`、`bcc-fast-fix`、`bcc-init-project`）
+- `bcc-{action}-{target}`：针对特定目标的操作（`bcc-security-scan`、`bcc-perf-test`、`bcc-deploy`）
+
+**命令矩阵**（v5.1）：
+
+| 命令 | 类型 | 触发场景 |
+|:--|:--|:--|
+| `/bcc-init-project` | 工作流 | 新项目首次进入 |
+| `/bcc-update-memory` | 工作流 | 会话结束、知识沉淀 |
+| `/bcc-doctor` | 质量门控 | 定期健康检查、部署前验证 |
+| `/bcc-loop-dev` | 工作流 | 自主开发循环 |
+| `/bcc-fast-fix` | 工作流 | 极速单点修复 |
+| `/bcc-teams` | 工作流 | Agent Teams 并行协作 |
+| `/bcc-deploy` | 流程编排 | 一键部署（构建→测试→部署→验证） |
+| `/bcc-security-scan` | 质量门控 | 安全扫描（依赖漏洞/代码安全/敏感信息） |
+| `/bcc-perf-test` | 质量门控 | 性能测试（瓶颈/内存泄漏/响应时间） |
+| `/bcc-refactor` | 流程编排 | 安全重构（分析→拆分→验证→回归） |
+
+**扩展指引**：新增 BCC 命令时，必须遵循以上三条原则之一，且 SKILL.md 必须包含完整操作流程（不依赖 references/），因为 `disable-model-invocation: true` 意味着 Skill 内容在触发时才全量加载。
+
 ### 3.4 Subagents 机制
 
 **Frontmatter 核心字段**（按在本系统中使用到的）：

@@ -5,6 +5,7 @@ description: >
   顶会顶刊审稿标准、5 维学术审计、论文写作阶段门控（Phase 0-6）、
   assurance 动态门控、四层证据审计栈引用、rebuttal 安全门控。
 when_to_use: 当用户提到论文/paper/学术写作/毕业论文/期刊/会议/LaTeX/审稿/文献综述/rebuttal 时自动加载。
+paths: ["**/*.tex", "**/*.bib", "**/paper/**", "**/docs/**"]
 ---
 
 <skill name="academic-paper" domain="学术论文撰写与审查" max-review-rounds="3">
