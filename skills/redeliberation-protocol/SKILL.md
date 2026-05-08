@@ -1,87 +1,80 @@
 ---
 name: redeliberation-protocol
-description: "再审议协议。当 实现工程师 同一 scope-lock 被 高级代码审查师 驳回 ≥2 次，或 质量总监 因实现问题裁定 BLOCKED 时自动加载。实现 A-B 审议迭代闭环（实现工程师 ↔ reviewer），judge 判定终止，max 3 轮。"
-when_to_use: "实现被驳回 ≥2 次 / 质量总监 BLOCKED / 同一 scope 反复返工 / 高级代码审查师 多次 REJECT"
+description: "实现工程师 ↔ 高级代码审查师 审议迭代参考模板。当 实现工程师 同一 scope-lock 被 高级代码审查师 驳回 ≥2 次时，主会话可参考本模板执行定向修订循环。v5.2 后，全环节对抗协议（output-styles/legion-dispatch.md <adversarial_protocol>）已覆盖所有审查环节，本文件降级为代码实现迭代的具体参考模板。"
+when_to_use: "实现工程师 同一 scope-lock 被 高级代码审查师 驳回 ≥2 次 / 质量总监 因实现问题裁定 BLOCKED"
 ---
 
 <skill name="redeliberation-protocol">
 
 <overview>
-本协议实现「A-B 审议迭代」闭环：当 实现工程师 的同一 scope-lock 被反复驳回时，将隐式返工显式化为有计数器、有上限、有历史记录的受控循环。
+本文件是**代码实现迭代的参考模板**，不是独立协议。
+
+v5.2 后，全环节对抗协议已统一覆盖所有 A→B 审查环节：
+- 需求↔需求审查、架构↔架构审查、实现↔代码审查、安全↔安全审计
+- 文档↔内容审查、调研↔调研审查、创意↔内容审查、多媒体↔内容审查
+
+通用规则见 output-styles/legion-dispatch.md <adversarial_protocol>：
+- 默认 until_pass，max_rounds=3（每对 A→B 独立计数）
+- REJECT → 自动迭代 → PASS 或穷尽升级
+- 穷尽后升级给 项目管理师 做根因分析，不直接上报用户
+
+本文件仅保留**实现↔代码审查**环节的具体执行细节，供主会话参考。
+</overview>
 
 <roles>
   <role id="A">实现工程师（执行实现，产出 impl-report）</role>
   <role id="B">高级代码审查师（审查实现，产出 review-code）</role>
-  <role id="judge">质量总监 或主会话（判定终止或重试）</role>
+  <role id="judge">主会话（根据通用对抗协议判定终止或重试）</role>
 </roles>
 
-循环最多 3 轮。每轮 A → B → judge，judge 判定 PASS 则结束，RETRY 则进入下一轮。
-</overview>
-
 <triggers>
-  <trigger priority="critical">高级代码审查师 对同一 scope-lock 返回 <token>REVIEW_REJECT</token> 这是第 2 次</trigger>
-  <trigger priority="critical">质量总监 返回 <token>VERDICT_BLOCKED</token> 且阻塞原因指向实现质量</trigger>
-  <trigger priority="high">实现工程师 的 impl-report 被同一 reviewer 驳回 ≥2 次</trigger>
-  <trigger priority="high">主会话检测到同一 scope-lock 的 <file>review-code-*</file> 文件 ≥2 个且最新为 REJECT</trigger>
+  <trigger priority="critical">高级代码审查师 对同一 scope-lock 返回 REVIEW_REJECT 这是第 2 次</trigger>
+  <trigger priority="critical">质量总监 返回 VERDICT_BLOCKED 且阻塞原因指向实现质量</trigger>
 </triggers>
-
-<non-triggers>
-  <case>安全审计驳回（那是 高级安全审计师 的独立 gate，不走实现迭代）</case>
-</non-triggers>
 
 <parameters>
   <param name="scope_lock" required="true">scope-lock 文件路径</param>
   <param name="impl_report" required="true">最近一次 impl-report 路径</param>
   <param name="review_code" required="true">最近一次 review-code 路径（含驳回原因）</param>
-  <param name="max_rounds" required="false" default="3">最大迭代轮次</param>
+  <param name="max_rounds" required="false" default="3">最大迭代轮次（与通用对抗协议一致）</param>
 </parameters>
 
-<file-conventions>
-在 scope-lock 同目录下追加迭代文件：
-
-  <file role="主会话维护"><var>{scope-lock 同目录}</var>/redelib_v{M}.md — 记录每轮判定</file>
-
-代码修改直接覆盖原文件（同 scope-lock 白名单路径），不创建额外分支。
-</file-conventions>
-
-<instructions>
+<iteration_template>
   <phase name="初始化" priority="1">
     <step>读取 scope-lock，确认白名单和完成标准</step>
     <step>读取最近一次 review-code，提取严重和一般问题清单</step>
     <step>初始化轮次计数器 M = 1，max_rounds = 3</step>
   </phase>
 
-  <phase name="审议循环（最多 max_rounds 轮）" priority="2">
-每轮依次执行：
-
+  <phase name="审议循环" priority="2">
     <round-step actor="实现工程师" label="步骤 A — 定向修订">
-调度器派遣 实现工程师，prompt 中传入：
       <input>scope-lock 路径</input>
       <input>上一轮 review-code 的严重/一般问题清单（仅问题摘要，不传全文）</input>
       <input>当前轮次 M / max_rounds</input>
-      <behavior>实现工程师 仅修改有问题的文件，产出 <artifact>impl-report-{task-id}-{seq}_r{M}.md</artifact></behavior>
+      <behavior>实现工程师 仅修改有问题的文件，产出 impl-report-{task-id}-{seq}_r{M}.md</behavior>
     </round-step>
 
     <round-step actor="高级代码审查师" label="步骤 B — 专项审查">
-调度器派遣 高级代码审查师，prompt 中传入：
       <input>scope-lock 路径</input>
       <input>新 impl-report 路径</input>
       <input>上一轮 review-code 路径（对照检查问题是否真修复）</input>
-      <output-format>返回 <token>REVIEW_PASS</token> 或 <token>REVIEW_REJECT:{严重数}blocker:{一般数}issue</token></output-format>
+      <output-format>返回 REVIEW_PASS 或 REVIEW_REJECT:{严重数}blocker:{一般数}issue</output-format>
     </round-step>
 
-    <round-step actor="judge" label="步骤 C — 判定">
-      <case condition="REVIEW_PASS">循环结束，进入最终阶段</case>
+    <round-step actor="judge" label="步骤 C — 判定（遵循通用对抗协议）">
+      <case condition="REVIEW_PASS">循环结束，进入下一门控</case>
       <case condition="REVIEW_REJECT 且 M &lt; max_rounds">M++，回到步骤 A</case>
-      <case condition="REVIEW_REJECT 且 M ≥ max_rounds">循环结束，进入最终阶段（标记为 BLOCKED）</case>
+      <case condition="REVIEW_REJECT 且 M ≥ max_rounds">循环结束，标记 BLOCKED，升级给 项目管理师 根因分析</case>
     </round-step>
   </phase>
+</iteration_template>
 
-  <phase name="向用户返回结果" priority="3">
-    <case condition="通过">再审议通过，最终产出：<var>{impl-report 路径}</var>，共 <var>{M}</var> 轮</case>
-    <case condition="未通过">再审议未通过（<var>{max_rounds}</var> 轮后仍驳回），最终阻塞问题：<var>{严重数}</var>blocker <var>{一般数}</var>issue，建议人工介入</case>
-  </phase>
-</instructions>
+<root_cause_analysis>
+  <step priority="1">项目管理师 读取 scope-lock + 全部 impl-report + 全部 review-code</step>
+  <step priority="2">判断阻塞根因：scope-lock 缺陷 / architecture 缺陷 / Agent 能力边界 / 需求自相矛盾</step>
+  <step priority="3">产出 dispatch-{date}-adversarial-{task-id}.md</step>
+  <step priority="4">仅在 项目管理师 判断为"需人工介入"时才上报用户</step>
+</root_cause_analysis>
 
 <error-handling>
   <case condition="实现工程师 连续 2 次异常（无产出/超时）">终止循环，标记 BLOCKED</case>
@@ -90,33 +83,10 @@ when_to_use: "实现被驳回 ≥2 次 / 质量总监 BLOCKED / 同一 scope 反
 </error-handling>
 
 <relationship-to-other-protocols>
-  <relation protocol="implementation-protocol">本协议包装 实现工程师 + 高级代码审查师 的交互，不替代它们</relation>
-  <relation protocol="security-audit-protocol">安全审计仍独立执行，高级安全审计师 的 <token>SECURITY_REJECT</token> 不触发本协议</relation>
-  <relation protocol="quality-verdict">质量总监 在本协议中承担 judge 角色，或在循环结束后做最终裁决</relation>
-  <relation protocol="implementation-protocol" complement="true">implementation-protocol 管单次实现纪律，本协议管多次迭代纪律</relation>
+  <relation protocol="output-styles/legion-dispatch.md">通用对抗协议是本文件的父协议，本文件仅保留实现↔代码审查的具体执行细节</relation>
+  <relation protocol="implementation-protocol">implementation-protocol 管单次实现纪律，本文件管多次迭代纪律</relation>
+  <relation protocol="security-audit-protocol">安全审计仍独立执行，高级安全审计师 的 SECURITY_REJECT 不触发本模板</relation>
+  <relation protocol="quality-verdict">质量总监 在循环结束后做最终裁决</relation>
 </relationship-to-other-protocols>
-
-<escalation name="穷尽升级（max_rounds 耗尽时）">
-再审议 3 轮后仍被驳回时，<emphasis>不直接上报用户</emphasis>。先派遣 <agent>项目管理师</agent> 做根因分析：
-
-  <step priority="1">项目管理师 读取 scope-lock + 全部 impl-report + 全部 review-code</step>
-  <step priority="2">项目管理师 判断阻塞根因：</step>
-
-  <root-cause-analysis>
-    <cause name="scope-lock 缺陷" symptom="白名单遗漏、接口契约不清">
-      <action>退回 <agent>资深范围规划师</agent> 修订 scope-lock，重新开始</action>
-    </cause>
-    <cause name="architecture 缺陷" symptom="设计不可行">
-      <action>退回 <agent>资深系统架构师</agent>，重新设计</action>
-    </cause>
-    <cause name="实现工程师 能力边界" symptom="确实做不到">
-      <action>上报用户，建议人工介入或拆更小 scope</action>
-    </cause>
-  </root-cause-analysis>
-
-  <step priority="3">项目管理师 产出 <artifact>dispatch-{date}-redelib-{task-id}.md</artifact></step>
-
-仅在 项目管理师 也判断为"需人工介入"时才上报用户。
-</escalation>
 
 </skill>

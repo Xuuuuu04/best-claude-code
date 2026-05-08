@@ -36,6 +36,7 @@ _HOOK_MIN_PROFILE=(
   "task-created-sync:standard"
   "task-completed-sync:standard"
   "artifact-file-changed:standard"
+  "permission-auto-claude:minimal"
   "orchestrator-edit-guard:standard"
   "stop-quality-gate:standard"
   "scope-lock-guard:standard"

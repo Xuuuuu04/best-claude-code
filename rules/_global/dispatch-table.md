@@ -60,7 +60,7 @@
     <route signal="微信小程序 / uni-app / 微信登录支付" agent="小程序开发专家" artifact="impl-report-*" next="高级代码审查师" concurrency="S2"/>
     <route signal="加表 / 改字段 / 迁移 / 索引" agent="资深数据库工程师" artifact="schema-*" next="高级代码审查师 + 高级安全审计师" concurrency="S0"/>
     <route signal="训练模型 / fine-tune / 推理服务" agent="机器学习工程师" artifact="ml-report-*" next="高级代码审查师 或 高级运维工程师" concurrency="S0"/>
-    <route signal="代码审查 / diff 审查" agent="高级代码审查师" artifact="review-code-*" next="高级安全审计师 或 高级功能测试师" concurrency="S1"/>
+    <route signal="代码审查 / diff 审查" agent="高级代码审查师" artifact="review-code-*" next="高级安全审计师 或 高级功能测试师" concurrency="S1" note="返回 REJECT 时触发全环节对抗迭代，max_rounds=3"/>
     <route signal="安全审计 / 上线前安全检查" agent="高级安全审计师" artifact="review-security-*" next="高级功能测试师 或 质量总监" concurrency="S1"/>
     <route signal="功能测试 / 回归验证" agent="高级功能测试师" artifact="review-functional-*" next="高级视觉测试师 或 质量总监" concurrency="S3"/>
     <route signal="UI 截图 / 视觉回归 / 交互可用性" agent="高级视觉测试师" artifact="review-visual-*" next="质量总监" concurrency="S3"/>
