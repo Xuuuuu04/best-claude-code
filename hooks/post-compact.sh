@@ -28,10 +28,7 @@ if [ -n "$ARTIFACTS" ]; then
 fi
 
 jq -c -n --arg ctx "$CONTEXT" '{
-  hookSpecificOutput: {
-    hookEventName: "PostCompact",
-    additionalContext: $ctx
-  }
+  systemMessage: $ctx
 }'
 
 exit 0

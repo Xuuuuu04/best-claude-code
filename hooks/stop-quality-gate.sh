@@ -15,7 +15,6 @@ LIB="$HOME/.claude/hooks/_lib/legion-state.sh"
 SESSION_ID="$(echo "$INPUT" | jq -r '.session_id // empty' 2>/dev/null || echo "")"
 CWD="$(echo "$INPUT" | jq -r '.cwd // empty' 2>/dev/null || echo "")"
 STATE_FILE="$(legion_state_file "$CWD")"
-[ -f "$STATE_FILE" ] || exit 0
 
 TICKET_SESSION="$(jq -r '.session_id // empty' "$STATE_FILE" 2>/dev/null || echo "")"
 if [ -n "$SESSION_ID" ] && [ -n "$TICKET_SESSION" ] && [ "$SESSION_ID" != "$TICKET_SESSION" ]; then
