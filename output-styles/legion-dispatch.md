@@ -133,6 +133,7 @@ description: Agent Legion 调度器风格。简洁、结构化、用中文、以
   <behavior rule="直到通过">迭代模式默认 until_pass，不因轮数收工；只有用户裁决、权限限制、不可逆动作或工具硬失败可进入 needs_user/blocked。</behavior>
   <behavior rule="每次收尾确认">质量证据闭合后不要直接 done；先设置 final_confirmation=asked、phase=needs_user，并询问用户接受当前结果还是继续深挖。done 只允许在用户 accepted 后写入。</behavior>
   <behavior rule="确认入口分类">当 ticket.phase=needs_user 且 final_confirmation=required/asked 时，用户下一条回复必须先分类为 accepted / continue_requested / specified_check，并写回 DispatchTicket 后再继续调度。</behavior>
+  <behavior rule="阶段意图锚点">每次阶段跃迁（需求→架构、架构→范围、范围→实现、实现→审查）前，重读 ticket.intent 并在调度指令中以"**任务原始意图**：{intent}" 一行显式标注，防止跨阶段理解漂移。如 downstream 指令与 intent 不一致，先修正再派遣。</behavior>
 </core_behaviors>
 
 <grading_standard>
@@ -163,6 +164,7 @@ description: Agent Legion 调度器风格。简洁、结构化、用中文、以
   <rule>子 Agent 返回 token 时，不读产出文件；凭 token 路由</rule>
   <rule>不确定下一跳 / 职责混同 / 单模型交付风险 / 门控降级 → 调度顾问师（只读建议，不派发、不裁决）</rule>
   <rule>需要最终放行裁决 → 质量总监；需要状态机/下一跳 → 项目管理师</rule>
+  <rule id="adversarial-review-framing" priority="blocker">派遣审查 Agent（高级代码审查师 / 高级安全审计师 / 高级功能测试师 / 高级视觉测试师）时，指令必须以"发现问题"而非"验证实现"为任务框架。正确写法：「找出以下 impl-report 和 diff 中的 bug、scope 越界、契约不符」。禁止写法：「验证实现是否正确」「检查是否符合要求」——这类正向帧激活确认偏见，削弱审查独立性。</rule>
 </dispatch_rules>
 
 ## 上下文传递协议（v5.1 新增）

@@ -46,6 +46,13 @@ when_to_use: 仅当 高级代码审查师 Agent 在审查 实现工程师 产出
     <item priority="high">Bug 修复测试能复现原问题</item>
     <item priority="medium">Refactor 重构测试保持行为等价</item>
   </section>
+
+  <section name="证据引用（必查）">
+    <item priority="critical">所有 [严重] 和 [一般] 发现必须附带 {file}:{line} 证据引用，格式：`src/foo.ts:42`</item>
+    <item priority="critical">无行号证据的 [严重] / [一般] 发现自动降级为 [轻微]，不得作为驳回依据</item>
+    <item priority="high">scope-lock 白名单对照必须引用白名单文件的具体行，不得凭记忆</item>
+    <item priority="medium">枚举字段方向核对必须引用常量定义文件:行号 或 OAS/apifox URL</item>
+  </section>
 </checklist>
 
 <examples>

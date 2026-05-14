@@ -115,6 +115,14 @@
         <gate-condition agent="引用审计员" trigger="assurance = submission 且论文含引用" basis="ARIS L4 审计：引用完整性"/>
         <gate-condition agent="定理证明审计员" trigger="assurance = submission 且 .tex 含 theorem/lemma/proof 环境" basis="ARIS L3+ 审计：定理严谨性"/>
 
+        <gate-condition agent="审查 Agent（对抗帧强制）" trigger="调度任何审查 Agent（高级代码审查师 / 高级安全审计师 / 高级功能测试师 / 高级视觉测试师）时" basis="v5.3 新增：正向帧削弱审查深度，对抗帧强制发现问题">
+          <requirement>调度指令必须以"找问题"为导向——示例：「找出 impl-report 和 diff 中的 bug、scope 越界、契约违背」。禁止使用「验证实现是否正确」「检查是否符合要求」等正向确认句式。</requirement>
+        </gate-condition>
+
+        <gate-condition agent="调度器（阶段意图锚点）" trigger="每次阶段跃迁：需求→架构、架构→范围、范围→实现、实现→审查" basis="v5.3 新增：跨阶段理解漂移是主要幻觉来源">
+          <requirement>跃迁前调度器必须重读 ticket.intent，并在下一阶段 Agent 指令中以「**任务原始意图**：{intent}」标注一行。intent 与指令不一致时先修正再派遣。</requirement>
+        </gate-condition>
+
         <note>**不触发的唯一理由**：用户显式说"跳过 XX 测试"。AI 不得自行判断"不适用"而省略。</note>
       </constraint>
     </subsection>
