@@ -1,8 +1,0 @@
-[
-  {
-    "from": "team-lead",
-    "text": "你是后端代码审查员。请审查以下最近修改的后端文件的代码质量：\n\n项目根目录: /Users/mumuxsy/Desktop/项目群/眼科视力筛查小程序\n\n请审查这些文件：\n- backend/src/main/java/com/ophthalmology/controller/TtsController.java\n- backend/src/main/java/com/ophthalmology/dto/TtsSpeechDTO.java\n- backend/src/main/java/com/ophthalmology/service/impl/TtsPreGenerateService.java\n- backend/src/main/java/com/ophthalmology/service/impl/TtsRetryScheduler.java\n- backend/src/main/java/com/ophthalmology/service/impl/TtsServiceImpl.java\n- backend/src/main/java/com/ophthalmology/util/TtsTextBuilder.java\n- backend/src/main/java/com/ophthalmology/controller/MiniConfigController.java\n\n也检查对应的测试文件：\n- backend/src/test/java/com/ophthalmology/controller/TtsControllerTest.java\n- backend/src/test/java/com/ophthalmology/service/impl/TtsServiceImplCombinedTest.java\n- backend/src/test/java/com/ophthalmology/util/TtsTextBuilderTest.java\n\n重点关注：\n1. 代码质量问题（空指针风险、资源泄漏、异常处理）\n2. 安全问题（SQL注入、XSS、认证绕过）\n3. 潜在 bug（逻辑错误、边界条件、并发问题）\n4. 代码风格和可维护性\n\n完成后，用 TaskUpdate 将任务 #2 标记为 completed，并用 SendMessage 向 team-lead 发送审查结果摘要，列出发现的所有问题及严重程度。",
-    "timestamp": "2026-05-07T12:35:20.543Z",
-    "read": true
-  }
-]

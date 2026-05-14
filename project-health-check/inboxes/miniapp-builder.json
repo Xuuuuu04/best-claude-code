@@ -1,8 +1,0 @@
-[
-  {
-    "from": "team-lead",
-    "text": "你是小程序构建检查员。请执行以下操作：\n\n1. 在 miniapp/ 目录下运行 `cd /Users/mumuxsy/Desktop/项目群/眼科视力筛查小程序/miniapp && npm run build:mp-weixin` 检查小程序是否能正常构建\n2. 如果有构建错误，分析原因\n3. 检查是否有未安装的依赖需要先 npm install\n\n完成后，用 TaskUpdate 将任务 #4 标记为 completed，并用 SendMessage 向 team-lead 发送检查结果摘要。",
-    "timestamp": "2026-05-07T12:35:20.807Z",
-    "read": true
-  }
-]

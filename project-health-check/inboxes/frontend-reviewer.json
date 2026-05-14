@@ -1,8 +1,0 @@
-[
-  {
-    "from": "team-lead",
-    "text": "你是前端代码审查员。请审查前端最近修改的文件。\n\n项目根目录: /Users/mumuxsy/Desktop/项目群/眼科视力筛查小程序\n\n先查看 frontend/ 目录结构，了解项目组织。然后重点检查：\n1. frontend/package.json 的依赖变更是否合理\n2. 检查 frontend/ 目录下的主要源文件是否有明显问题\n\n重点关注：\n- 依赖版本冲突\n- 安全漏洞依赖\n- 代码质量问题\n\n完成后，用 TaskUpdate 将任务 #5 标记为 completed，并用 SendMessage 向 team-lead 发送审查结果摘要。",
-    "timestamp": "2026-05-07T12:35:20.031Z",
-    "read": true
-  }
-]
