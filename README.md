@@ -13,8 +13,8 @@
 [![Status: v5.0](https://img.shields.io/badge/Status-v5.0-f59e0b?style=flat-square)](#版本状态)
 [![Language](https://img.shields.io/badge/Language-中文优先-ef4444?style=flat-square)](#多语言与技术栈)
 [![Agents](https://img.shields.io/badge/Agents-39-3b82f6?style=flat-square)](#agent-矩阵)
-[![Skills](https://img.shields.io/badge/Skills-58-06b6d4?style=flat-square)](#skill-体系)
-[![Rules](https://img.shields.io/badge/Rules-53-8b5cf6?style=flat-square)](#rule-体系)
+[![Skills](https://img.shields.io/badge/Skills-63-06b6d4?style=flat-square)](#skill-体系)
+[![Rules](https://img.shields.io/badge/Rules-142-8b5cf6?style=flat-square)](#rule-体系)
 [![Hooks](https://img.shields.io/badge/Hooks-20%2B3-10b981?style=flat-square)](#hook-安全网)
 
 <br>
@@ -175,8 +175,8 @@ flowchart LR
 
     subgraph L2[智能层]
       AGENTS[39 Subagents]
-      SKILLS[58 Skills]
-      RULES[53 Rules]
+      SKILLS[63 Skills]
+      RULES[142 Rules]
       MEMORY[Memory]
     end
 
@@ -579,8 +579,8 @@ git rev-parse origin/main
 规模：
 
 - 39 Agents
-- 58 Skills
-- 53 Rules
+- 63 Skills
+- 142 Rules
 - 17 main Hooks + 3 `_lib`
 
 最近关键升级：

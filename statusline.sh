@@ -316,8 +316,9 @@ if [ -n "$CWD" ]; then
         esac
       fi
       case "$GATE_STATE" in
-        pass|passed|accepted) MARK="${C_BAR_LOW}✓${RESET}" ;;
-        blocked|reject|rejected|fail|failed) MARK="${C_BAR_CRIT}×${RESET}" ;;
+        pass|passed|accepted|PASS) MARK="${C_BAR_LOW}✓${RESET}" ;;
+        CONDITIONAL_PASS|conditional_pass|conditional) MARK="${C_BAR_MID}~${RESET}" ;;
+        blocked|reject|rejected|fail|failed|BLOCKED) MARK="${C_BAR_CRIT}×${RESET}" ;;
         skipped_by_user|not_applicable) MARK="${C_TOKEN}-${RESET}" ;;
         *) MARK="${C_BAR_MID}…${RESET}" ;;
       esac
@@ -426,6 +427,21 @@ fi
 USED_PCT="$(jq_get '.context_window.used_percentage')"
 CTX_SIZE="$(jq_get '.context_window.context_window_size')"
 INPUT_TOKENS="$(jq_get '.context_window.current_usage.input_tokens')"
+# Fallback: total_input_tokens (available even when current_usage is null)
+TOTAL_INPUT="$(jq_get '.context_window.total_input_tokens')"
+
+# 如果 used_percentage 为 null，尝试从 total_input_tokens / context_window_size 推算
+if [ -z "$USED_PCT" ] || [ "$USED_PCT" = "null" ]; then
+  EFFECTIVE_TOKENS="${INPUT_TOKENS}"
+  ([ -z "$EFFECTIVE_TOKENS" ] || [ "$EFFECTIVE_TOKENS" = "null" ]) && EFFECTIVE_TOKENS="${TOTAL_INPUT}"
+  if [ -n "$EFFECTIVE_TOKENS" ] && [ "$EFFECTIVE_TOKENS" != "null" ] && [ -n "$CTX_SIZE" ] && [ "$CTX_SIZE" != "null" ] && [ "$CTX_SIZE" -gt 0 ] 2>/dev/null; then
+    USED_PCT="$(( EFFECTIVE_TOKENS * 100 / CTX_SIZE ))"
+  fi
+fi
+# 如果 input_tokens 为 null，用 total_input_tokens 替代
+if [ -z "$INPUT_TOKENS" ] || [ "$INPUT_TOKENS" = "null" ]; then
+  INPUT_TOKENS="${TOTAL_INPUT}"
+fi
 
 BAR_SEG=""
 if [ -n "$USED_PCT" ] && [ "$USED_PCT" != "null" ]; then
