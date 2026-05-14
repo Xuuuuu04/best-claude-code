@@ -1,9 +1,0 @@
-{
-  "id": "3",
-  "subject": "前端构建检查",
-  "description": "运行 npm run build 检查 frontend/ 管理端是否能正常构建。关注构建错误、TypeScript 类型错误等。",
-  "activeForm": "检查前端构建",
-  "status": "pending",
-  "blocks": [],
-  "blockedBy": []
-}

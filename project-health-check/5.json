@@ -1,9 +1,0 @@
-{
-  "id": "5",
-  "subject": "前端代码质量审查",
-  "description": "审查前端最近变更的文件，关注 package.json 依赖变更和可能的问题。",
-  "activeForm": "审查前端代码质量",
-  "status": "pending",
-  "blocks": [],
-  "blockedBy": []
-}
