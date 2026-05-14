@@ -101,6 +101,35 @@
       </constraint>
     </subsection>
 
+    <subsection id="impl-report-mandatory">
+      <constraint severity="blocker">
+        impl-report artifact 必须包含以下两个强制段落，缺失任意一项视为 [严重] 发现：
+
+        **段落 1：授权范围对账**
+        <code-block language="markdown"><![CDATA[
+## 授权范围对账
+
+| 文件 | 操作 | scope-lock 授权？ | 备注 |
+|:--|:--|:--|:--|
+| src/foo.ts | 修改 | 是（白名单第 3 行） | — |
+| src/bar.ts | 新增 | 是（白名单第 5 行） | — |
+| 无 | — | — | 未触碰禁止事项 |
+        ]]></code-block>
+
+        **段落 2：输入假设**
+        <code-block language="markdown"><![CDATA[
+## 输入假设
+
+以下假设在 scope-lock / requirements 中未明确说明，实现时自行推断：
+
+1. [ASSUMED] 接口字段 `status` 取值范围参照 `shared/constants/enums.js`，未找到 OAS 原始定义
+2. [ASSUMED] 错误码 `4001` 含义依据上下文推断为"权限不足"，未见显式声明
+        ]]></code-block>
+
+        如无任何假设，也必须写出：`> 无自行推断；所有字段/行为均有 scope-lock 或 requirements 明确说明。`
+      </constraint>
+    </subsection>
+
     <subsection id="content-status">
       <table>
 | 状态 | 含义 | 何时设 |

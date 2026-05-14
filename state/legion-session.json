@@ -1,31 +1,29 @@
 {
-  "task_id": "chore-20260514-cost-optimize",
+  "task_id": "chore-20260514-deviation-hardening",
   "session_id": "",
   "tier": "medium",
-  "phase": "implement",
-  "intent": "系统性降低 Agent Legion 模型调用成本：提交已有 10 个 Agent opus→sonnet 降级、再降 5 个学术专项 Agent、削减高 maxTurns、修复文档数字漂移、调优 Clarification Gate",
+  "phase": "done",
+  "intent": "系统性强化 Subagent 体系的偏移/幻觉防御：impl-report 对账段、artifact 假设显式化、对抗性审查派遣、phase 意图锚点、证据行号强制引用",
   "risk": "low",
   "executor": "main-fast-path",
   "chosen_agents": [],
   "required_gates": [],
   "quality_strategy": "compressed",
-  "fast_path_reason": "全部为 ~/.claude 自身系统文件（agents/hooks/README），单字段改动，无业务代码，无 schema 变更",
+  "fast_path_reason": "全部为 ~/.claude 自身系统文件（rules/skills/output-styles），无业务代码变更",
   "user_override": "explicit-fast",
-  "gate_status": {},
-  "evidence": {},
-  "understanding": {
-    "status": "clear",
-    "confidence": 0.95,
-    "unknowns": [],
-    "assumptions": [
-      "学术专项 Agent 日常不使用，降级风险被流水线吸收",
-      "核心门控（代码审查师/安全审计师/质量总监/架构师）保留 opus",
-      "maxTurns 削减值基于实际任务特征估算，出问题可快速回调"
-    ],
-    "missing_assets": []
+  "gate_status": {"implement": "done"},
+  "evidence": {
+    "changes": [
+      "rules/_global/artifact-protocol.md: 新增 impl-report-mandatory subsection",
+      "output-styles/legion-dispatch.md: 阶段意图锚点 + 对抗性审查帧",
+      "skills/code-review-protocol/SKILL.md: 证据引用必查段",
+      "rules/_global/dispatch-table.md: 对抗帧 gate-condition + 意图锚点 gate-condition",
+      "EVOLVE-LOG.md: v5.3 条目"
+    ]
   },
+  "understanding": {"status": "clear", "confidence": 0.95, "unknowns": [], "assumptions": [], "missing_assets": []},
   "reasoning_mode": "direct",
-  "decision_summary": "用户确认全部执行：Phase1 提交已降级+EVOLVE-LOG、Phase2 学术5个降级、Phase3 maxTurns削减、Phase4 文档漂移修复、Phase5 Clarification Gate 降噪",
-  "iteration": { "mode": "until_pass", "round": 1, "pass_condition": "所有5个phase完成且语法正确" },
-  "final_confirmation": "required"
+  "decision_summary": "用户 accepted，所有改动完成",
+  "iteration": {"mode": "until_pass", "round": 1, "pass_condition": "done"},
+  "final_confirmation": "accepted"
 }
