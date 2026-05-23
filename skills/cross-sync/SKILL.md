@@ -1,6 +1,10 @@
 ---
 name: cross-sync
 description: 多端项目(web + miniapp + backend 等)跨端一致性检查 —— 读项目 CLAUDE.md 的 Cross-end Shared 段,列出 shared 目录下的 enums/constants/contracts,grep 各端代码看谁缺谁。漫展、眼科等 4/6 多端项目适用。
+disable-model-invocation: true
+context: fork
+agent: Explore
+argument-hint: "[enum 或 contract 名称（可选）]"
 ---
 
 # /cross-sync

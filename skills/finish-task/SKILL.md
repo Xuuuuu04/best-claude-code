@@ -1,11 +1,17 @@
 ---
 name: finish-task
 description: 当前 task 完成时,写 Completion 段(Files changed / Verification / HANDOVER)并标记 status: done。这是防止"上下文炸了忘交接"的最后一道闸,必须认真写 HANDOVER。
+disable-model-invocation: true
+argument-hint: "[task-id（可选，默认当前活跃 task）]"
 ---
 
 # /finish-task
 
 把当前 Task 文件从 `in_progress` 推进到 `done`,**强制写好 HANDOVER**(用户最痛的痛点)。
+
+## 本次改动摘要（动态注入）
+
+!`echo "### git diff --stat"; git diff --stat HEAD 2>/dev/null || echo "(无 git 改动或非 git 仓库)"; echo ""; echo "### 活跃 Task"; if [ -d ".claude/tasks" ]; then grep -l 'status: in_progress' .claude/tasks/*.md 2>/dev/null | while read f; do echo "- $(basename "$f" .md): $(grep -m1 '^# ' "$f" 2>/dev/null | sed 's/^# //')"; done; else echo "(无)"; fi`
 
 ## 何时调用
 
@@ -65,7 +71,23 @@ description: 当前 task 完成时,写 Completion 段(Files changed / Verificati
 - `status: in_progress` → `status: done`
 - `finished: null` → `finished: <当前时间,格式 2026-05-15 11:45>`
 
-### 5. 报告并提示 commit
+### 5. 归档 brief 和 output 文件
+
+Task 完成后,把该 task 相关的 brief 和 output 中间文件移到归档目录,
+保持 briefs/ 和 outputs/ 目录只含活跃 task 的文件:
+
+```bash
+TASKS_DIR="$(pwd)/.claude/tasks"
+TASK_ID="<当前 task id>"
+ARCHIVE_DIR="$TASKS_DIR/archive/$TASK_ID"
+mkdir -p "$ARCHIVE_DIR"
+mv "$TASKS_DIR/briefs/${TASK_ID}-"* "$ARCHIVE_DIR/" 2>/dev/null || true
+mv "$TASKS_DIR/outputs/${TASK_ID}-"* "$ARCHIVE_DIR/" 2>/dev/null || true
+```
+
+如果该 task 没有 brief/output 文件(例如简单任务没调过 subagent),跳过此步。
+
+### 6. 报告并提示 commit
 
 输出:
 ```
@@ -84,6 +106,9 @@ Task: Task-2026-05-15-1030-fix-auth-bug
 ```
 
 如果用户说不 → 不要自作主张去 commit,等他后续手动。
+
+**注意**:归档目录 `archive/` 已被 `.gitignore` 忽略(如未忽略,请提醒用户加上),
+Task 文件本身(`Task-xxx.md`)保留在 tasks/ 目录下,会跟 git 走。
 
 ## HANDOVER 质量要求(这是核心痛点)
 

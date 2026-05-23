@@ -1,6 +1,9 @@
 ---
 name: preflight
 description: 提交代码前的必跑检查 —— 读项目 CLAUDE.md 的 ## Preflight Commands 段,依次执行(typecheck / lint / 可选 e2e),任一失败立即停并报告。全过则在当前 Task 的 Execution Log 加一行"preflight pass"。
+disable-model-invocation: true
+allowed-tools: Bash(npm *) Bash(npx *) Bash(mvn *) Bash(go *) Bash(mypy *) Bash(ruff *) Bash(markdownlint *)
+argument-hint: "[子目录（可选，多端项目指定）]"
 ---
 
 # /preflight
