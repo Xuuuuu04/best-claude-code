@@ -1,6 +1,8 @@
 ---
 name: brief
 description: 主代理在调度 subagent 之前生成 task-specific briefing 文件,让 subagent 收到的 prompt 仅有几十 token,避免 subagent 自己探索全部上下文带来的 token 浪费(实测可省 10-40 倍)。这是整个 harness 的 token 效率核心。
+argument-hint: "[subagent 类型] [目的简述]"
+effort: high
 ---
 
 # /brief

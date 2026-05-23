@@ -1,7 +1,7 @@
 # best-claude-code
 
 > 一份基于 **Harness Engineering** 精神的极简 Claude Code 用户级配置。
-> **12 个组件** · 精简自之前 Legion 时代的 **265 个组件**(95.5% 精简) · **Task-Centric** 架构。
+> **13 个组件** · 精简自之前 Legion 时代的 **265 个组件**(95.1% 精简) · **Task-Centric** 架构。
 
 ---
 
@@ -25,7 +25,7 @@
 
 | # | 原则 | 落实在哪 |
 |---|---|---|
-| 1 | **Earn every component** | 12 个组件,每个都对应一个"模型独立做不到的事";不达标的不要 |
+| 1 | **Earn every component** | 13 个组件,每个都对应一个"模型独立做不到的事";不达标的不要 |
 | 2 | **Configuration over capability** | 不等模型变好,用 harness 把当下的模型(以及弱模型 GLM/Kimi)举起来 |
 | 3 | **Failures become rules** | 每次纠正都转化为 skill/hook 条款,不是一次性沟通 |
 | 4 | **Success is silent, failures are verbose** | 成功无声,只在失败/风险时打断用户 |
@@ -44,7 +44,7 @@
         ▼                            ▼                            ▼
   ┌──────────┐               ┌──────────────┐              ┌──────────┐
   │  Skills  │               │    Agents    │              │  Hooks   │
-  │ (6 个)   │               │   (2 个)     │              │ (3 个)   │
+  │ (6 个)   │               │   (2 个)     │              │ (4 个)   │
   ├──────────┤               ├──────────────┤              ├──────────┤
   │start-task│               │   reviewer   │              │PreCompact│
   │continue- │  ┐         ┌─ │     judge    │              │SessionStt│
@@ -86,12 +86,13 @@
 | `reviewer` | 重大代码改动后 | 对抗性 reviewer,工具收窄到只读,输出严格 JSON |
 | `judge` | review 不收敛(≥3 轮) | 独立裁决者,只比对 acceptance criteria,输出 accept/reject/continue |
 
-### Hooks(3 个,位于 `hooks/*.sh`)
+### Hooks（4 个，位于 `hooks/*.sh`，输出标准 JSON）
 | Hook | 事件 | 作用 |
 |---|---|---|
-| `precompact.sh` | PreCompact | 压缩前在活跃 Task 文件追加标记,提示主代理压缩后重读 |
-| `session-start.sh` | SessionStart | 进入会话时扫描本项目 in_progress task,提示是否恢复 |
-| `session-end.sh` | SessionEnd | 退出前提醒未 finish 的 task |
+| `precompact.sh` | PreCompact | 压缩前在活跃 Task 文件追加标记，输出 additionalContext 提示重读 |
+| `postcompact.sh` | PostCompact | 压缩后重新注入活跃 Task 的关键状态（ID/标题/Plan/最近进展），防止主代理"失忆" |
+| `session-start.sh` | SessionStart | 进入会话时扫描本项目 in_progress task，注入 additionalContext + watchPaths |
+| `session-end.sh` | SessionEnd | 退出前通过 systemMessage 提醒未 finish 的 task |
 
 ---
 
@@ -182,9 +183,10 @@ Spring Boot / PostgreSQL / 安全 / 性能 / Docker / Playwright / 文档审查)
 │   ├── reviewer.md
 │   └── judge.md
 ├── hooks/
-│   ├── precompact.sh                  # chmod +x
-│   ├── session-start.sh               # chmod +x
-│   └── session-end.sh                 # chmod +x
+│   ├── precompact.sh                  # chmod +x, 输出标准 JSON
+│   ├── postcompact.sh                 # chmod +x, 压缩后恢复 Task 上下文
+│   ├── session-start.sh               # chmod +x, 跨平台兼容
+│   └── session-end.sh                 # chmod +x, systemMessage 输出
 └── plans/                             # 设计稿(被 .gitignore,本地保留)
     └── unified-floating-crane.md
 ```
@@ -249,9 +251,10 @@ A: Opus 4.7 知识广度已经够,需要的是**身份激活**而不是知识灌
 所以用 `/brief` 里的 Activation Persona **动态注入**,零维护成本,无限技术栈适配。
 只有"横跨技术栈的质量维度"(如安全、性能)才考虑后续加专业 agent —— 按 ratchet 原则,撞到痛点再加。
 
-**Q: 为什么 hook 只有 3 个?**
-A: 这 3 个都解决"上下文连续性"这**一个核心痛点**(进-中-出三个时间点)。
-其他场景(自动截图、拦截敏感操作)是另外的痛点,没痛到强制就不装。
+**Q: 为什么 hook 只有 4 个?**
+A: 这 4 个都解决"上下文连续性"这**一个核心痛点**（进-压缩前-压缩后-出，四个时间点）。
+所有 hook 输出标准 JSON（`hookSpecificOutput.additionalContext`），跨平台兼容。
+其他场景（自动截图、拦截敏感操作）是另外的痛点，没痛到强制就不装。
 
 **Q: 主代理为什么不沦为"调度员/打字员"?**
 A: CLAUDE.md 的"调度边界"段明确写了:**主代理是首席工程师**,深度参与判断,
@@ -263,7 +266,7 @@ A: 弱模型友好 + 主代理解析快 + schema 可程序化验证。free-form 
 **Q: 这套和 Legion 比,精简到这种程度,会不会丢失能力?**
 A: Legion 的 265 组件里,大部分是"模型独立能做但当时模型还不够强"的弥补。
 Opus 4.7 之后,大部分组件变成 "load-bearing for nothing",应该被拆掉。
-真正不可替代的 5%(跨会话记忆 + 子代理通信总线 + review 收敛机制)就是这 12 个组件。
+真正不可替代的 5%(跨会话记忆 + 子代理通信总线 + review 收敛机制)就是这 13 个组件。
 
 ---
 

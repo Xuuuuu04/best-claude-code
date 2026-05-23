@@ -1,6 +1,7 @@
 ---
 name: start-task
 description: 当用户提出一个新的独立工作诉求时,开启一个新 Task —— 增强意图、一句话确认、写入符合 schema 的 Task 文件到 <project>/.claude/tasks/。这是 Task-Centric Harness 的入口。也可在用户显式说"开新 task"/"/start-task"时调用。
+argument-hint: "[用户诉求描述]"
 ---
 
 # /start-task
@@ -14,12 +15,18 @@ description: 当用户提出一个新的独立工作诉求时,开启一个新 Ta
 - 不能(是对当前 task 的澄清/追问/微调) → 把内容追加到当前 task 的 Prompt 段,**不调用本 skill**
 - 用户显式说"开新 task" / `/start-task` → 直接调用
 
+## 当前环境（动态注入）
+
+!`echo "- 项目根: $(pwd)"; echo "- 项目名: $(basename "$(pwd)")"; echo "- 时间戳: $(date '+%Y-%m-%d %H:%M')"; echo "- 文件名时间: $(date +%Y-%m-%d-%H%M)"; echo "- Git 分支: $(git branch --show-current 2>/dev/null || echo '(非 git 仓库)')"; if [ -d ".claude/tasks" ]; then COUNT=$(grep -l 'status: in_progress' .claude/tasks/*.md 2>/dev/null | wc -l | tr -d ' '); echo "- 活跃 Task: ${COUNT} 个"; else echo "- 活跃 Task: 0（tasks 目录不存在，将自动创建）"; fi`
+
 ## 执行步骤
 
 ### 1. 定位项目和 tasks 目录
 
+使用上方注入的项目根路径：
+
 ```bash
-PROJECT_ROOT=$(pwd)
+PROJECT_ROOT=<上方注入的项目根>
 TASKS_DIR="$PROJECT_ROOT/.claude/tasks"
 mkdir -p "$TASKS_DIR/outputs"
 ```
@@ -28,9 +35,7 @@ mkdir -p "$TASKS_DIR/outputs"
 
 ### 2. 生成文件名
 
-格式:`Task-{YYYY-MM-DD}-{HHMM}-{slug}.md`
-
-- 日期时间用 `date +%Y-%m-%d-%H%M`
+使用上方注入的文件名时间，格式:`Task-{YYYY-MM-DD}-{HHMM}-{slug}.md`
 - slug:2-4 个英文小写词,从用户 prompt 提炼,用连字符,例如 `fix-auth-bug`、`add-payment-flow`、`refactor-router`
 - 完整示例:`Task-2026-05-15-1030-fix-auth-bug.md`
 

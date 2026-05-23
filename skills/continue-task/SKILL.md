@@ -1,6 +1,7 @@
 ---
 name: continue-task
 description: 列出当前项目所有 in_progress 的 Task,让用户选一个继续。用于跨会话恢复、上次/compact 后的恢复、或用户主动切回某个未完成的任务。
+argument-hint: "[task-id（可选，不填则展示列表选择）]"
 ---
 
 # /continue-task
@@ -13,44 +14,32 @@ description: 列出当前项目所有 in_progress 的 Task,让用户选一个继
 - `SessionStart` hook 检测到 in_progress task 并建议恢复时(用户同意)
 - `/compact` 后主代理意识到要继续之前的工作
 
+## 当前项目活跃 Task（动态注入）
+
+!`if [ -d ".claude/tasks" ]; then grep -l 'status: in_progress' .claude/tasks/*.md 2>/dev/null | while read f; do echo "---"; echo "文件: $f"; echo "ID: $(basename "$f" .md)"; grep -m1 '^# ' "$f" 2>/dev/null | sed 's/^/标题: /'; grep -m1 '^started:' "$f" 2>/dev/null | sed 's/^/  /'; grep -E '^- [0-9]{2}:[0-9]{2} ' "$f" 2>/dev/null | tail -1 | sed 's/^/最近: /'; echo ""; done; else echo "(当前项目无 .claude/tasks/ 目录)"; fi`
+
 ## 执行步骤
 
-### 1. 列出当前项目的 in_progress Task
+### 1. 展示上方注入的列表
 
-```bash
-TASKS_DIR="$(pwd)/.claude/tasks"
-if [ ! -d "$TASKS_DIR" ]; then
-  echo "当前项目还没有任何 task。用 /start-task 开第一个。"
-  exit 0
-fi
-grep -l 'status: in_progress' "$TASKS_DIR"/*.md 2>/dev/null | head -10
-```
+如果上方动态注入的内容为空或只有"无 .claude/tasks/ 目录" → 输出"当前没有进行中的 task,要不要 `/start-task` 开新的?"并退出。
 
-如果没找到 → 输出"当前没有进行中的 task,要不要 `/start-task` 开新的?"并退出。
-
-### 2. 按 started 倒序展示
-
-读每个文件的 frontmatter,提取 `id` / `started` / 一级标题(`# xxx`)。按 `started` 倒序输出:
+否则,按上方注入的列表编号展示给用户:
 
 ```
 找到 N 个进行中的 task:
 
 [1] Task-2026-05-15-1030-fix-auth-bug
     标题: Fix auth token refresh bug
-    开始: 2026-05-15 10:30(2 小时前)
-    最近 Execution Log: 10:55 定位根因 refreshToken.ts:42
+    开始: 2026-05-15 10:30
+    最近: 10:55 定位根因 refreshToken.ts:42
 
-[2] Task-2026-05-14-1620-add-payment
-    标题: Add payment flow
-    开始: 2026-05-14 16:20(昨天)
-    最近 Execution Log: 17:30 完成前端表单,后端 mock 待对接
-
-[3] ...
+[2] ...
 
 选哪个继续?(回数字,或说"都不要,开新的")
 ```
 
-### 3. 加载选中的 Task
+### 2. 加载选中的 Task
 
 用户选 [N] 后:
 1. Read 整个 Task 文件
@@ -69,7 +58,7 @@ grep -l 'status: in_progress' "$TASKS_DIR"/*.md 2>/dev/null | head -10
 继续?(说"继续",或给新指令)
 ```
 
-### 4. 等待用户的下一步指令
+### 3. 等待用户的下一步指令
 
 不要自动开始执行 —— 让用户确认或调整方向。
 
