@@ -7,7 +7,7 @@ effort: high
 
 # /bcc-brief
 
-把"调度 subagent"这件事从"塞一大段 prompt"变成"指向一份 briefing 文件"。
+调 subagent 不再塞一大段 prompt,改成指向一份 briefing 文件。
 
 ## 何时调用
 
@@ -161,8 +161,8 @@ subagent 完成后,主代理:
 
 ## Activation Persona 写作指南(零成本激活专业视角)
 
-这是这个 harness 里"专业能力激活"的核心机制 —— 不维护一堆专业 agent,而是每次写 brief 时
-**动态注入身份**。Opus 4.7 知识广度足够,需要的只是"用什么视角思考"的明确指引。
+不养专业 agent,每次写 brief 时**动态注入身份**就够了。
+Opus 4.7 知识面够宽,缺的是"用什么视角想问题"的指引。
 
 ### 写作骨架(3-5 行,必填)
 

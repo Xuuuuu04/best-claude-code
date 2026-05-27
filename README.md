@@ -1,24 +1,24 @@
 # best-claude-code
 
-> 一份基于 **Harness Engineering** 精神的极简 Claude Code 用户级配置。
+> 极简 Claude Code 用户级配置,基于 **Harness Engineering** 思路。
 > **10 Skills · 6 Hooks · 2 Agents · 3 Rules** · **Task-Centric** 架构 · v2.1.0
 
 ---
 
 ## 这是什么
 
-这不是一个"插件集合"或"agent 农场",而是一套**协议设计**:
+不是插件集合,不是 agent 农场,是一套**协议**——解决五个模型自己搞不定的问题:
 
-- 让 Claude Code 在跨会话、跨 `/compact`、跨子代理调度的过程中,**核心状态不丢失**
-- 让子代理之间的通信**从消息流改为文件系统**(token 消耗降 10-40 倍)
-- 让对抗性 review **保证收敛**(Writer/Reviewer/Judge 三角 + Acceptance Criteria + Round Cap)
-- 让 Opus 4.7 的专业能力**通过 brief 里的 Activation Persona 动态激活**,而不需要常驻一堆专家 agent
-- 用 PostToolUse / Stop hook **强制执行纪律**,防止模型跑偏不更新 Task、盲猜不调试
+- 跨会话、跨 `/compact`、跨子代理调度时**状态不丢**
+- 子代理通信**走文件系统不走消息流**,token 省 10-40 倍
+- 对抗性 review **保证收敛**(Writer/Reviewer/Judge 三角 + Acceptance Criteria + Round Cap)
+- 专业能力**靠 brief 里的 Activation Persona 动态激活**,不用养一堆专家 agent
+- PostToolUse / Stop hook **卡住执行纪律**,不更新 Task 不让收尾,连续失败自动切调试流程
 
-设计依据是 Anthropic 自己发布的
+思路来自 Anthropic 的
 [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
-论文里的 **"Structured Artifacts Over Natural Language"** 原则,
-以及 Manus 团队提出的 **"Context as Filesystem"** 架构。
+里的 **"Structured Artifacts Over Natural Language"** 原则,
+和 Manus 团队的 **"Context as Filesystem"** 架构。
 
 ---
 
@@ -26,11 +26,11 @@
 
 | # | 原则 | 落实在哪 |
 |---|---|---|
-| 1 | **Earn every component** | 21 个组件,每个都对应一个"模型独立做不到的事";不达标的不要 |
-| 2 | **Configuration over capability** | 不等模型变好,用 harness 把当下的模型(以及弱模型 GLM/Kimi)举起来 |
-| 3 | **Failures become rules** | 每次纠正都转化为 skill/hook/rule 条款,不是一次性沟通 |
-| 4 | **Success is silent, failures are verbose** | 成功无声,只在失败/风险时打断用户 |
-| 5 | **不重复造轮子** | playwright/context7/frontend-design 三个官方插件已覆盖大量能力,新组件避开 |
+| 1 | **Earn every component** | 21 个组件,每个对应一件"模型自己做不到的事";没用的砍掉 |
+| 2 | **Configuration over capability** | 不等模型变好,用 harness 把当前模型(包括弱模型 GLM/Kimi)托起来 |
+| 3 | **Failures become rules** | 纠正过的事变成 skill/hook/rule,不再靠口头说 |
+| 4 | **Success is silent, failures are verbose** | 没事不吭声,出问题才喊 |
+| 5 | **不重复造轮子** | playwright/context7/frontend-design 已经覆盖够多,新组件绕开 |
 
 ---
 
@@ -155,18 +155,18 @@ Task 文件用 YAML frontmatter + Markdown body,包含 8 个段:
 
 ### 2. Briefing Pattern(子代理通信)
 
-主代理在调度任何 subagent 之前,**必须用 `/bcc-brief` 生成 task-specific briefing 文件**,然后:
+调度任何 subagent 之前,**先用 `/bcc-brief` 写一份 briefing 文件**,然后 subagent 的 prompt 只有一句:
 
 ```
 Agent.prompt = "Read the briefing file at <path>, then execute."
-                                (仅 30-50 token)
+                                (30-50 token)
 ```
 
-Briefing 文件含 7 段:
-`Activation Persona` / `Mission` / `Known Facts` / `Files You Need`(行号级) /
-`Acceptance Criteria` / `Output Format`(强制 JSON schema) / `Constraints` + `Don't`。
+Briefing 文件 7 段:
+`Activation Persona` / `Mission` / `Known Facts` / `Files You Need`(精确到行号) /
+`Acceptance Criteria` / `Output Format`(JSON schema) / `Constraints` + `Don't`。
 
-Activation Persona 仅影响 Explore / general-purpose 类 subagent;reviewer / judge 有固定 persona。
+Activation Persona 只对 Explore / general-purpose 类 subagent 生效;reviewer / judge 有自己的固定人设。
 
 **Token 效率对照**(实测):
 | 模式 | token 消耗 |
@@ -185,8 +185,8 @@ Writer(主代理) ──→ Reviewer agent ──→ 主代理决定下一步
                                   (后者每个 task 最多用 1 次)
 ```
 
-为什么 reviewer 只能 Read + Grep,不能 Edit:**工具限制反向激活角色思考**。
-能 Edit 的话,reviewer 会"顺手改一下",失去 reviewer 视角。
+reviewer 只能 Read + Grep,不能 Edit——**不让改代码,逼它好好想**。
+能 Edit 的话 reviewer 会"顺手改一下",角色就串了。
 
 ### 4. 执行纪律闭环(v2.1.0 新增)
 
@@ -200,8 +200,8 @@ Stop hook ──→ 模型想收尾时检查
               └─ 6+ 操作未更新 Task Log → 阻止,注入提醒
 ```
 
-state 文件用 mktemp + mv 原子写入,防止中断导致空 JSON。
-Task 完成时 `/bcc-finish` 自动重置计数器。
+state 文件用 mktemp + mv 原子写,中断了也不会写出空 JSON。
+Task 完成时 `/bcc-finish` 自动把计数器归零。
 
 ---
 
@@ -336,27 +336,25 @@ claude
 A: 跟 git 走、自然归档、项目结束 task 历史一起走。跨项目搜索其实很少发生。
 
 **Q: 为什么不预设"前端专家""后端专家"agent?**
-A: Opus 4.7 知识广度已经够,需要的是**身份激活**而不是知识灌输。
-所以用 `/bcc-brief` 里的 Activation Persona **动态注入**,零维护成本,无限技术栈适配。
-只有"横跨技术栈的质量维度"(如安全、性能)才考虑后续加专业 agent —— 按 ratchet 原则,撞到痛点再加。
+A: Opus 4.7 知识面够宽,缺的不是知识是**视角**。
+`/bcc-brief` 里的 Activation Persona 动态注入就够了,不用维护一堆专家 agent。
+安全、性能这种横跨技术栈的维度才考虑加专职 agent——撞到痛点再说。
 
-**Q: 6 个 hook 分别解决什么?**
-A: 分两类。**上下文连续性**(4 个):进入/退出会话 + 压缩前后,确保 Task 状态不丢。**执行纪律**(2 个):PostToolUse 追踪编辑和失败,Stop 阻止不更新 Task Log 就收尾。所有 hook 输出标准 JSON,共享 `_common.sh` 工具库。
+**Q: 6 个 hook 分别干嘛?**
+A: 两类。**上下文连续性**(4 个):进出会话 + 压缩前后,Task 状态不丢。**执行纪律**(2 个):PostToolUse 数编辑和失败次数,Stop 卡住不更新 Task Log 就想收尾的行为。都输出标准 JSON,共享 `_common.sh`。
 
-**Q: 主代理为什么不沦为"调度员/打字员"?**
-A: CLAUDE.md 的"调度边界"段明确写了:**主代理是首席工程师**,深度参与判断,
-只外包"重复性 / 探索性 / 隔离性"的活给 subagent。
+**Q: 主代理不会沦为调度员?**
+A: CLAUDE.md 里写死了:**主代理是首席工程师**,只把重复性/探索性/隔离性的活丢给 subagent,判断自己做。
 
-**Q: 为什么所有 subagent 输出强制 JSON?**
-A: 弱模型友好 + 主代理解析快 + schema 可程序化验证。free-form 输出每次都要主代理重读理解,等于又一轮 token + 误解风险。
+**Q: 为什么 subagent 输出一律 JSON?**
+A: 弱模型也能填 schema,主代理不用二次理解,可以程序化校验。自由文本意味着多一轮 token + 误读风险。
 
-**Q: 这套和 Legion 比,精简到这种程度,会不会丢失能力?**
-A: Legion 的 265 组件里,大部分是"模型独立能做但当时模型还不够强"的弥补。
-Opus 4.7 之后,大部分组件变成 "load-bearing for nothing",应该被拆掉。
-真正不可替代的核心(跨会话记忆 + 子代理通信总线 + review 收敛 + 执行纪律)就是这 21 个组件。
+**Q: 比 Legion 砍了 95%,能力会丢吗?**
+A: Legion 265 个组件里,大部分是弥补"模型当时不够强"。Opus 4.7 之后那些变成死重。
+真正不可替代的——跨会话记忆、子代理通信、review 收敛、执行纪律——就是这 21 个。
 
-**Q: Rules 和 CLAUDE.md 里的规则是什么关系?**
-A: CLAUDE.md 是摘要(每条 1-2 行,模型每次都读到),Rules 是详细展开(before/after 对照表、具体案例)。两者不重复但互补。
+**Q: Rules 和 CLAUDE.md 什么关系?**
+A: CLAUDE.md 是摘要(1-2 行/条,每次会话都加载),Rules 是展开版(对照表、案例)。不重复,互补。
 
 ---
 

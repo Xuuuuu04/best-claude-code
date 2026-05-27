@@ -72,7 +72,7 @@ argument-hint: "[task-id（可选，默认当前活跃 task）]"
 
 ### 5. 重置 hook state
 
-Task 完成意味着编辑计数器归零,防止遗留计数误拦截下一个 task:
+Task 完成了,把编辑计数器归零——不然老计数会误拦下一个 task:
 
 ```bash
 # 重置 .hook-state.json（posttooluse-guard / stop-progress-gate 的计数器）
@@ -82,8 +82,7 @@ echo '{"edits_since_task_update":0,"consecutive_bash_failures":0}' > "$STATE_FIL
 
 ### 6. 归档 brief 和 output 文件
 
-Task 完成后,把该 task 相关的 brief 和 output 中间文件移到归档目录,
-保持 briefs/ 和 outputs/ 目录只含活跃 task 的文件:
+把这个 task 的 brief 和 output 移到归档目录,保持 briefs/ 和 outputs/ 干净:
 
 ```bash
 TASKS_DIR="$(pwd)/.claude/tasks"
