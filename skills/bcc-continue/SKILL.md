@@ -6,7 +6,7 @@ argument-hint: "[task-id（可选，不填则展示列表选择）]"
 
 # /bcc-continue
 
-跨会话/跨 compact 恢复一个未完成的 Task,把它的状态完整 load 进主代理上下文。
+跨会话/跨 compact 捡回一个没做完的 Task,把状态 load 进来继续。
 
 ## 何时调用
 

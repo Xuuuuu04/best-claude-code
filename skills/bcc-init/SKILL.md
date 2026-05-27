@@ -6,7 +6,7 @@ argument-hint: "[目标目录（可选，默认当前项目）]"
 
 # /bcc-init
 
-一键把任意仓库升级为 Task-Centric Harness 标准。解决"每个新项目都要手动配一遍"的问题。
+新项目不用手动配——跑一下就把 Task 系统和 Preflight 全部搭好。
 
 ## 本次项目状态（动态注入）
 
@@ -57,7 +57,7 @@ tasks/ 目录: ✓/✗
 
 ### 2. 检测技术栈
 
-自动判断项目用什么语言/框架，决定 Preflight Commands：
+看项目用什么语言/框架,自动决定 Preflight Commands:
 
 ```bash
 # 检测技术栈
@@ -174,7 +174,7 @@ tasks/.hook-state.json
 
 ### 7. 验证 Harness 全局组件
 
-确认用户级 `~/.claude/` 的关键组件都在位：
+看看全局 `~/.claude/` 的东西齐不齐:
 
 ```bash
 echo "全局 Harness 检查："
@@ -202,7 +202,7 @@ BCC 初始化完成
 
 全局 Harness 状态：
   ✓ 6 个 hooks 已注册
-  ✓ 9 个 skills 可用
+  ✓ 10 个 skills 可用
   ✓ 3 条 rules 生效
 
 Preflight 命令：
