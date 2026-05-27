@@ -81,7 +81,7 @@ You MUST follow these. You do not have discretion to invent new criteria.
 ## What to do when you're done
 
 Write the JSON file. Output nothing else to the main conversation. The 主代理 reads your JSON and:
-- `accept` → goes to `/finish-task`
+- `accept` → goes to `/bcc-finish`
 - `reject` → either abandons task, pauses for human input, or significantly rethinks (not just another review round)
 - `continue_one_more_round` → one more writer iteration, then back to reviewer, then forced verdict from you (or another judge instance)
 

@@ -1,20 +1,19 @@
 ---
-name: preflight
-description: 提交代码前的必跑检查 —— 读项目 CLAUDE.md 的 ## Preflight Commands 段,依次执行(typecheck / lint / 可选 e2e),任一失败立即停并报告。全过则在当前 Task 的 Execution Log 加一行"preflight pass"。
-disable-model-invocation: true
+name: bcc-preflight
+description: 在准备 git commit、git push、或用户说"提交/推一下/上线"时自动激活 —— 读项目 CLAUDE.md 的 ## Preflight Commands 段,依次执行 typecheck / lint / test,任一失败立即停并报告。也在 /bcc-finish 之前自动跑。
 allowed-tools: Bash(npm *) Bash(npx *) Bash(mvn *) Bash(go *) Bash(mypy *) Bash(ruff *) Bash(markdownlint *)
 argument-hint: "[子目录（可选，多端项目指定）]"
 ---
 
-# /preflight
+# /bcc-preflight
 
 提交代码前的最后一道门。强制实施项目纪律,不靠主代理记得。
 
 ## 何时调用
 
 - 主代理准备 `git commit` / `git push` 之前(主动)
-- 用户说"提交一下" / "推一下" / `/preflight` 时
-- `/finish-task` 之前(让 verification 段有真实数据填)
+- 用户说"提交一下" / "推一下" / `/bcc-preflight` 时
+- `/bcc-finish` 之前(让 verification 段有真实数据填)
 - 任何重大改动后,主代理主动跑一次确认没坏
 
 ## 执行步骤
@@ -75,7 +74,7 @@ done
 <最后 20 行输出,聚焦报错部分>
 
 接下来:
-1. 修这个错误 → 再 /preflight
+1. 修这个错误 → 再 /bcc-preflight
 2. 或者:把这个错误的原因记到当前 Task 的 Decisions 段
 3. 别想着 --no-verify 绕过 —— 提示词里禁止
 ```
@@ -120,7 +119,7 @@ done
 帮用户加段时用这个格式:
 
 ```markdown
-## Preflight Commands(被 /preflight skill 读取)
+## Preflight Commands(被 /bcc-preflight skill 读取)
 
 提交前必跑,顺序执行,任一失败即停:
 - npm run typecheck
@@ -130,13 +129,4 @@ done
 - npm run test:unit
 ```
 
-对不同项目类型的建议:
-
-| 项目类型 | 推荐 Preflight Commands |
-|---|---|
-| Next.js / Vue / React | `npm run typecheck`, `npm run lint` |
-| Vue + uni-app 多端 | 各端目录分别跑 `npm run lint` |
-| Spring Boot | `mvn compile`, `mvn checkstyle:check` |
-| FastAPI / Python | `mypy .`, `ruff check .` |
-| Go | `go vet ./...`, `go build ./...` |
-| 纯文档项目 | `markdownlint **/*.md`(如果装了) |
+常见命令:前端 `npm run typecheck` + `npm run lint`; Python `mypy .` + `ruff check .`; Java `mvn compile`; Go `go vet ./...`。

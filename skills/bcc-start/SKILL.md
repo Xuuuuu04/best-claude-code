@@ -1,10 +1,10 @@
 ---
-name: start-task
-description: 当用户提出一个新的独立工作诉求时,开启一个新 Task —— 增强意图、一句话确认、写入符合 schema 的 Task 文件到 <project>/.claude/tasks/。这是 Task-Centric Harness 的入口。也可在用户显式说"开新 task"/"/start-task"时调用。
+name: bcc-start
+description: 当用户提出一个新的独立工作诉求时,开启一个新 Task —— 增强意图、一句话确认、写入符合 schema 的 Task 文件到 <project>/.claude/tasks/。这是 Task-Centric Harness 的入口。也可在用户显式说"开新 task"/"/bcc-start"时调用。
 argument-hint: "[用户诉求描述]"
 ---
 
-# /start-task
+# /bcc-start
 
 把用户的新诉求转化成一个结构化的 Task 文件,作为本次工作的持久化记忆和子代理通信总线。
 
@@ -13,7 +13,7 @@ argument-hint: "[用户诉求描述]"
 主代理判断:**这条新输入能否独立成一个 commit?**
 - 能 → 调用本 skill 开新 Task
 - 不能(是对当前 task 的澄清/追问/微调) → 把内容追加到当前 task 的 Prompt 段,**不调用本 skill**
-- 用户显式说"开新 task" / `/start-task` → 直接调用
+- 用户显式说"开新 task" / `/bcc-start` → 直接调用
 
 ## 当前环境（动态注入）
 
@@ -110,7 +110,7 @@ tags: [<根据诉求加 1-3 个>]
 <还没有时为空>
 
 ## Completion
-<尚未完成时为空,/finish-task 时填>
+<尚未完成时为空,/bcc-finish 时填>
 ```
 
 ## 字段填充指南
@@ -130,16 +130,6 @@ tags: [<根据诉求加 1-3 个>]
 - ❌ 增强意图时引入用户没说过的功能 —— 增强不是发明
 - ❌ Plan 段写得比 Intent 还详细 —— Plan 是提纲,不是 spec
 
-## 完整示例
+## 示例流程
 
-用户:"修一下漫展 web 端 token 刷新的问题,登录半天后就掉线"
-
-主代理:
-1. `pwd` = `/Users/mumuxsy/Desktop/项目群/漫展官网购票系统` → tasks 目录 `.claude/tasks/`
-2. 生成文件名:`Task-2026-05-15-1030-fix-token-refresh.md`
-3. 增强:目标=修复 token 刷新失败导致掉线;验收=登录后 24h 持续可用;约束=不改后端
-4. 输出:「我理解为「修复 token 刷新失败导致 24h 内掉线」,验收为「登录后 24h 持续可用」,开始吗?」
-5. 用户 enter → Write 文件
-6. 输出:「✓ Task 已开:`.claude/tasks/Task-2026-05-15-1030-fix-token-refresh.md`. 开始干活。」
-
-然后开始执行,首先调用 Explore subagent 查 auth flow,通过 `/brief` 生成 briefing。
+用户说"修 token 刷新掉线" → 增强为目标+验收+约束 → 一句话确认 → Write Task 文件 → 输出路径 → 开始执行。

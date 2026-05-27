@@ -1,13 +1,12 @@
 ---
-name: cross-sync
-description: 多端项目(web + miniapp + backend 等)跨端一致性检查 —— 读项目 CLAUDE.md 的 Cross-end Shared 段,列出 shared 目录下的 enums/constants/contracts,grep 各端代码看谁缺谁。漫展、眼科等 4/6 多端项目适用。
-disable-model-invocation: true
+name: bcc-cross-sync
+description: 在多端项目(web + miniapp + backend 并存，且项目 CLAUDE.md 有 Cross-end Shared 段)中修改了 enum、constant、API contract 时自动激活 —— 检查各端是否同步更新。也在多端项目 PR 之前自动跑。单端项目或无 Cross-end Shared 配置的项目不触发。
 context: fork
 agent: Explore
 argument-hint: "[enum 或 contract 名称（可选）]"
 ---
 
-# /cross-sync
+# /bcc-cross-sync
 
 防止"web 改了枚举但 miniapp 没改"类的跨端不一致问题。这是多端项目最容易翻车的地方。
 
@@ -16,14 +15,14 @@ argument-hint: "[enum 或 contract 名称（可选）]"
 - 用户在多端项目中改了 enum / constant / API contract
 - 主代理在 PR 之前主动检查
 - 多端项目第一次开 task 时,先跑一次 baseline
-- 用户说 `/cross-sync` / "对一下各端"
+- 用户说 `/bcc-cross-sync` / "对一下各端"
 
 ## 前置条件
 
 项目 CLAUDE.md 必须有 `## Cross-end Shared` 段,例如:
 
 ```markdown
-## Cross-end Shared(被 /cross-sync skill 读取)
+## Cross-end Shared(被 /bcc-cross-sync skill 读取)
 
 - 共享目录:shared/
 - 各端目录:
@@ -116,7 +115,7 @@ done
 ```
 建议:
 - ⚠️ UserRole 在 miniapp 完全没用,确认是不是漏了
-- 用 /brief + Edit subagent 修复其中一个不一致点
+- 用 /bcc-brief + Edit subagent 修复其中一个不一致点
 - 或在当前 Task Decisions 段记一笔"已知跨端差异 X 是有意为之"
 
 是否需要我生成一个 brief 让 subagent 修复其中某一项?
@@ -124,23 +123,12 @@ done
 
 如果在 Task 上下文中,在 Execution Log 加一行:
 ```markdown
-- HH:MM /cross-sync:发现 5 处不平衡,3 处单端
+- HH:MM /bcc-cross-sync:发现 5 处不平衡,3 处单端
 ```
 
-## 项目特化模式
+## 项目特化
 
-漫展(web + miniapp):
-- SHARED_DIR = `shared/`
-- ENDS = `web/`、`miniapp/`
-- 重点检查 `shared/constants/enums.js`、`shared/copy/*.js`、`shared/crypto/*`
-
-眼科(frontend + miniapp + backend):
-- SHARED_DIR = (可能没有真正的 shared 目录,需要用户配置)
-- ENDS = `frontend/`、`miniapp/`、`backend/src/main/java/`
-- 重点检查 backend 的 enum 定义 vs 前端的 enum 引用
-
-铝制B2B(单端):
-- 不适用 —— 这个 skill 应该提示"非多端项目,无需 /cross-sync"
+各项目的 SHARED_DIR / ENDS 从项目 CLAUDE.md 的 `## Cross-end Shared` 段读取,无需硬编码。单端项目直接提示"非多端项目,无需 /bcc-cross-sync"。
 
 ## 反例(别这样做)
 
@@ -149,22 +137,12 @@ done
 - ❌ 在非多端项目跑 —— 应该一眼判断退出
 - ❌ 跨整个 monorepo grep 无关目录(node_modules、dist 等)
 
-## 配置示例(用于参考,各项目自己加到 CLAUDE.md)
+## 配置示例
 
-漫展项目的 `## Cross-end Shared`:
+项目 CLAUDE.md 中的 `## Cross-end Shared` 段格式:
 ```markdown
 ## Cross-end Shared
 - 共享目录:shared/
 - 各端目录:web/src/、miniapp/src/
-- 关键子目录:shared/constants/、shared/copy/、shared/crypto/、shared/utils/
 - 排除路径:node_modules/、dist/、build/
-```
-
-眼科项目的(因为后端是 Java,需要特殊):
-```markdown
-## Cross-end Shared
-- 共享目录:(无独立目录,跨端契约在 backend/src/main/java/.../enums/ 定义,前端 mirror)
-- 各端目录:frontend/src/、miniapp/src/、backend/src/main/java/
-- 检查模式:backend 的 enum class → 前端找同名 const/enum
-- 备注:.env.example 也需要跨端同步
 ```
