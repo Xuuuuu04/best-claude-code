@@ -1,11 +1,10 @@
 ---
-name: finish-task
-description: 当前 task 完成时,写 Completion 段(Files changed / Verification / HANDOVER)并标记 status: done。这是防止"上下文炸了忘交接"的最后一道闸,必须认真写 HANDOVER。
-disable-model-invocation: true
+name: bcc-finish
+description: 当 Task 的所有 Plan 步骤做完、用户说"搞定了/完成了/可以了"、或主代理判断工作已完成时自动激活 —— 写 Completion 段(Files changed / Verification / HANDOVER)并标记 status: done。自动先跑 preflight 再 finish。
 argument-hint: "[task-id（可选，默认当前活跃 task）]"
 ---
 
-# /finish-task
+# /bcc-finish
 
 把当前 Task 文件从 `in_progress` 推进到 `done`,**强制写好 HANDOVER**(用户最痛的痛点)。
 
@@ -16,9 +15,9 @@ argument-hint: "[task-id（可选，默认当前活跃 task）]"
 ## 何时调用
 
 - 主代理判断当前 task 的所有 Plan 步骤都做完了
-- 用户说"完成了" / "搞定" / "可以了" / `/finish-task`
+- 用户说"完成了" / "搞定" / "可以了" / `/bcc-finish`
 - `SessionEnd` hook 提醒"以下 task 仍 in_progress",用户决定先 finish
-- ⚠️ **如果 verification 还没跑过,先 `/preflight`,再 `/finish-task`**
+- ⚠️ **如果 verification 还没跑过,先 `/bcc-preflight`,再 `/bcc-finish`**
 
 ## 执行步骤
 
@@ -71,7 +70,17 @@ argument-hint: "[task-id（可选，默认当前活跃 task）]"
 - `status: in_progress` → `status: done`
 - `finished: null` → `finished: <当前时间,格式 2026-05-15 11:45>`
 
-### 5. 归档 brief 和 output 文件
+### 5. 重置 hook state
+
+Task 完成意味着编辑计数器归零,防止遗留计数误拦截下一个 task:
+
+```bash
+# 重置 .hook-state.json（posttooluse-guard / stop-progress-gate 的计数器）
+STATE_FILE="$(pwd)/.claude/tasks/.hook-state.json"
+echo '{"edits_since_task_update":0,"consecutive_bash_failures":0}' > "$STATE_FILE"
+```
+
+### 6. 归档 brief 和 output 文件
 
 Task 完成后,把该 task 相关的 brief 和 output 中间文件移到归档目录,
 保持 briefs/ 和 outputs/ 目录只含活跃 task 的文件:
@@ -81,13 +90,13 @@ TASKS_DIR="$(pwd)/.claude/tasks"
 TASK_ID="<当前 task id>"
 ARCHIVE_DIR="$TASKS_DIR/archive/$TASK_ID"
 mkdir -p "$ARCHIVE_DIR"
-mv "$TASKS_DIR/briefs/${TASK_ID}-"* "$ARCHIVE_DIR/" 2>/dev/null || true
+mv "$TASKS_DIR/bcc-briefs/${TASK_ID}-"* "$ARCHIVE_DIR/" 2>/dev/null || true
 mv "$TASKS_DIR/outputs/${TASK_ID}-"* "$ARCHIVE_DIR/" 2>/dev/null || true
 ```
 
 如果该 task 没有 brief/output 文件(例如简单任务没调过 subagent),跳过此步。
 
-### 6. 报告并提示 commit
+### 7. 报告并提示 commit
 
 输出:
 ```

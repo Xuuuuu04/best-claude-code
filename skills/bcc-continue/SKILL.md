@@ -1,16 +1,16 @@
 ---
-name: continue-task
+name: bcc-continue
 description: 列出当前项目所有 in_progress 的 Task,让用户选一个继续。用于跨会话恢复、上次/compact 后的恢复、或用户主动切回某个未完成的任务。
 argument-hint: "[task-id（可选，不填则展示列表选择）]"
 ---
 
-# /continue-task
+# /bcc-continue
 
 跨会话/跨 compact 恢复一个未完成的 Task,把它的状态完整 load 进主代理上下文。
 
 ## 何时调用
 
-- 用户说"继续上一个" / "接着昨天那个 X" / `/continue-task`
+- 用户说"继续上一个" / "接着昨天那个 X" / `/bcc-continue`
 - `SessionStart` hook 检测到 in_progress task 并建议恢复时(用户同意)
 - `/compact` 后主代理意识到要继续之前的工作
 
@@ -22,7 +22,7 @@ argument-hint: "[task-id（可选，不填则展示列表选择）]"
 
 ### 1. 展示上方注入的列表
 
-如果上方动态注入的内容为空或只有"无 .claude/tasks/ 目录" → 输出"当前没有进行中的 task,要不要 `/start-task` 开新的?"并退出。
+如果上方动态注入的内容为空或只有"无 .claude/tasks/ 目录" → 输出"当前没有进行中的 task,要不要 `/bcc-start` 开新的?"并退出。
 
 否则,按上方注入的列表编号展示给用户:
 
@@ -44,7 +44,7 @@ argument-hint: "[task-id（可选，不填则展示列表选择）]"
 用户选 [N] 后:
 1. Read 整个 Task 文件
 2. 把文件内容作为当前工作上下文,主代理"心理上"认为这是当前活跃任务
-3. 在 Execution Log 段追加一行:`- HH:MM 会话恢复(/continue-task)`
+3. 在 Execution Log 段追加一行:`- HH:MM 会话恢复(/bcc-continue)`
 4. 主代理输出一段简短的状态总结:
 
 ```
@@ -66,7 +66,7 @@ argument-hint: "[task-id（可选，不填则展示列表选择）]"
 
 - **超过 10 个 in_progress task**:只展示最近 10 个,提示"还有 N 个更早的,需要看全部用 `ls .claude/tasks/`"
 - **某个 Task 文件损坏**(没有 frontmatter):跳过它,提示"Task-xxx 文件格式异常,已跳过"
-- **当前不在项目根目录**:警告"看起来你不在项目根,建议 `cd` 到项目根再 /continue-task"
+- **当前不在项目根目录**:警告"看起来你不在项目根,建议 `cd` 到项目根再 /bcc-continue"
 - **多个项目都有 in_progress task**:只列当前 pwd 的,不跨项目
 
 ## 反例(别这样做)

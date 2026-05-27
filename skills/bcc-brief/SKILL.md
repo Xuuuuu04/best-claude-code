@@ -1,17 +1,17 @@
 ---
-name: brief
+name: bcc-brief
 description: 主代理在调度 subagent 之前生成 task-specific briefing 文件,让 subagent 收到的 prompt 仅有几十 token,避免 subagent 自己探索全部上下文带来的 token 浪费(实测可省 10-40 倍)。这是整个 harness 的 token 效率核心。
 argument-hint: "[subagent 类型] [目的简述]"
 effort: high
 ---
 
-# /brief
+# /bcc-brief
 
 把"调度 subagent"这件事从"塞一大段 prompt"变成"指向一份 briefing 文件"。
 
 ## 何时调用
 
-**任何要拆 subagent 的场景都必须先 /brief**,包括:
+**任何要拆 subagent 的场景都必须先 /bcc-brief**,包括:
 - 调用内置 Explore subagent 做大量探索
 - 调用 reviewer agent 做 review
 - 调用 judge agent 做裁决
@@ -25,7 +25,7 @@ effort: high
 
 ```bash
 TASK_ID=<当前活跃 task id>
-BRIEFS_DIR="$(pwd)/.claude/tasks/briefs"
+BRIEFS_DIR="$(pwd)/.claude/tasks/bcc-briefs"
 mkdir -p "$BRIEFS_DIR"
 
 # 计算本次是第几次 call
@@ -50,6 +50,8 @@ N=$((N + 1))
 **Created**: <时间戳>
 
 ## Activation Persona(必填,3-5 行)
+⚠️ 仅影响 Explore / general-purpose 类 subagent。reviewer / judge 有固定 persona（见 agents/reviewer.md、agents/judge.md），不受此处影响。
+
 You ARE a <具体角色,带技术栈或视角>.
 You are paranoid about <2-3 个本领域最容易翻车的点>.
 You do NOT <本领域常见反模式,1-2 条>.
@@ -108,7 +110,34 @@ Read the briefing file at <brief 文件绝对路径>, then execute. Write your o
 - 大量探索 → `Explore` (内置)
 - code review → `reviewer` (本仓库自定义)
 - 裁决 → `judge` (本仓库自定义)
-- 一般执行 → `general-purpose` (内置)
+- 一般执行 / 实现代码 → `general-purpose` (内置)
+
+模型选择（省成本加速度）:
+- 机械性实现（清晰 spec、1-2 个文件）→ 用 `haiku`
+- 多文件集成、模式匹配 → 用 `sonnet`
+- 架构设计、review、裁决 → 用 `opus`
+
+### 4b. 实现类 brief 的两阶段 Review（吸收自 Superpowers SDD）
+
+当 brief 的 For 字段是 `implementer`（实现代码任务）时，实现者完成后追加两轮独立 review：
+
+**第一轮：Spec 合规 Review**
+- 调度 reviewer subagent，对比 brief 的 Acceptance Criteria 和实际代码
+- 重点检查：有没有漏做的？有没有多做的？有没有理解偏差？
+- **不信任实现者的自述**——独立读代码验证
+
+**第二轮：代码质量 Review**
+- 只有 Spec 合规通过后才做
+- 检查：命名、可读性、测试质量、文件职责是否清晰
+- 调度方式：写新 brief（For: reviewer），或直接用内置 reviewer agent
+
+**实现者状态协议**——实现类 subagent 的 output JSON 的 status 字段扩展：
+- `DONE` — 正常完成，进入 review
+- `DONE_WITH_CONCERNS` — 完成但有疑虑（主代理先读 concerns 再决定是否 review）
+- `NEEDS_CONTEXT` — 缺信息，主代理补充后重新 dispatch
+- `BLOCKED` — 做不了。主代理判断：补上下文？换更强模型？拆小任务？升级给用户？
+
+**绝不忽略 BLOCKED/NEEDS_CONTEXT。** 如果实现者说卡住了，一定有东西要改。
 
 ### 5. 在 Task 文件中追加一笔
 
@@ -116,7 +145,7 @@ Read the briefing file at <brief 文件绝对路径>, then execute. Write your o
 ## Subagent Calls
 
 ### Call #N (HH:MM): <purpose>
-- Brief: `.claude/tasks/briefs/{TASK_ID}-call-{N}-{purpose}.md`
+- Brief: `.claude/tasks/bcc-briefs/{TASK_ID}-call-{N}-{purpose}.md`
 - Subagent type: <Explore|reviewer|judge|...>
 - Output: `.claude/tasks/outputs/{TASK_ID}-call-{N}.json`
 - 摘要: <subagent 返回后,主代理填一两行精华>
@@ -148,39 +177,18 @@ You do NOT <本领域常见反模式,1-2 条>.
 - **paranoid 段落点出"翻车点"**:不是泛泛说"质量",而是该领域的具体陷阱
 - **do NOT 段落点出"反模式"**:防止 Opus 退回到平庸做法
 
-### Persona 示例库(覆盖你的常用项目类型)
+### Persona 示例(按项目技术栈调整)
 
-| 任务类型 | persona 草稿 |
+| 任务类型 | persona 骨架 |
 |---|---|
-| **Vue 3 + Pinia 前端** | You ARE a senior Vue 3 + Pinia engineer. You are paranoid about reactivity pitfalls (losing reactivity when destructuring refs, watching wrong dependency, computed side effects). You do NOT mix Options API into Composition API code, and do NOT use Vuex patterns. |
-| **uni-app 小程序** | You ARE a senior uni-app + WeChat MiniProgram engineer. You are paranoid about platform-conditional code (`#ifdef MP-WEIXIN`), small-screen rendering, and miniprogram-specific API differences. You do NOT assume web-only DOM APIs are available. |
-| **Next.js 全栈** | You ARE a senior Next.js 15 App Router engineer. You are paranoid about Server vs Client component boundaries, hydration mismatches, and server action security. You do NOT mix `use client` boundaries carelessly or expose secrets through props. |
-| **FastAPI 后端** | You ARE a senior FastAPI engineer. You are paranoid about request validation gaps (Pydantic blind spots), async leaks (sync I/O in async path), and dependency injection mistakes. You do NOT skip request body validation or use bare `except`. |
-| **Spring Boot 后端** | You ARE a senior Spring Boot + JPA engineer. You are paranoid about N+1 queries, transaction boundary leaks (`@Transactional` scope), and lazy loading pitfalls outside session. You do NOT use field injection or skip `@Transactional` on multi-step writes. |
-| **PostgreSQL/MySQL DBA 视角** | You ARE a senior PostgreSQL DBA. You are paranoid about missing indexes on FK columns, lock contention from long transactions, and unbounded result sets. You do NOT write queries without EXPLAIN-thinking first. |
-| **安全审计(横跨技术栈)** | You ARE a senior security auditor. You are paranoid about injection (SQL/XSS/cmd), authn/authz bypass, secrets in code, and unsafe deserialization. You do NOT accept "the framework handles it" without verification. |
-| **性能分析(横跨技术栈)** | You ARE a senior performance engineer. You are paranoid about N+1 patterns, sync I/O in hot paths, large in-memory objects, unbounded loops, and missing caching layers. You do NOT optimize without measuring first. |
-| **Docker/DevOps** | You ARE a senior DevOps engineer. You are paranoid about image layer bloat, secret leaks in env, and stateful containers without volumes. You do NOT use `:latest` tags in production and do NOT run containers as root. |
-| **Playwright E2E** | You ARE a senior QA automation engineer. You are paranoid about flaky selectors (relying on auto-generated class names), race conditions (no `waitFor`), and tests that only cover the happy path. You do NOT use `sleep()` instead of `waitFor`. |
-| **论文/文档审查** | You ARE a meticulous editor with a research background. You are paranoid about unsourced claims, terminology drift, and logical jumps between paragraphs. You do NOT let "可能" or "或许" without specifics pass through. |
+| **Vue 3 前端** | ...paranoid about reactivity pitfalls, computed side effects. Do NOT mix Options/Composition API. |
+| **FastAPI 后端** | ...paranoid about Pydantic blind spots, async leaks. Do NOT skip validation or bare `except`. |
+| **安全审计** | ...paranoid about injection, authn/authz bypass, secrets in code. Do NOT accept "framework handles it". |
+| **DevOps** | ...paranoid about image bloat, secret leaks in env. Do NOT use `:latest` in production. |
 
-### 选 persona 的判断方法
+选 persona:**"找真人做这件事,找哪种专家?"** 答案就是 persona。同一 task 多次调用可换 persona。
 
-读完 Mission 后问自己:**"如果我现在要找真人做这件事,我会找哪种专家?"** 答案就是 persona。
-
-- 修一个 Vue 组件 bug → Vue 3 expert
-- 加一个 API 端点 → 后端 expert(看技术栈)
-- 跑前端性能优化 → performance engineer
-- 检查代码里有没有 SQL 注入 → security auditor
-- 同一个任务可能需要多次调用,每次 persona 可以不同(第一次用 "developer" 实现,第二次用 "security auditor" 审查)
-
-### 反例(persona 写错的样子)
-
-- ❌ "You are an expert" —— 泛泛,没激活
-- ❌ "You are a Vue expert who is paranoid about everything" —— paranoid 段空洞
-- ❌ "You are a coder" —— 不具体到技术栈
-- ❌ Persona 段超过 5 行 —— 太长稀释 mission 注意力
-- ❌ Persona 和 Mission 矛盾(persona 是 reviewer,mission 是让它写代码)
+Persona 反例:泛泛写 "an expert"、paranoid 段空洞、超 5 行、和 Mission 矛盾。
 
 ## 关键纪律
 
@@ -198,10 +206,6 @@ You do NOT <本领域常见反模式,1-2 条>.
 - ❌ Acceptance Criteria 写"满足要求" —— 不可验证
 - ❌ 同一个 task 反复发同样的 brief —— review 不收敛时召唤 judge,不是再发一次 brief
 
-## token 效率对照
+## token 效率
 
-- 让 subagent 自己探索:**5,000-20,000 token**
-- 用 brief 精准定位:**200-500 token**(brief 本身) + **30-50 token**(subagent prompt)
-- 杠杆:**10-40 倍**
-
-如果你发现 subagent 输出里有"我先 Read 了 X、Y、Z 文件..."这种探索性内容,说明 brief 没写够精准 —— 下次补行号、补 Known Facts。
+brief 精准定位(200-500 token)比让 subagent 自己探索(5k-20k token)省 10-40 倍。subagent 输出里出现"我先 Read 了 X、Y、Z..."说明 brief 不够精准。

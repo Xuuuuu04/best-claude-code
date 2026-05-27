@@ -73,12 +73,12 @@
 ### Skills(6 个,位于 `skills/<name>/SKILL.md`)
 | Skill | 何时调用 | 作用 |
 |---|---|---|
-| `/start-task` | 用户新独立诉求 | 增强意图 + 轻量确认 + 创建 Task 文件 |
-| `/continue-task` | 跨会话恢复 | grep in_progress task,用户选一个 load |
-| `/finish-task` | 任务完成 | 写 Completion + 强制写 HANDOVER + 改 status: done |
-| `/brief` | 调度 subagent 前 | 写 task-specific briefing(含 Activation Persona)给子代理读 |
-| `/preflight` | 提交代码前 | 读项目 CLAUDE.md 的 Preflight Commands 顺序执行 |
-| `/cross-sync` | 多端项目改动后 | 检查 web/miniapp/backend 间 enum/contract 一致性 |
+| `/bcc-start` | 用户新独立诉求 | 增强意图 + 轻量确认 + 创建 Task 文件 |
+| `/bcc-continue` | 跨会话恢复 | grep in_progress task,用户选一个 load |
+| `/bcc-finish` | 任务完成 | 写 Completion + 强制写 HANDOVER + 改 status: done |
+| `/bcc-brief` | 调度 subagent 前 | 写 task-specific briefing(含 Activation Persona)给子代理读 |
+| `/bcc-preflight` | 提交代码前 | 读项目 CLAUDE.md 的 Preflight Commands 顺序执行 |
+| `/bcc-cross-sync` | 多端项目改动后 | 检查 web/miniapp/backend 间 enum/contract 一致性 |
 
 ### Agents(2 个,位于 `agents/<name>.md`)
 | Agent | 召唤时机 | 角色 |
@@ -112,11 +112,11 @@ Task 文件用 YAML frontmatter + Markdown body,包含 8 个段:
 `Prompt`(append-only) / `Intent` / `Plan` / `Execution Log` /
 `Subagent Calls` / `Decisions`(append-only) / `Completion` / 嵌入式 `HANDOVER`。
 
-完整 schema 见 `skills/start-task/SKILL.md`。
+完整 schema 见 `skills/bcc-start/SKILL.md`。
 
 ### 2. Briefing Pattern(子代理通信)
 
-主代理在调度任何 subagent 之前,**必须用 `/brief` 生成 task-specific briefing 文件**,然后:
+主代理在调度任何 subagent 之前,**必须用 `/bcc-brief` 生成 task-specific briefing 文件**,然后:
 
 ```
 Agent.prompt = "Read the briefing file at <path>, then execute."
@@ -149,7 +149,7 @@ Writer(主代理) ──→ Reviewer agent ──→ 主代理决定下一步
 
 ### 加成:Activation Persona(零成本激活专业能力)
 
-`/brief` 模板里**必填** Activation Persona 段,主代理动态填:
+`/bcc-brief` 模板里**必填** Activation Persona 段,主代理动态填:
 
 ```
 You ARE a senior <技术栈/视角> engineer.
@@ -173,12 +173,16 @@ Spring Boot / PostgreSQL / 安全 / 性能 / Docker / Playwright / 文档审查)
 ├── output-styles/
 │   └── teacher.md                     # 教师风格对话(保留)
 ├── skills/
-│   ├── start-task/SKILL.md
-│   ├── continue-task/SKILL.md
-│   ├── finish-task/SKILL.md
-│   ├── brief/SKILL.md                 # 含 Activation Persona 示例库
-│   ├── preflight/SKILL.md
-│   └── cross-sync/SKILL.md
+│   ├── bcc-start/SKILL.md
+│   ├── bcc-continue/SKILL.md
+│   ├── bcc-finish/SKILL.md
+│   ├── bcc-brief/SKILL.md             # 含 Activation Persona 示例库
+│   ├── bcc-preflight/SKILL.md
+│   ├── bcc-cross-sync/SKILL.md
+│   ├── bcc-debug/SKILL.md
+│   ├── bcc-tdd/SKILL.md
+│   ├── bcc-init/SKILL.md
+│   └── bcc-check/SKILL.md
 ├── agents/
 │   ├── reviewer.md
 │   └── judge.md
@@ -222,7 +226,7 @@ chmod +x ~/.claude/hooks/*.sh
 # 5. 在某个项目里试跑
 cd ~/path/to/your-project
 claude
-# 给一句正常的工作指令,Claude 会自动调用 /start-task 开 Task 文件
+# 给一句正常的工作指令,Claude 会自动调用 /bcc-start 开 Task 文件
 ```
 
 最小 `settings.json` 模板(供参考):
@@ -248,7 +252,7 @@ A: 跟 git 走、自然归档、项目结束 task 历史一起走。跨项目搜
 
 **Q: 为什么不预设"前端专家""后端专家"agent?**
 A: Opus 4.7 知识广度已经够,需要的是**身份激活**而不是知识灌输。
-所以用 `/brief` 里的 Activation Persona **动态注入**,零维护成本,无限技术栈适配。
+所以用 `/bcc-brief` 里的 Activation Persona **动态注入**,零维护成本,无限技术栈适配。
 只有"横跨技术栈的质量维度"(如安全、性能)才考虑后续加专业 agent —— 按 ratchet 原则,撞到痛点再加。
 
 **Q: 为什么 hook 只有 4 个?**
@@ -277,7 +281,7 @@ Opus 4.7 之后,大部分组件变成 "load-bearing for nothing",应该被拆掉
 1. **主代理写出来的 Activation Persona 够具体吗?** 不是"You are an expert"这种泛泛?
 2. **subagent 输出里有没有"我先 Read 了 X、Y、Z..."这种探索性内容?** 有 → brief 没写精准,补行号
 3. **有没有反复纠正同一类问题?** ≥3 次 → 该把它转成 hook 或加进 CLAUDE.md
-4. **有没有 `/finish-task` 时 HANDOVER 写得敷衍?** → 加强 finish-task skill 的检查清单
+4. **有没有 `/bcc-finish` 时 HANDOVER 写得敷衍?** → 加强 bcc-finish skill 的检查清单
 5. **有没有想用某个 persona 但示例库里没有?** → 补进 `brief` skill 的示例表
 
 **核心准则:不靠预判,靠观察。撞墙了才加规则,加了之后看它是否真的挣到位置。**

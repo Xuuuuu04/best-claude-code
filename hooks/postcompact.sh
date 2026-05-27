@@ -1,46 +1,39 @@
 #!/bin/bash
-# PostCompact hook: 压缩完成后，重新注入活跃 Task 的关键上下文，
-# 防止主代理压缩后"失忆"——不知道自己在做什么 task。
-# 输入: stdin JSON，含 .cwd
-# 输出: 标准 JSON（hookSpecificOutput.additionalContext）
+# PostCompact hook: 压缩完成后重新注入所有活跃 Task 的关键上下文
+source "$(dirname "$0")/_common.sh"
 
-INPUT=$(cat)
-CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
+_init_hook
+_require_tasks_dir
+_find_active_tasks
 
-if [ -z "$CWD" ] || [ ! -d "$CWD/.claude/tasks" ]; then
-  exit 0
-fi
-
-ACTIVE_FILE=$(grep -l 'status: in_progress' "$CWD/.claude/tasks/"*.md 2>/dev/null | head -1 || true)
-
-if [ -z "$ACTIVE_FILE" ]; then
+if [ "$ACTIVE_COUNT" -eq 0 ]; then
   jq -n '{hookSpecificOutput: {hookEventName: "PostCompact", additionalContext: "[PostCompact] 压缩已完成。当前无活跃 Task。"}}'
   exit 0
 fi
 
-TASK_ID=$(basename "$ACTIVE_FILE" .md)
-TITLE=$(grep -m1 '^# ' "$ACTIVE_FILE" 2>/dev/null | sed 's/^# //' || echo "(无标题)")
+CONTEXT="[PostCompact] 压缩已完成。当前有 ${ACTIVE_COUNT} 个活跃 Task："
 
-# 提取最近 5 行 Execution Log
-LAST_LOGS=$(grep -E '^- [0-9]{2}:[0-9]{2} ' "$ACTIVE_FILE" 2>/dev/null | tail -5 || true)
+while IFS= read -r FILE; do
+  [ -z "$FILE" ] && continue
+  TID=$(_task_id "$FILE")
+  TITLE=$(_task_title "$FILE")
+  LAST_LOGS=$(grep -E '^- [0-9]{2}:[0-9]{2} ' "$FILE" 2>/dev/null | tail -5 || true)
+  PLAN=$(sed -n '/^## Plan$/,/^## /{/^## Plan$/d;/^## /d;p}' "$FILE" 2>/dev/null | head -8 || true)
 
-# 提取 Plan 段（到下一个 ## 之前，最多 8 行）
-PLAN=$(sed -n '/^## Plan$/,/^## /{/^## Plan$/d;/^## /d;p}' "$ACTIVE_FILE" 2>/dev/null | head -8 || true)
+  CONTEXT="${CONTEXT}
 
-CONTEXT="[PostCompact] 压缩已完成。当前活跃 Task：
-- 文件: ${ACTIVE_FILE}
-- ID: ${TASK_ID}
-- 标题: ${TITLE}
-
+--- ${TID} ---
+文件: ${FILE}
+标题: ${TITLE}
 Plan:
 ${PLAN}
-
 最近进展:
-${LAST_LOGS}
+${LAST_LOGS}"
+done <<< "$ACTIVE_FILES"
+
+CONTEXT="${CONTEXT}
 
 请重读 Task 文件以恢复完整上下文，然后继续执行。"
 
 jq -n --arg ctx "$CONTEXT" \
   '{hookSpecificOutput: {hookEventName: "PostCompact", additionalContext: $ctx}}'
-
-exit 0
