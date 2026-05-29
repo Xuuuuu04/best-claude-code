@@ -11,7 +11,7 @@ _find_active_tasks
 TIMESTAMP=$(date "+%H:%M")
 
 while IFS= read -r FILE; do
-  [ -n "$FILE" ] && echo "- $TIMESTAMP [PreCompact] 上下文即将压缩，自动落档" >> "$FILE"
+  [ -n "$FILE" ] && echo "> [PreCompact $TIMESTAMP] 上下文即将压缩，自动落档" >> "$FILE"
 done <<< "$ACTIVE_FILES"
 
 FILE_LIST=$(echo "$ACTIVE_FILES" | sed 's/^/  - /' | tr '\n' '|' | sed 's/|/\\n/g')

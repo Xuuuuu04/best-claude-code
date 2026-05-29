@@ -142,6 +142,7 @@ tasks/bcc-briefs/
 tasks/outputs/
 tasks/archive/
 tasks/.hook-state.json
+pending-learnings.md
 
 # 会话临时文件
 *.jsonl

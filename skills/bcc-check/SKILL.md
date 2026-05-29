@@ -25,9 +25,11 @@ command -v jq >/dev/null && echo "✓ jq $(jq --version)" || echo "✗ jq 未安
 ### 2. Hook 文件完整性
 ```bash
 HOOKS_DIR="$HOME/.claude/hooks"
-REQUIRED_HOOKS=("_common.sh" "precompact.sh" "postcompact.sh" "session-start.sh" "session-end.sh" "posttooluse-guard.sh" "stop-progress-gate.sh")
+# _common.sh 是被 source 的库，不需要 +x，只检存在；6 个事件 hook 才需可执行
+[ -f "$HOOKS_DIR/_common.sh" ] && echo "✓ _common.sh (库，被 source)" || echo "✗ 缺失: _common.sh"
 
-for H in "${REQUIRED_HOOKS[@]}"; do
+EVENT_HOOKS=("precompact.sh" "postcompact.sh" "session-start.sh" "session-end.sh" "posttooluse-guard.sh" "stop-progress-gate.sh")
+for H in "${EVENT_HOOKS[@]}"; do
   F="$HOOKS_DIR/$H"
   if [ ! -f "$F" ]; then
     echo "✗ 缺失: $H"
