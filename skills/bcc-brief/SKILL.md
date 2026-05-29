@@ -117,6 +117,12 @@ Read the briefing file at <brief 文件绝对路径>, then execute. Write your o
 - 多文件集成、模式匹配 → 用 `sonnet`
 - 架构设计、review、裁决 → 用 `opus`
 
+> ⚠️ 上面这套档位（haiku/sonnet/opus）只在 Anthropic Claude 模式下成立。
+> 主代理若跑在自定义 provider（国产模型 GLM/DeepSeek/Kimi 等）上，这些别名在 subagent 的解析
+> 是 Claude Code 未文档化的行为——subagent 很可能直接继承主代理模型，而不是按档位换。
+> 单厂商场景下这其实合理：subagent 用同一家同一模型即可。要省成本用轻量档，靠会话级手动 /model，
+> 别指望 brief 里写 model 别名生效。（2026-05 查证，CC 机制若变需复核）
+
 ### 4b. 实现类 brief 的两阶段 Review（吸收自 Superpowers SDD）
 
 当 brief 的 For 字段是 `implementer`（实现代码任务）时，实现者完成后追加两轮独立 review：
