@@ -168,7 +168,7 @@ Briefing 文件 7 段:
 
 Activation Persona 只对 Explore / general-purpose 类 subagent 生效;reviewer / judge 有自己的固定人设。
 
-**Token 效率对照**(实测):
+**Token 效率对照**(估算,基于 brief 体量):
 | 模式 | token 消耗 |
 |---|---|
 | 让 subagent 自己探索 | 5,000-20,000 |
