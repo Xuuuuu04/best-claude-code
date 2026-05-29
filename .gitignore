@@ -23,7 +23,10 @@ shell-snapshots/
 history.jsonl
 file-history/
 tasks/
+tasks-floating/
 teams/
+transcripts/
+.last-cleanup
 # Claude Code 自身产生的运行时遥测（含 token 用量 / session UUID / 失败事件，不应进版本库）
 stats-cache.json
 telemetry/
@@ -34,7 +37,8 @@ plans/
 settings.json
 settings.local.json
 settings.local.yaml
-settings.json.bak*
+# .bak / .pre-cleanup-backup 等任何 settings.json 衍生文件都可能含明文 key，统一挡住
+settings.json.*
 *.bak
 *.bak-*
 .claude.json
@@ -105,3 +109,5 @@ plugins/
 ide/
 # OpenCode 配置
 .opencode/
+# Trae IDE 配置（非 BCC harness 组件，不进库）
+.trae/

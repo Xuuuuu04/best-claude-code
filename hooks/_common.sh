@@ -1,5 +1,5 @@
 #!/bin/bash
-# hooks/_common.sh — 4 个 hook 共享的基础函数
+# hooks/_common.sh — 6 个事件 hook 共享的基础函数
 # 用法: source "$(dirname "$0")/_common.sh"
 
 if ! command -v jq &>/dev/null; then
