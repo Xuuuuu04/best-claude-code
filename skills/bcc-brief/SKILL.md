@@ -1,43 +1,43 @@
 ---
 name: bcc-brief
-description: 主代理在调度 subagent 之前生成 task-specific briefing 文件,让 subagent 收到的 prompt 仅有几十 token,避免 subagent 自己探索全部上下文带来的 token 浪费(实测可省 10-40 倍)。这是整个 harness 的 token 效率核心。
+description: 主代理调度 subagent 之前,把 briefing 内容(persona / known facts / files / acceptance criteria / output schema)想清楚并落成一份 brief 文件,让 subagent 的 prompt 只有一句"读这份 brief",不用自己探索全部上下文。这是 harness 省 token 的关键。
 argument-hint: "[subagent 类型] [目的简述]"
 effort: high
 ---
 
 # /bcc-brief
 
-调 subagent 不再塞一大段 prompt,改成指向一份 briefing 文件。
+调 subagent 不塞一大段 prompt,改成指向一份 briefing 文件。
 
 ## 何时调用
 
-**任何要拆 subagent 的场景都必须先 /bcc-brief**,包括:
-- 调用内置 Explore subagent 做大量探索
-- 调用 reviewer agent 做 review
-- 调用 judge agent 做裁决
-- 调用项目级或 plugin 提供的任何自定义 subagent
+**拆 subagent 前,先把 brief 内容想清楚**(Activation Persona / Known Facts / Files / Acceptance Criteria / Output schema)——这是省 token、防 subagent 乱探索的关键。适用:
+- 内置 Explore 做大量探索
+- reviewer agent 做 review
+- judge agent 做裁决
+- 项目级或 plugin 提供的任何自定义 subagent
 
-唯一例外:主代理对 subagent 的 prompt 本身就只有 1-2 句具体指令(例如"读 src/foo.ts 第 50 行,告诉我函数参数有哪些")—— 这种轻量 query 不需要 brief。
+唯一例外:prompt 本身只有 1-2 句具体指令(例"读 src/foo.ts:50,告诉我函数参数有哪些")—— 这种轻量 query 不需要 brief。
 
 ## 执行步骤
 
-### 1. 定位当前 Task 和 brief 编号
+### 1. 定位 outputs 目录
 
 ```bash
-TASK_ID=<当前活跃 task id>
-BRIEFS_DIR="$(pwd)/.claude/tasks/bcc-briefs"
-mkdir -p "$BRIEFS_DIR"
-
-# 计算本次是第几次 call
-N=$(ls "$BRIEFS_DIR"/${TASK_ID}-* 2>/dev/null | wc -l | tr -d ' ')
-N=$((N + 1))
+OUT_DIR="$(pwd)/.claude/tasks/outputs"
+mkdir -p "$OUT_DIR"
 ```
 
-### 2. 生成 brief 文件名
+brief 和 subagent 的输出**都放这里**。不用单独的 `bcc-briefs/` 目录,也不用算 call 编号——实战(跨多个真实项目)证明那套形式没人遵守,语义命名更好认。
 
-`{TASK_ID}-call-{N}-{purpose}.md`,例如:
-- `Task-2026-05-15-1030-fix-auth-call-1-explore.md`
-- `Task-2026-05-15-1030-fix-auth-call-2-review.md`
+### 2. 生成 brief 文件名(语义命名)
+
+`brief-<topic>.md`,topic 用 2-4 个词点明主题:
+- `brief-explore-auth-flow.md`
+- `brief-review-payment.md`
+- `brief-audit-r3-backend.md`(多轮时带轮次)
+
+跟实战里 `review-r7`、`audit-C1` 的风格一致,见名知意,不用回头查"call-3 到底是干嘛的"。
 
 ### 3. 按模板写 brief
 
@@ -45,7 +45,6 @@ N=$((N + 1))
 # Brief: <一句话目标,英文>
 
 **Task**: <task id>
-**Call**: #N
 **For**: <subagent 类型,例 Explore / reviewer / judge / playwright>
 **Created**: <时间戳>
 
@@ -78,7 +77,7 @@ You do NOT <本领域常见反模式,1-2 条>.
 - [ ] <可验证标准 3>
 
 ## Output Format
-输出严格的 JSON,写入: `<project>/.claude/tasks/outputs/{TASK_ID}-call-{N}.json`
+输出严格的 JSON,写入 outputs/ 下与 brief 同主题的文件,例 `outputs/review-payment.json`。
 
 Schema:
 \`\`\`json
@@ -145,30 +144,26 @@ Read the briefing file at <brief 文件绝对路径>, then execute. Write your o
 
 **绝不忽略 BLOCKED/NEEDS_CONTEXT。** 如果实现者说卡住了，一定有东西要改。
 
-### 5. 在 Task 文件中追加一笔
+### 5. (可选) 在 Task 文件记一笔
+
+想保留可追溯性,就在 Subagent Calls 段追加一行——**非强制**,`outputs/` 里的文件本身就是记录:
 
 ```markdown
 ## Subagent Calls
-
-### Call #N (HH:MM): <purpose>
-- Brief: `.claude/tasks/bcc-briefs/{TASK_ID}-call-{N}-{purpose}.md`
-- Subagent type: <Explore|reviewer|judge|...>
-- Output: `.claude/tasks/outputs/{TASK_ID}-call-{N}.json`
-- 摘要: <subagent 返回后,主代理填一两行精华>
+- <topic> (<subagent 类型>): <一句话摘要>, output: outputs/<topic>.json
 ```
 
 ### 6. 读 subagent 输出
 
 subagent 完成后,主代理:
-1. Read `.claude/tasks/outputs/{TASK_ID}-call-{N}.json`
+1. Read `outputs/<topic>.json`
 2. 验证 status 是否 success
-3. 在 Task 文件的 Subagent Calls 段补上"摘要"行
-4. 如果发现重要决策点,追加一行到 Decisions 段
+3. 发现重要决策点,追加一行到 Task 的 Decisions 段
 
 ## Activation Persona 写作指南(零成本激活专业视角)
 
 不养专业 agent,每次写 brief 时**动态注入身份**就够了。
-Opus 4.7 知识面够宽,缺的是"用什么视角想问题"的指引。
+模型知识面够宽,缺的是"用什么视角想问题"的指引。
 
 ### 写作骨架(3-5 行,必填)
 
@@ -181,7 +176,7 @@ You do NOT <本领域常见反模式,1-2 条>.
 关键要素:
 - **具体到技术栈**:不写 "frontend engineer",写 "senior Vue 3 + Pinia engineer"
 - **paranoid 段落点出"翻车点"**:不是泛泛说"质量",而是该领域的具体陷阱
-- **do NOT 段落点出"反模式"**:防止 Opus 退回到平庸做法
+- **do NOT 段落点出"反模式"**:防止模型退回到平庸做法
 
 ### Persona 示例(按项目技术栈调整)
 
@@ -214,4 +209,4 @@ Persona 反例:泛泛写 "an expert"、paranoid 段空洞、超 5 行、和 Miss
 
 ## token 效率
 
-brief 精准定位(200-500 token)比让 subagent 自己探索(5k-20k token)省 10-40 倍。subagent 输出里出现"我先 Read 了 X、Y、Z..."说明 brief 不够精准。
+brief 精准定位(几百 token)比让 subagent 自己探索(几千到几万 token)省得多。subagent 输出里出现"我先 Read 了 X、Y、Z..."说明 brief 不够精准,该补行号。

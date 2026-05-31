@@ -104,7 +104,7 @@ tags: [<根据诉求加 1-3 个>]
 - HH:MM Task 创建,开始执行
 
 ## Subagent Calls
-<还没有时为空>
+<可选;调过 subagent 想留追溯就记一行,outputs/ 里的文件本身也是记录>
 
 ## Decisions
 <还没有时为空>

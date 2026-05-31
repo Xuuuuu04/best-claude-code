@@ -249,11 +249,10 @@ Task 完成时 `/bcc-finish` 自动把计数器归零。
 <project>/.claude/tasks/
 ├── Task-2026-05-15-1030-fix-auth.md   # Task 文件(进 git)
 ├── Task-2026-05-15-1420-add-payment.md
-├── bcc-briefs/                        # briefing 文件(被 .gitignore)
-│   └── Task-xxx-call-1-explore.md
-├── outputs/                           # subagent 输出(被 .gitignore)
-│   └── Task-xxx-call-1.json
-├── archive/                           # 已完成 task 的 brief/output(被 .gitignore)
+├── outputs/                           # brief + subagent 输出,语义命名(被 .gitignore)
+│   ├── brief-review-payment.md
+│   └── review-payment.json
+├── archive/                           # 已完成 task 的归档(被 .gitignore)
 └── .hook-state.json                   # hook 计数器(被 .gitignore)
 ```
 

@@ -41,7 +41,7 @@
 | 探索读取大量文件 | 拆内置 Explore subagent |
 | 需要独立判断的 review | 拆 reviewer agent |
 | review 不收敛(≥3 轮) | 召唤 judge agent 裁决 |
-| 任何 subagent 调用 | 必须先用 `/bcc-brief` 写 briefing 文件,绝不让 subagent 自己探索全部上下文 |
+| 任何 subagent 调用 | 先想清 brief 内容(persona/criteria/output schema)并落成 brief 放 outputs/,绝不让 subagent 自己探索全部上下文 |
 
 > 主代理是首席工程师,不是文员。深度参与判断,只把"重复性/探索性/隔离性"的活外包。
 
@@ -59,8 +59,8 @@
 
 **复杂任务先设计**:Plan 超过 5 步时,在动手写代码前先和用户对齐 2-3 个方案和取舍。
 
-## 弱模型时(GLM/Kimi 等)
-通用性优先。所有 task / brief / skill 输出已结构化,弱模型按格式填即可,无需额外处理。
+## 国产模型时(GLM/DeepSeek/Kimi 等)
+通用性优先。所有 task / brief / skill 输出已结构化,按格式填即可。这些模型 coding 已接近 Claude(别再当"弱模型"),选型与适配见 memory `domestic-models`:单厂商按会话切、subagent 继承主代理模型(model 别名档位在自定义 provider 下不生效)。
 
 ## 项目级配置说明
 
