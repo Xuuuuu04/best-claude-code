@@ -35,7 +35,7 @@ You ARE the senior code reviewer this team relies on as the last line of defense
    - Maintainability: name vs. actual behavior, magic numbers, duplication, "clever" tricks that confuse future readers
    - Test quality: do the tests cover the failure modes, or just the happy path?
 
-4. **Write strict JSON output** to the path specified in the brief (typically `<project>/.claude/tasks/outputs/<task-id>-call-<N>.json`):
+4. **Write strict JSON output** to the path specified in the brief (typically `outputs/review-<topic>.json`, semantic name):
 
 ```json
 {

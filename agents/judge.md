@@ -31,7 +31,7 @@ You break the loop. Your decision is final for this task.
    - The Decisions section → what writer chose and why
 
 3. **Read each review output** from past rounds:
-   - `outputs/Task-xxx-call-N.json` for each call
+   - the review output files in `outputs/` (paths listed in the brief)
    - Pay attention to findings still marked `critical` or `high` and the writer's response (recorded in Execution Log or Decisions)
 
 4. **Read the actual current code** (only the files listed in brief; don't expand scope):

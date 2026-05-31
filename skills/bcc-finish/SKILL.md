@@ -80,20 +80,16 @@ STATE_FILE="$(pwd)/.claude/tasks/.hook-state.json"
 echo '{"edits_since_task_update":0,"consecutive_bash_failures":0}' > "$STATE_FILE"
 ```
 
-### 6. 归档 brief 和 output 文件
+### 6. (可选) 清理 outputs
 
-把这个 task 的 brief 和 output 移到归档目录,保持 briefs/ 和 outputs/ 干净:
+brief 和 subagent 输出都在 `outputs/`,已被 .gitignore 忽略、不进版本库,放着也不影响仓库。想保持干净就把本 task 明显相关的文件挪进 `archive/`:
 
 ```bash
-TASKS_DIR="$(pwd)/.claude/tasks"
-TASK_ID="<当前 task id>"
-ARCHIVE_DIR="$TASKS_DIR/archive/$TASK_ID"
-mkdir -p "$ARCHIVE_DIR"
-mv "$TASKS_DIR/bcc-briefs/${TASK_ID}-"* "$ARCHIVE_DIR/" 2>/dev/null || true
-mv "$TASKS_DIR/outputs/${TASK_ID}-"* "$ARCHIVE_DIR/" 2>/dev/null || true
+mkdir -p "$(pwd)/.claude/tasks/archive"
+# 按主题手动挪相关文件,或整体留在 outputs/ —— 反正不进 git
 ```
 
-如果该 task 没有 brief/output 文件(例如简单任务没调过 subagent),跳过此步。
+简单任务没调过 subagent 时,跳过此步。
 
 ### 7. 报告并提示 commit
 

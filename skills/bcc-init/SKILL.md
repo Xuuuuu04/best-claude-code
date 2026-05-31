@@ -94,7 +94,6 @@ fi
 
 ```bash
 mkdir -p "$CLAUDE_DIR/tasks"
-mkdir -p "$CLAUDE_DIR/tasks/bcc-briefs"
 mkdir -p "$CLAUDE_DIR/tasks/outputs"
 mkdir -p "$CLAUDE_DIR/tasks/archive"
 ```
@@ -138,7 +137,6 @@ Preflight 命令是 npm run typecheck + npm run lint，对吗？
 
 ```gitignore
 # Task 运行时状态（不进版本库）
-tasks/bcc-briefs/
 tasks/outputs/
 tasks/archive/
 tasks/.hook-state.json
@@ -194,7 +192,7 @@ BCC 初始化完成
 ==============
 
 新建：
-  ✓ .claude/tasks/ 目录结构（tasks/bcc-briefs/outputs/archive）
+  ✓ .claude/tasks/ 目录结构（tasks/outputs/archive）
   ✓ .claude/CLAUDE.md（技术栈：TypeScript + React）
   ✓ .claude/.gitignore
 
