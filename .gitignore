@@ -27,6 +27,7 @@ tasks-floating/
 teams/
 transcripts/
 .last-cleanup
+.last-update-result.json
 # Claude Code 自身产生的运行时遥测（含 token 用量 / session UUID / 失败事件，不应进版本库）
 stats-cache.json
 telemetry/
@@ -59,9 +60,9 @@ artifacts/
 agent-memory/
 agent-memory-local/
 state/clarification-pending-*.json
-# Cost/debug logs produced by hooks; test runs may accidentally write
-# these under ~/.claude itself — never commit
+# 嵌套 .claude/ 是本仓库自身的 BCC 运行时目录（tasks/outputs/state 的正式存放点），按设计不进库
 .claude/
+# Cost/debug logs produced by hooks — never commit
 cost-log.txt
 cost-log.txt.broken.*
 hook-errors.log

@@ -1,24 +1,17 @@
 #!/bin/bash
-# SessionStart hook: 会话开始时扫描 in_progress task + 处理 pending-learnings
+# SessionStart hook: 会话开始时扫描 in_progress task,注入恢复上下文
 source "$(dirname "$0")/_common.sh"
 
 _init_hook
 _require_tasks_dir
 _find_active_tasks
 
+# 清理 7 天没动过的 state 文件(state 按 session 隔离后会逐渐累积)
+find "$CWD/.claude/tasks" -maxdepth 1 -name '.hook-state*.json' -mtime +7 -delete 2>/dev/null || true
+
 CONTEXT=""
 
-# 检查 pending-learnings（上次会话提取的决策）
-LEARNINGS_FILE="$CWD/.claude/pending-learnings.md"
-if [ -f "$LEARNINGS_FILE" ]; then
-  LEARNINGS_CONTENT=$(cat "$LEARNINGS_FILE" 2>/dev/null)
-  CONTEXT="${CONTEXT}📋 上次会话遗留了待处理的学习笔记（${LEARNINGS_FILE}）：
-请阅读后决定哪些写入 memory，处理完删除该文件。
-
-"
-fi
-
-# 活跃 task 扫描（原有逻辑）
+# 活跃 task 扫描
 if [ "$ACTIVE_COUNT" -gt 0 ]; then
   # 跨平台 stat 排序
   if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -49,7 +42,7 @@ if [ "$ACTIVE_COUNT" -gt 0 ]; then
 
   CONTEXT="${CONTEXT}检测到 ${ACTIVE_COUNT} 个进行中的 Task（本项目）：
 
-${TASK_LIST}用 /bcc-continue 选一个恢复，或直接说新诉求开新 task。"
+${TASK_LIST}恢复方式：直接 Read 对应 Task 文件，在 Execution Log 记一行恢复后继续；或直接说新诉求开新 task。"
 fi
 
 # 如果没有任何上下文需要注入，静默退出

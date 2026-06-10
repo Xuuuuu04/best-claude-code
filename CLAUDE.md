@@ -6,7 +6,6 @@
 - 中文回答,代码标识符保持 ASCII,像开发者说话不像客服
 - 默认 teacher output-style(已配置)
 - 简单问题直接答;复杂问题先 plan 再做
-- 失败要 verbose,成功要 silent —— 没事别打断我
 - 零谄媚 / 零虚假自信 / 零翻译腔 / 零夸大 / 语言一致 —— 完整禁令和对照表在 `rules/honest-communication.md`,该文件每会话自动加载,以它为准,这里不重复
 
 ## Task 系统(核心机制)
@@ -22,7 +21,7 @@
 1. 用户发新诉求 → 主代理调用 `/bcc-start` → 增强意图、一句话确认、写文件
 2. 工作时主代理在该 Task 文件追加 Execution Log + Decisions
 3. 完成时 `/bcc-finish` 写 Completion + HANDOVER 段
-4. 跨会话恢复用 `/bcc-continue`
+4. 跨会话恢复:session-start hook 自动注入活跃 Task
 
 判断"新 task vs 当前 task 继续"的标准:**这条新输入能否独立成一个 commit?** 能→新 task;不能→追加当前 task 的 Prompt 段。
 
@@ -42,7 +41,6 @@
 
 **TDD 默认开启**:实现功能或修 bug 时,默认用 `/bcc-tdd` 流程(红-绿-重构)。用户说"不用测试"时可跳过。
 **系统化调试**:遇到 bug 用 `/bcc-debug`,禁止盲猜盲修——先定位根因,再写失败测试,再修。
-**证据先于声明**:说"搞定了"之前必须有验证输出。"应该没问题"不算。
 
 **提交前检查**:
 - 必跑项目特定 typecheck / lint —— 命令在项目 CLAUDE.md 的 `## Preflight Commands` 段

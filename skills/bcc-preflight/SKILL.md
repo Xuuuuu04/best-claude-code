@@ -1,7 +1,7 @@
 ---
 name: bcc-preflight
-description: 在准备 git commit、git push、或用户说"提交/推一下/上线"时自动激活 —— 读项目 CLAUDE.md 的 ## Preflight Commands 段,依次执行 typecheck / lint / test,任一失败立即停并报告。也在 /bcc-finish 之前自动跑。
-allowed-tools: Bash(npm *) Bash(npx *) Bash(mvn *) Bash(go *) Bash(mypy *) Bash(ruff *) Bash(markdownlint *) Bash(find *)
+description: '在准备 git commit、git push、或用户说"提交/推一下/上线"时自动激活 —— 读项目 CLAUDE.md 的 Preflight Commands 段,依次执行 typecheck / lint / test,任一失败立即停并报告。也在 /bcc-finish 之前自动跑。'
+allowed-tools: Bash(npm *), Bash(npx *), Bash(mvn *), Bash(go *), Bash(mypy *), Bash(ruff *), Bash(markdownlint *), Bash(find *)
 argument-hint: "[子目录（可选，多端项目指定）]"
 ---
 

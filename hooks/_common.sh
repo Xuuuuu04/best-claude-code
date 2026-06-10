@@ -1,5 +1,5 @@
 #!/bin/bash
-# hooks/_common.sh — 6 个事件 hook 共享的基础函数
+# hooks/_common.sh — 5 个事件 hook 共享的基础函数
 # 用法: source "$(dirname "$0")/_common.sh"
 
 if ! command -v jq &>/dev/null; then
@@ -10,9 +10,14 @@ fi
 _init_hook() {
   INPUT=$(cat)
   CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
+  # session_id 要进文件名,白名单消毒(正常值是 CC 生成的 UUID)
+  SESSION_ID=$(echo "$INPUT" | jq -r '.session_id // "default"' | tr -cd 'A-Za-z0-9_-')
+  [ -n "$SESSION_ID" ] || SESSION_ID="default"
 }
 
 _require_tasks_dir() {
+  # CWD=$HOME 时 $CWD/.claude/tasks 是 Claude Code 内部目录,不是 BCC 项目
+  [ "$CWD" = "$HOME" ] && exit 0
   if [ -z "$CWD" ] || [ ! -d "$CWD/.claude/tasks" ]; then
     exit 0
   fi
@@ -31,17 +36,12 @@ _task_id()       { basename "$1" .md; }
 _task_title()    { grep -m1 '^# ' "$1" 2>/dev/null | sed 's/^# //' || echo "(无标题)"; }
 _task_last_log() { grep -E '^- [0-9]{2}:[0-9]{2} ' "$1" 2>/dev/null | tail -1 | sed 's/^- //' || true; }
 
-_reset_hook_state() {
-  local state_file="$CWD/.claude/tasks/.hook-state.json"
-  if [ -f "$state_file" ]; then
-    local tmp=$(mktemp "${state_file}.XXXXXX" 2>/dev/null || echo "${state_file}.tmp")
-    echo '{"edits_since_task_update":0,"consecutive_bash_failures":0}' > "$tmp" && mv "$tmp" "$state_file"
-  fi
-}
+# state 按 session 隔离:同 cwd 多会话/agent teams 下计数不互相污染
+_state_file_path() { echo "$CWD/.claude/tasks/.hook-state.${SESSION_ID:-default}.json"; }
 
 # 读 state 到 EDITS / FAILURES,文件不存在则初始化(posttooluse-guard / posttoolusefailure 共用)
 _load_hook_state() {
-  STATE_FILE="$CWD/.claude/tasks/.hook-state.json"
+  STATE_FILE=$(_state_file_path)
   if [ ! -f "$STATE_FILE" ]; then
     echo '{"edits_since_task_update":0,"consecutive_bash_failures":0}' > "$STATE_FILE"
   fi

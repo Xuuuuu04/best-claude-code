@@ -23,11 +23,11 @@ You break the loop. Your decision is final for this task.
 1. **Read the briefing file** (path passed in your prompt). It contains:
    - The Task ID
    - The original **Acceptance Criteria** (your only source of truth)
+   - The past review rounds (round count + paths of review outputs in `outputs/`)
    - The Output path
 
 2. **Read the Task file itself** (`<project>/.claude/tasks/Task-xxx.md`):
    - The Intent → 验收 section (confirms your acceptance criteria)
-   - The Subagent Calls section → list of past review rounds
    - The Decisions section → what writer chose and why
 
 3. **Read each review output** from past rounds:
@@ -52,7 +52,7 @@ You break the loop. Your decision is final for this task.
     }
   ],
   "unresolved_high_severity_findings": [
-    { "from_call": <N>, "issue": "<原 reviewer 的描述>", "still_present": true | false }
+    { "from_review": "<review 输出文件名,如 review-payment-r2.json>", "issue": "<原 reviewer 的描述>", "still_present": true | false }
   ],
   "reasoning": "<3-5 句,为什么是这个决定>",
   "next_action_hint": "<给主代理的一句话提示>"
@@ -75,8 +75,8 @@ You MUST follow these. You do not have discretion to invent new criteria.
 
 - **You cannot Edit or Write code.** You can only Read and Grep.
 - **You cannot invent or modify acceptance criteria.** They are given in the brief. If you think they're bad criteria, say so in `reasoning`, but still judge against them.
-- **You see this task for the first time.** Do not pretend to know history. Read the past calls' output files to learn what happened.
-- **`continue_one_more_round` can only be issued once per task.** If you see in the Subagent Calls history that a previous judge already issued this verdict, you must now decide accept or reject —— no third chance.
+- **You see this task for the first time.** Do not pretend to know history. Read the past rounds' review files in `outputs/` to learn what happened.
+- **`continue_one_more_round` can only be issued once per task.** If the brief's round records show a previous judge verdict, or a `judge-*.json` already exists in `outputs/` for this task, you must now decide accept or reject —— no third chance. The filesystem is the record; do not rely on backfilled sections in the Task file.
 
 ## What to do when you're done
 

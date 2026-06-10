@@ -1,8 +1,6 @@
 ---
 name: bcc-cross-sync
-description: 在多端项目(web + miniapp + backend 并存，且项目 CLAUDE.md 有 Cross-end Shared 段)中修改了 enum、constant、API contract 时自动激活 —— 检查各端是否同步更新。也在多端项目 PR 之前自动跑。单端项目或无 Cross-end Shared 配置的项目不触发。
-context: fork
-agent: Explore
+description: '多端项目(web/miniapp/backend 并存,且项目 CLAUDE.md 有 Cross-end Shared 段)改了 enum、constant、API contract 时或 PR 前激活——检查各端是否同步。单端或无该配置段的项目不触发。'
 argument-hint: "[enum 或 contract 名称（可选）]"
 ---
 

@@ -4,18 +4,13 @@
 source "$(dirname "$0")/_common.sh"
 
 _init_hook
-
-# 没有 tasks 目录 → 不管
-if [ -z "$CWD" ] || [ ! -d "$CWD/.claude/tasks" ]; then
-  exit 0
-fi
-
+_require_tasks_dir
 _find_active_tasks
 
 # 没有活跃 Task → 不拦截
 [ "$ACTIVE_COUNT" -eq 0 ] && exit 0
 
-STATE_FILE="$CWD/.claude/tasks/.hook-state.json"
+STATE_FILE=$(_state_file_path)
 
 # 没有 state 文件或文件为空 → 不拦截
 if [ ! -f "$STATE_FILE" ]; then
@@ -24,7 +19,7 @@ fi
 
 EDITS=$(jq -r '.edits_since_task_update // 0' "$STATE_FILE" 2>/dev/null)
 
-# 阈值：做了 6+ 次编辑/命令但没更新 Task → 拦截
+# 阈值：做了 6+ 次文件编辑但没更新 Task → 拦截
 THRESHOLD=6
 
 if [ "$EDITS" -ge "$THRESHOLD" ]; then

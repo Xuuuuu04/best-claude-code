@@ -1,6 +1,6 @@
 ---
 name: bcc-init
-description: 当用户说"/bcc-init"或"迁移到我们的标准"、或当前仓库明确缺少 .claude/tasks/ 目录和项目 CLAUDE.md 时激活 —— 一键把任意仓库的 AI 开发范式迁移为 BCC(Better Claude Code) 标准。不要在用户说"整理代码/整理目录"时误触。
+description: '用户说"/bcc-init"、"迁移到我们的标准",或仓库缺 .claude/tasks/ 和项目 CLAUDE.md 时激活——把仓库迁移为 BCC(Better Claude Code) 标准。用户说"整理代码/整理目录"时不触发。'
 argument-hint: "[目标目录（可选，默认当前项目）]"
 ---
 
@@ -14,7 +14,7 @@ argument-hint: "[目标目录（可选，默认当前项目）]"
 
 ## 何时调用
 
-- 用户说 `/bcc-init` / "初始化一下" / "迁移到我们的标准" / "整理一下这个项目"
+- 用户说 `/bcc-init` / "初始化一下" / "迁移到我们的标准"
 - 主代理发现当前项目没有 `.claude/tasks/` 目录或缺少 CLAUDE.md
 - 用户在一个新 clone 的仓库里开始工作
 
@@ -139,8 +139,7 @@ Preflight 命令是 npm run typecheck + npm run lint，对吗？
 # Task 运行时状态（不进版本库）
 tasks/outputs/
 tasks/archive/
-tasks/.hook-state.json
-pending-learnings.md
+tasks/.hook-state*.json
 
 # 会话临时文件
 *.jsonl
@@ -173,17 +172,9 @@ pending-learnings.md
 
 ### 7. 验证 Harness 全局组件
 
-看看全局 `~/.claude/` 的东西齐不齐:
+调用 `/bcc-check` 跑全局健康检查(hooks 可执行 / settings 注册 / skills frontmatter / rules),不在这里内联重复检查逻辑。
 
-```bash
-echo "全局 Harness 检查："
-[ -f ~/.claude/CLAUDE.md ] && echo "  ✓ CLAUDE.md" || echo "  ✗ CLAUDE.md 缺失"
-[ -d ~/.claude/hooks ] && echo "  ✓ hooks/ ($(ls ~/.claude/hooks/*.sh 2>/dev/null | wc -l | tr -d ' ') 个)" || echo "  ✗ hooks/ 缺失"
-[ -d ~/.claude/skills ] && echo "  ✓ skills/ ($(ls -d ~/.claude/skills/*/ 2>/dev/null | wc -l | tr -d ' ') 个)" || echo "  ✗ skills/ 缺失"
-[ -d ~/.claude/rules ] && echo "  ✓ rules/ ($(ls ~/.claude/rules/*.md 2>/dev/null | wc -l | tr -d ' ') 个)" || echo "  ✗ rules/ 缺失"
-```
-
-如果全局组件有缺失，报告而不是自动修复（全局配置不在项目里动）。
+如果有 ✗,报告而不是自动修复(全局配置不在项目里动)。
 
 ### 8. 输出最终报告
 
@@ -200,8 +191,8 @@ BCC 初始化完成
   - .cursorrules（建议迁移后删除）
 
 全局 Harness 状态：
-  ✓ 6 个 hooks 已注册
-  ✓ 10 个 skills 可用
+  ✓ 5 个 hook 事件已注册
+  ✓ 9 个 skills 可用
   ✓ 3 条 rules 生效
 
 Preflight 命令：
@@ -219,7 +210,7 @@ Preflight 命令：
 
 1. **保留** 所有 Task 文件（历史记录）
 2. **保留** 项目级 CLAUDE.md 的业务内容
-3. **补齐** 缺失的目录结构（briefs/outputs/archive）
+3. **补齐** 缺失的目录结构（outputs/archive）
 4. **补齐** 缺失的 Preflight Commands 段
 5. **清理** 明确的残留（如 `state/clarification-pending-*.json`）
 6. 输出变更清单让用户确认

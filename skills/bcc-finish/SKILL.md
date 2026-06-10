@@ -1,6 +1,6 @@
 ---
 name: bcc-finish
-description: 当 Task 的所有 Plan 步骤做完、用户说"搞定了/完成了/可以了"、或主代理判断工作已完成时自动激活 —— 写 Completion 段(Files changed / Verification / HANDOVER)并标记 status: done。自动先跑 preflight 再 finish。
+description: '当 Task 的所有 Plan 步骤做完、用户说"搞定了/完成了/可以了"、或主代理判断工作已完成时自动激活 —— 写 Completion 段(Files changed / Verification / HANDOVER)并标记 status: done。自动先跑 preflight 再 finish。'
 argument-hint: "[task-id（可选，默认当前活跃 task）]"
 ---
 
@@ -16,7 +16,6 @@ argument-hint: "[task-id（可选，默认当前活跃 task）]"
 
 - 主代理判断当前 task 的所有 Plan 步骤都做完了
 - 用户说"完成了" / "搞定" / "可以了" / `/bcc-finish`
-- `SessionEnd` hook 提醒"以下 task 仍 in_progress",用户决定先 finish
 - ⚠️ **如果 verification 还没跑过,先 `/bcc-preflight`,再 `/bcc-finish`**
 
 ## 执行步骤
@@ -75,9 +74,8 @@ argument-hint: "[task-id（可选，默认当前活跃 task）]"
 Task 完成了,把编辑计数器归零——不然老计数会误拦下一个 task:
 
 ```bash
-# 重置 .hook-state.json（posttooluse-guard / stop-progress-gate 的计数器）
-STATE_FILE="$(pwd)/.claude/tasks/.hook-state.json"
-echo '{"edits_since_task_update":0,"consecutive_bash_failures":0}' > "$STATE_FILE"
+# 清掉 hook 计数器(state 按 session 隔离,glob 把旧会话残留一起清)
+rm -f "$(pwd)/.claude/tasks/.hook-state"*.json
 ```
 
 ### 6. (可选) 清理 outputs
@@ -112,7 +110,7 @@ Task: Task-2026-05-15-1030-fix-auth-bug
 如果用户说不 → 不要自作主张去 commit,等他后续手动。
 
 **注意**:归档目录 `archive/` 已被 `.gitignore` 忽略(如未忽略,请提醒用户加上),
-Task 文件本身(`Task-xxx.md`)保留在 tasks/ 目录下,会跟 git 走。
+Task 文件本身(`Task-xxx.md`)保留在 tasks/ 目录下;是否进 git 由各项目的 .gitignore 决定(本仓库 ~/.claude 就忽略了它们)。
 
 ## HANDOVER 质量要求(这是核心痛点)
 

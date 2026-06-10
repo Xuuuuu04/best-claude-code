@@ -9,11 +9,12 @@ _require_tasks_dir
 _load_hook_state
 
 FAILURES=$((FAILURES + 1))
-EDITS=$((EDITS + 1))  # 失败的命令也是工作量,Stop gate 照样要求落档
+# EDITS 不动:Bash 完全不计入工作量(见 posttooluse-guard.sh),只追踪连败
 
 _save_hook_state
 
-[ "$FAILURES" -lt 3 ] && exit 0
+# 只在连败恰好到 3 时注入一次,长连败不重复刷屏(Bash 成功后由 guard 归零,新连败重新计)
+[ "$FAILURES" -ne 3 ] && exit 0
 
 CONTEXT="⚠️ 检测到连续 ${FAILURES} 次命令失败。停下来,不要继续盲猜盲修。
 

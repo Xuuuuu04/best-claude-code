@@ -13,7 +13,10 @@ _find_active_tasks
 TIMESTAMP=$(date "+%H:%M")
 
 while IFS= read -r FILE; do
-  [ -n "$FILE" ] && echo "> [PreCompact ${TIMESTAMP}] 上下文已压缩。恢复方式: 重读本文件 Intent / Plan / Decisions,从 Execution Log 最后一条继续。" >> "$FILE"
+  [ -n "$FILE" ] || continue
+  # 指引是静态文本,一条就够;重复追加只浪费压缩后重读的 context
+  grep -q '^> \[PreCompact' "$FILE" && continue
+  echo "> [PreCompact ${TIMESTAMP}] 上下文已压缩。恢复方式: 重读本文件 Intent / Plan / Decisions,从 Execution Log 最后一条继续。" >> "$FILE"
 done <<< "$ACTIVE_FILES"
 
 exit 0
