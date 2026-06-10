@@ -1,5 +1,7 @@
 #!/bin/bash
-# PreCompact hook: 压缩前在活跃 Task 文件追加标记
+# PreCompact hook: 压缩前把恢复指引写进活跃 Task 文件(纯 side effect)
+# 官方不支持 PreCompact/PostCompact 注入 additionalContext(docs/en/hooks, 2026-06),
+# 恢复路径是: 指引落在文件里 → 压缩后模型重读 Task 文件时看到
 source "$(dirname "$0")/_common.sh"
 
 _init_hook
@@ -11,10 +13,7 @@ _find_active_tasks
 TIMESTAMP=$(date "+%H:%M")
 
 while IFS= read -r FILE; do
-  [ -n "$FILE" ] && echo "> [PreCompact $TIMESTAMP] 上下文即将压缩，自动落档" >> "$FILE"
+  [ -n "$FILE" ] && echo "> [PreCompact ${TIMESTAMP}] 上下文已压缩。恢复方式: 重读本文件 Intent / Plan / Decisions,从 Execution Log 最后一条继续。" >> "$FILE"
 done <<< "$ACTIVE_FILES"
 
-FILE_LIST=$(echo "$ACTIVE_FILES" | sed 's/^/  - /' | tr '\n' '|' | sed 's/|/\\n/g')
-
-jq -n --arg ctx "[PreCompact] 已在 ${ACTIVE_COUNT} 个活跃 task 文件追加压缩标记。压缩后请优先重读：\n${FILE_LIST}" \
-  '{hookSpecificOutput: {hookEventName: "PreCompact", additionalContext: $ctx}}'
+exit 0

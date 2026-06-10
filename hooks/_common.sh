@@ -38,3 +38,21 @@ _reset_hook_state() {
     echo '{"edits_since_task_update":0,"consecutive_bash_failures":0}' > "$tmp" && mv "$tmp" "$state_file"
   fi
 }
+
+# 读 state 到 EDITS / FAILURES,文件不存在则初始化(posttooluse-guard / posttoolusefailure 共用)
+_load_hook_state() {
+  STATE_FILE="$CWD/.claude/tasks/.hook-state.json"
+  if [ ! -f "$STATE_FILE" ]; then
+    echo '{"edits_since_task_update":0,"consecutive_bash_failures":0}' > "$STATE_FILE"
+  fi
+  EDITS=$(jq -r '.edits_since_task_update // 0' "$STATE_FILE")
+  FAILURES=$(jq -r '.consecutive_bash_failures // 0' "$STATE_FILE")
+}
+
+# 原子写回 EDITS / FAILURES(mktemp + mv,中断也不会写出半截 JSON)
+_save_hook_state() {
+  local tmp
+  tmp=$(mktemp "${STATE_FILE}.XXXXXX" 2>/dev/null || echo "${STATE_FILE}.tmp")
+  jq -n --argjson e "$EDITS" --argjson f "$FAILURES" \
+    '{edits_since_task_update: $e, consecutive_bash_failures: $f}' > "$tmp" && mv "$tmp" "$STATE_FILE"
+}

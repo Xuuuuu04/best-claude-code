@@ -28,7 +28,7 @@ HOOKS_DIR="$HOME/.claude/hooks"
 # _common.sh 是被 source 的库，不需要 +x，只检存在；6 个事件 hook 才需可执行
 [ -f "$HOOKS_DIR/_common.sh" ] && echo "✓ _common.sh (库，被 source)" || echo "✗ 缺失: _common.sh"
 
-EVENT_HOOKS=("precompact.sh" "postcompact.sh" "session-start.sh" "session-end.sh" "posttooluse-guard.sh" "stop-progress-gate.sh")
+EVENT_HOOKS=("precompact.sh" "session-start.sh" "session-end.sh" "posttooluse-guard.sh" "posttoolusefailure.sh" "stop-progress-gate.sh")
 for H in "${EVENT_HOOKS[@]}"; do
   F="$HOOKS_DIR/$H"
   if [ ! -f "$F" ]; then
@@ -43,7 +43,7 @@ done
 
 ### 3. Settings.json hook 注册
 ```bash
-REQUIRED_EVENTS=("PreCompact" "PostCompact" "SessionStart" "SessionEnd" "PostToolUse" "Stop")
+REQUIRED_EVENTS=("PreCompact" "SessionStart" "SessionEnd" "PostToolUse" "PostToolUseFailure" "Stop")
 REGISTERED=$(jq -r '.hooks | keys[]' ~/.claude/settings.json 2>/dev/null)
 
 for E in "${REQUIRED_EVENTS[@]}"; do
@@ -118,7 +118,7 @@ Hook 注册:    ✓ 6/6
 注册一致性:   ✓ 6/6
 Skills:       ✓ 10/10
 Rules:        ✓ 3/3
-版本:         v2.1.0
+版本:         v2.2.0
 
 总计: 全部通过 / 有 N 项问题
 ```

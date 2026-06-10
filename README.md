@@ -1,7 +1,7 @@
 # best-claude-code
 
 > 极简 Claude Code 用户级配置,基于 **Harness Engineering** 思路。
-> **10 Skills · 6 Hooks · 2 Agents · 3 Rules** · **Task-Centric** 架构 · v2.1.0
+> **10 Skills · 6 Hooks · 2 Agents · 3 Rules** · **Task-Centric** 架构 · v2.2.0
 
 ---
 
@@ -13,7 +13,7 @@
 - 子代理通信**走文件系统不走消息流**,token 省 10-40 倍
 - 对抗性 review **保证收敛**(Writer/Reviewer/Judge 三角 + Acceptance Criteria + Round Cap)
 - 专业能力**靠 brief 里的 Activation Persona 动态激活**,不用养一堆专家 agent
-- PostToolUse / Stop hook **卡住执行纪律**,不更新 Task 不让收尾,连续失败自动切调试流程
+- PostToolUse(+Failure) / Stop hook **卡住执行纪律**,不更新 Task 不让收尾,连续失败自动切调试流程
 
 思路来自 Anthropic 的
 [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
@@ -50,11 +50,11 @@
 │bcc-    │    │ reviewer │    │ Session  │    │ honest-  │    │github  │
 │ start  │    │          │    │  Start   │    │ communi- │    │repomix │
 │ continue    │  judge   │    │  End     │    │  cation  │    │seq-    │
-│ finish │    └──────────┘    │ Pre/Post │    │ git-     │    │thinking│
-│ brief  │         │          │ Compact  │    │  safety  │    └────────┘
-│ preflight  Brief │          │ PostTool │    │ sensitive│
-│ cross-sync Pattern          │  Use     │    │  -files  │
-│ debug  │    文件系统         │ Stop     │    └──────────┘
+│ finish │    └──────────┘    │PreCompact│    │ git-     │    │thinking│
+│ brief  │         │          │ PostTool │    │  safety  │    └────────┘
+│ preflight  Brief │          │  Use+Fail│    │ sensitive│
+│ cross-sync Pattern          │ Stop     │    │  -files  │
+│ debug  │    文件系统         │          │    └──────────┘
 │ tdd    │    通信总线         └─────┬────┘
 │ init   │         │                │
 │ check  │    ┌────▼────────────────▼────┐
@@ -102,29 +102,29 @@
 ### Agents(2 个,位于 `agents/<name>.md`)
 | Agent | 召唤时机 | 角色 |
 |---|---|---|
-| `reviewer` | 重大代码改动后 | 对抗性 reviewer,工具收窄到只读,输出严格 JSON |
+| `reviewer` | 重大代码改动后 | 对抗性 reviewer,无 Edit;Bash 限只读取证,Write 只许往 outputs/ 落 review JSON |
 | `judge` | review 不收敛(≥3 轮) | 独立裁决者,只比对 acceptance criteria,输出 accept/reject/continue |
 
 ### Hooks(6 个事件 hook + 1 个共享库,位于 `hooks/*.sh`)
 
-**上下文连续性(4 个)**
+**上下文连续性(3 个)**
 | Hook | 事件 | 作用 |
 |---|---|---|
 | `session-start.sh` | SessionStart | 扫描 in_progress task,注入 additionalContext + watchPaths |
 | `session-end.sh` | SessionEnd | 通过 systemMessage 提醒未 finish 的 task |
-| `precompact.sh` | PreCompact | 压缩前在 Task 文件追加标记,输出 additionalContext |
-| `postcompact.sh` | PostCompact | 压缩后重新注入 Task 关键状态,防止"失忆" |
+| `precompact.sh` | PreCompact | 压缩前把恢复指引写进 Task 文件(纯 side effect;官方不支持 compact 事件注入上下文,压缩后模型重读文件即恢复) |
 
-**执行纪律(2 个)**
+**执行纪律(3 个)**
 | Hook | 事件 | 作用 |
 |---|---|---|
-| `posttooluse-guard.sh` | PostToolUse | 追踪编辑计数 + Bash 失败检测(3 连败注入 `/bcc-debug`) |
+| `posttooluse-guard.sh` | PostToolUse | 工具成功时累计编辑计数;Bash 成功把连败计数归零 |
+| `posttoolusefailure.sh` | PostToolUseFailure(matcher: Bash) | 命令失败累加连败计数,3 连败注入 `/bcc-debug` |
 | `stop-progress-gate.sh` | Stop | 6+ 次操作未更新 Task Execution Log 时阻止收尾 |
 
 **共享库(1 个)**
 | 文件 | 作用 |
 |---|---|
-| `_common.sh` | jq 检测、state 文件原子读写、`_reset_hook_state()` 工具函数 |
+| `_common.sh` | jq 检测、state 原子读写(`_load/_save/_reset_hook_state`) |
 
 ### Rules(3 条,位于 `rules/*.md`)
 | Rule | 作用 |
@@ -135,7 +135,7 @@
 
 ---
 
-## 三大核心机制
+## 四大核心机制
 
 ### 1. Task-Centric Persistent File System
 
@@ -185,21 +185,24 @@ Writer(主代理) ──→ Reviewer agent ──→ 主代理决定下一步
                                   (后者每个 task 最多用 1 次)
 ```
 
-reviewer 只能 Read + Grep,不能 Edit——**不让改代码,逼它好好想**。
+reviewer 没有 Edit——**不让改代码,逼它好好想**。
 能 Edit 的话 reviewer 会"顺手改一下",角色就串了。
+Bash 限只读命令(git diff / 跑测试取证);Write 只有一个合法用途:把 review JSON 写到 outputs/。
 
-### 4. 执行纪律闭环(v2.1.0 新增)
+### 4. 执行纪律闭环
 
 ```
-PostToolUse hook ──→ 每次工具调用后计数
-                     ├─ Edit 操作 → edits_since_task_update++
-                     └─ Bash 失败 → consecutive_bash_failures++
-                                    3 连败 → 注入 /bcc-debug 提示
+PostToolUse hook(成功) ──→ Edit/Write/Bash → edits_since_task_update++
+                            Bash 成功 → consecutive_bash_failures 归零
+
+PostToolUseFailure hook(matcher: Bash) ──→ consecutive_bash_failures++
+                                            3 连败 → 注入 /bcc-debug 提示
 
 Stop hook ──→ 模型想收尾时检查
               └─ 6+ 操作未更新 Task Log → 阻止,注入提醒
 ```
 
+失败信号来自官方 PostToolUseFailure 事件,不用 exit-code/正则去猜。
 state 文件用 mktemp + mv 原子写,中断了也不会写出空 JSON。
 Task 完成时 `/bcc-finish` 自动把计数器归零。
 
@@ -211,7 +214,7 @@ Task 完成时 `/bcc-finish` 自动把计数器归零。
 ~/.claude/
 ├── CLAUDE.md                          # 跨项目通用约定
 ├── README.md                          # 本文件
-├── VERSION                            # 语义化版本号(当前 2.1.0)
+├── VERSION                            # 语义化版本号(当前 2.2.0)
 ├── settings.json                      # hooks 注册 + MCP + providers(被 .gitignore)
 ├── output-styles/
 │   └── teacher.md                     # 教师风格对话
@@ -227,15 +230,15 @@ Task 完成时 `/bcc-finish` 自动把计数器归零。
 │   ├── bcc-init/SKILL.md
 │   └── bcc-check/SKILL.md
 ├── agents/
-│   ├── reviewer.md                    # 对抗性 reviewer,只读工具
-│   └── judge.md                       # 独立裁决者,只读工具
+│   ├── reviewer.md                    # 对抗性 reviewer,无 Edit,只读取证
+│   └── judge.md                       # 独立裁决者,Read + Grep
 ├── hooks/                             # 6 个事件 hook + 1 个共享库
-│   ├── _common.sh                     # 共享工具函数(jq 检测/原子写入/state 重置)
+│   ├── _common.sh                     # 共享工具函数(jq 检测/state 原子读写/重置)
 │   ├── session-start.sh               # SessionStart
 │   ├── session-end.sh                 # SessionEnd
-│   ├── precompact.sh                  # PreCompact
-│   ├── postcompact.sh                 # PostCompact
-│   ├── posttooluse-guard.sh           # PostToolUse(编辑计数 + 失败检测)
+│   ├── precompact.sh                  # PreCompact(往 Task 文件写恢复指引)
+│   ├── posttooluse-guard.sh           # PostToolUse(编辑计数,成功重置连败)
+│   ├── posttoolusefailure.sh          # PostToolUseFailure(连败计数,3 连败切 /bcc-debug)
 │   └── stop-progress-gate.sh          # Stop(Task Log 更新检查)
 ├── rules/                             # 3 条确定性策略
 │   ├── honest-communication.md        # 四层中文矫正
@@ -293,9 +296,6 @@ claude
     "PreCompact": [
       { "matcher": "", "hooks": [{ "type": "command", "command": "/Users/<you>/.claude/hooks/precompact.sh" }] }
     ],
-    "PostCompact": [
-      { "matcher": "", "hooks": [{ "type": "command", "command": "/Users/<you>/.claude/hooks/postcompact.sh" }] }
-    ],
     "SessionStart": [
       { "matcher": "", "hooks": [{ "type": "command", "command": "/Users/<you>/.claude/hooks/session-start.sh" }] }
     ],
@@ -304,6 +304,9 @@ claude
     ],
     "PostToolUse": [
       { "matcher": "", "hooks": [{ "type": "command", "command": "/Users/<you>/.claude/hooks/posttooluse-guard.sh" }] }
+    ],
+    "PostToolUseFailure": [
+      { "matcher": "Bash", "hooks": [{ "type": "command", "command": "/Users/<you>/.claude/hooks/posttoolusefailure.sh" }] }
     ],
     "Stop": [
       { "matcher": "", "hooks": [{ "type": "command", "command": "/Users/<you>/.claude/hooks/stop-progress-gate.sh" }] }
@@ -340,7 +343,7 @@ A: Opus 4.7 知识面够宽,缺的不是知识是**视角**。
 安全、性能这种横跨技术栈的维度才考虑加专职 agent——撞到痛点再说。
 
 **Q: 6 个 hook 分别干嘛?**
-A: 两类。**上下文连续性**(4 个):进出会话 + 压缩前后,Task 状态不丢。**执行纪律**(2 个):PostToolUse 数编辑和失败次数,Stop 卡住不更新 Task Log 就想收尾的行为。都输出标准 JSON,共享 `_common.sh`。
+A: 两类。**上下文连续性**(3 个):进出会话注入/提醒,压缩前把恢复指引写进 Task 文件(官方不支持 compact 事件注入上下文,落盘是唯一可靠路径)。**执行纪律**(3 个):PostToolUse 数编辑,PostToolUseFailure 数连败(官方失败事件,不猜 exit code),Stop 卡住不更新 Task Log 就想收尾的行为。共享 `_common.sh`。
 
 **Q: 主代理不会沦为调度员?**
 A: CLAUDE.md 里写死了:**主代理是首席工程师**,只把重复性/探索性/隔离性的活丢给 subagent,判断自己做。
