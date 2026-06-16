@@ -131,6 +131,9 @@
 |---|---|
 | `_common.sh` | jq 检测、state 原子读写(`_load/_save_hook_state`) |
 
+**回归测试**
+`hooks/test.sh` — 造 stdin、跑 6 个 hook、断言输出/state(26 个用例,覆盖 #1 无-task 提示 / #3 outputs 不归零 / #4 frontmatter 锚定 等)。改 hook 后跑 `bash hooks/test.sh`,全过 exit 0。
+
 ### Rules(3 条,位于 `rules/*.md`)
 | Rule | 作用 |
 |---|---|
@@ -247,7 +250,8 @@ Task 完成时 `/bcc-finish` 自动把计数器归零。
 │   ├── posttooluse-guard.sh           # PostToolUse(文件编辑计数,Bash 只重置连败)
 │   ├── posttoolusefailure.sh          # PostToolUseFailure(连败计数,3 连败切 /bcc-debug)
 │   ├── stop-progress-gate.sh          # Stop(Task Log 更新检查)
-│   └── userpromptsubmit-router.sh     # UserPromptSubmit(每轮注入工作流路标,引导走 skill)
+│   ├── userpromptsubmit-router.sh     # UserPromptSubmit(每轮注入工作流路标,引导走 skill)
+│   └── test.sh                        # 6 hook 回归测试(造 stdin 断言输出/state)
 ├── rules/                             # 3 条确定性策略
 │   ├── honest-communication.md        # 四层中文矫正
 │   ├── git-safety.md                  # 破坏性 git 操作围栏
