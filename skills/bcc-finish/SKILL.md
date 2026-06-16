@@ -35,6 +35,17 @@ argument-hint: "[task-id（可选，默认当前活跃 task）]"
   - 还是该改成 `status: paused` 等后续?
   - 还是该 `status: abandoned`?
 
+### 2.5 重大改动?收尾前对照清单决定要不要 reviewer
+
+对照下面判据,命中任一 **且本 task 还没召唤过 reviewer** → 先拆 reviewer 对抗审查(从改动/brief 读起,输出 JSON 到 `outputs/`),按结果修完再回来 finish。**别自己 review 自己。**
+
+- 改了 hook / 共享库 / 核心控制流
+- 删除或重构了组件
+- 跨 ≥3 文件的一致性改动(enum / contract / 计数)
+- 自己改完"感觉干净"但没有第二双眼验过的重大改动
+
+日常小改(单文件小修、改文案、纯文档)不触发——宁可漏不可滥。
+
 ### 3. 写 Completion 段
 
 按下面格式追加到 Task 文件末尾:
