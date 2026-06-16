@@ -1,7 +1,7 @@
 # best-claude-code
 
 > 极简 Claude Code 用户级配置,基于 **Harness Engineering** 思路。
-> **9 Skills · 6 Hooks · 2 Agents · 3 Rules** · **Task-Centric** 架构 · v2.4.0
+> **9 Skills · 6 Hooks · 2 Agents · 3 Rules** · **Task-Centric** 架构 · v2.4.1
 
 ---
 
@@ -13,7 +13,7 @@
 - 子代理通信**走文件系统不走消息流**,token 省 10-40 倍
 - 对抗性 review **保证收敛**(Writer/Reviewer/Judge 三角 + Acceptance Criteria + Round Cap)
 - 专业能力**靠 brief 里的 Activation Persona 动态激活**,不用养一堆专家 agent
-- Stop hook **硬拦收尾**(改了一堆没更新 Task 不让停),PostToolUse / PostToolUseFailure **软提示**(连败提示走 `/bcc-debug`、无活跃 task 还在改代码提示先开 task)——纪律里既有强制也有提醒,各司其职
+- Stop hook **硬拦收尾**(改了一堆没更新 Task 不让停),PostToolUseFailure / UserPromptSubmit **软提示**(连败提示走 `/bcc-debug`、每轮注入工作流路标引导走 skill)——纪律里既有强制也有提醒,各司其职
 
 思路来自 Anthropic 的
 [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
@@ -203,7 +203,6 @@ Bash 限只读命令(git diff / 跑测试取证);Write 只有一个合法用途:
 PostToolUse hook(成功) ──→ Edit/Write/MultiEdit/NotebookEdit → edits_since_task_update++
                             编辑的是 Task 文件本身 → 计数归零(连败计数一并清零)
                             Bash 成功不计数(只读命令占多数),只把连败计数归零
-                            无活跃 task 但编辑到第 3 次 → 注入"先 /bcc-start"软提示(补 Stop gate 盲区)
 
 PostToolUseFailure hook(matcher: Bash) ──→ consecutive_bash_failures++
                                             3 连败 → 注入 /bcc-debug 软提示
@@ -225,7 +224,7 @@ Task 完成时 `/bcc-finish` 自动把计数器归零。
 ~/.claude/
 ├── CLAUDE.md                          # 跨项目通用约定
 ├── README.md                          # 本文件
-├── VERSION                            # 语义化版本号(当前 2.4.0)
+├── VERSION                            # 语义化版本号(当前 2.4.1)
 ├── settings.json                      # hooks 注册 + MCP + providers(被 .gitignore)
 ├── install-hooks.sh                   # 幂等把 hooks 注册进 settings.json(进 git,搬机器跑这个)
 ├── output-styles/

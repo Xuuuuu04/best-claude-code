@@ -3,7 +3,7 @@
 #   Edit/Write Task 文件 → edits 归零(模型在更新进度)
 #   Edit/Write 代码文件 → edits +1,Stop hook 读计数拦截
 #   Bash 成功 → 不计工作量(只读命令占多数),只重置连败计数(失败侧在 posttoolusefailure.sh)
-#   无活跃 task 但持续编辑代码 → 编辑到第 3 次时软提示开 task(补 Stop gate 的盲区)
+#   (无活跃 task 提示已移交 userpromptsubmit-router.sh —— 每轮更可靠;这里只管计数)
 source "$(dirname "$0")/_common.sh"
 
 _init_hook
@@ -41,15 +41,3 @@ fi
 FAILURES=0
 
 _save_hook_state
-
-# 闭环入口兜底:无活跃 task 时 Stop gate 不工作(它需要活跃 task 才拦)。
-# 编辑代码累计到第 3 次仍没有任何活跃 task → 注入一次提示,建议先开 task。
-# 用 ==3 一次性触发:无 task 时 EDITS 不会被归零,故只命中一次,不刷屏。
-if [ "$EDITS" -eq 3 ]; then
-  _find_active_tasks
-  if [ "$ACTIVE_COUNT" -eq 0 ]; then
-    CONTEXT="📋 已编辑 ${EDITS} 个文件,但本项目没有进行中的 Task。建议先 /bcc-start 开一个——进度记录、压缩恢复、收尾检查都依赖活跃 Task,否则这些纪律 hook 会静默失效。"
-    jq -n --arg ctx "$CONTEXT" \
-      '{hookSpecificOutput: {hookEventName: "PostToolUse", additionalContext: $ctx}}'
-  fi
-fi

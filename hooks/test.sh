@@ -95,8 +95,10 @@ assert_eq "Bash 成功 → EDITS 不变"          "$(get_field "$ACTIVE" edits_s
 
 set_state "$EMPTY" 2 0
 OUT=$(run_hook posttooluse-guard.sh "$(stdin_json "$EMPTY" "Edit" "$EMPTY/src/a.js")")
-assert_contains "无 task 编辑到第3次 → 提示 (#1)" "$OUT" "bcc-start"
-assert_eq "  └ 且 EDITS=3"                  "$(get_field "$EMPTY" edits_since_task_update)" "3"
+assert_empty "无 task 编辑 → 不注入(提示已移交 UserPromptSubmit)" "$OUT"
+assert_eq "  └ 但仍计数 EDITS=3"            "$(get_field "$EMPTY" edits_since_task_update)" "3"
+set_state "$EMPTY" 5 0
+assert_empty "无 task EDITS 起点>3 → 仍静默(回归防旧 -eq3 坑)" "$(run_hook posttooluse-guard.sh "$(stdin_json "$EMPTY" "Edit" "$EMPTY/src/c.js")")"
 
 assert_empty "非 Edit/Bash 工具 → 无操作"   "$(run_hook posttooluse-guard.sh "$(stdin_json "$ACTIVE" "Read" "")")"
 
@@ -134,6 +136,14 @@ assert_eq "再跑 → 幂等(不重复)"            "$N2" "1"
 echo "=== #4 frontmatter 锚定 ==="
 # EMPTY 里那个 task frontmatter 是 done,正文有 "status: in_progress" 字面串
 assert_contains "正文字面串不误判为活跃"     "$(run_hook userpromptsubmit-router.sh "$(stdin_json "$EMPTY" "" "")")" "无进行中的 Task"
+
+echo "=== _common helpers ==="
+source "$HOOKS_DIR/_common.sh"
+NOTITLE=$(mktemp); printf '%s\n' "正文没有标题行" > "$NOTITLE"
+assert_eq "_task_title 无标题 → fallback 生效"  "$(_task_title "$NOTITLE")" "(无标题)"
+WITHTITLE=$(mktemp); printf '# 有标题\n' > "$WITHTITLE"
+assert_eq "_task_title 有标题 → 取标题"      "$(_task_title "$WITHTITLE")" "有标题"
+rm -f "$NOTITLE" "$WITHTITLE"
 
 echo ""
 echo "=================================="

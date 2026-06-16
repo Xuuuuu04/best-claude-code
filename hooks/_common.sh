@@ -34,7 +34,7 @@ _find_active_tasks() {
 }
 
 _task_id()       { basename "$1" .md; }
-_task_title()    { grep -m1 '^# ' "$1" 2>/dev/null | sed 's/^# //' || echo "(无标题)"; }
+_task_title()    { local t; t=$(grep -m1 '^# ' "$1" 2>/dev/null | sed 's/^# //'); echo "${t:-(无标题)}"; }
 _task_last_log() { grep -E '^- [0-9]{2}:[0-9]{2} ' "$1" 2>/dev/null | tail -1 | sed 's/^- //' || true; }
 
 # state 按 session 隔离:同 cwd 多会话/agent teams 下计数不互相污染

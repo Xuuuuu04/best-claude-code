@@ -4,7 +4,7 @@
 # 为什么需要它:settings.json 被 .gitignore(含 API keys),hook 注册随之不进 git。
 # 搬机器 / 重装后 hook 会全部丢失且不自知。这个脚本进 git,跑一次即恢复注册。
 #
-# 幂等:只覆盖 hooks 段里这 5 个 key,保留 settings.json 其他字段和 hooks 里的自定义项。
+# 幂等:只覆盖 hooks 段里这 6 个 key,保留 settings.json 其他字段和 hooks 里的自定义项。
 set -euo pipefail
 
 CLAUDE_DIR="${HOME}/.claude"
@@ -33,7 +33,7 @@ HOOKS_JSON=$(jq -n --arg h "$HOOKS_DIR" '{
   Stop:               [ { matcher: "",                                       hooks: [ { type: "command", command: ($h + "/stop-progress-gate.sh") } ] } ]
 }')
 
-# 4. merge:保留 hooks 里已有的其他 key,只覆盖这 5 个;mktemp + mv 原子写
+# 4. merge:保留 hooks 里已有的其他 key,只覆盖这 6 个;mktemp + mv 原子写
 TMP=$(mktemp "${SETTINGS}.XXXXXX")
 jq --argjson hooks "$HOOKS_JSON" '.hooks = (.hooks // {}) + $hooks' "$SETTINGS" > "$TMP" && mv "$TMP" "$SETTINGS"
 
