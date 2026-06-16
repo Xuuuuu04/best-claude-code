@@ -1,7 +1,7 @@
 # best-claude-code
 
 > 极简 Claude Code 用户级配置,基于 **Harness Engineering** 思路。
-> **9 Skills · 5 Hooks · 2 Agents · 3 Rules** · **Task-Centric** 架构 · v2.3.1
+> **9 Skills · 6 Hooks · 2 Agents · 3 Rules** · **Task-Centric** 架构 · v2.4.0
 
 ---
 
@@ -45,7 +45,7 @@
     ▼               ▼               ▼               ▼               ▼
 ┌────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌────────┐
 │ Skills │    │  Agents  │    │  Hooks   │    │  Rules   │    │ MCP    │
-│ (9 个) │    │  (2 个)  │    │  (5 个)  │    │  (3 条)  │    │Servers │
+│ (9 个) │    │  (2 个)  │    │  (6 个)  │    │  (3 条)  │    │Servers │
 ├────────┤    ├──────────┤    ├──────────┤    ├──────────┤    ├────────┤
 │bcc-    │    │ reviewer │    │ Session  │    │ honest-  │    │github  │
 │ start  │    │          │    │  Start   │    │ communi- │    │repomix │
@@ -106,7 +106,7 @@
 | `reviewer` | 重大代码改动后 | 对抗性 reviewer,无 Edit;Bash 限只读取证,Write 只许往 outputs/ 落 review JSON |
 | `judge` | review 不收敛(≥3 轮) | 独立裁决者,只比对 acceptance criteria,输出 accept/reject/continue |
 
-### Hooks(5 个事件 hook + 1 个共享库,位于 `hooks/*.sh`)
+### Hooks(6 个事件 hook + 1 个共享库,位于 `hooks/*.sh`)
 
 **上下文连续性(2 个)**
 | Hook | 事件 | 作用 |
@@ -120,6 +120,11 @@
 | `posttooluse-guard.sh` | PostToolUse | 文件编辑(Edit/Write 类)成功时累计计数;编辑的是 Task 文件则归零。Bash 成功不计数、只重置连败计数 |
 | `posttoolusefailure.sh` | PostToolUseFailure(matcher: Bash) | 命令失败累加连败计数,3 连败注入 `/bcc-debug` |
 | `stop-progress-gate.sh` | Stop | 6+ 次文件编辑未更新 Task Execution Log 时阻止收尾 |
+
+**工作流引导(1 个)**
+| Hook | 事件 | 作用 |
+|---|---|---|
+| `userpromptsubmit-router.sh` | UserPromptSubmit | 每轮用户发言注入"工作流路标 + 活跃 task 状态",引导主代理自动走对应 skill(用户不手动打 /);不替模型分类,只给状态 + 判据,对抗长对话注意力衰减 |
 
 **共享库(1 个)**
 | 文件 | 作用 |
@@ -217,7 +222,7 @@ Task 完成时 `/bcc-finish` 自动把计数器归零。
 ~/.claude/
 ├── CLAUDE.md                          # 跨项目通用约定
 ├── README.md                          # 本文件
-├── VERSION                            # 语义化版本号(当前 2.3.1)
+├── VERSION                            # 语义化版本号(当前 2.4.0)
 ├── settings.json                      # hooks 注册 + MCP + providers(被 .gitignore)
 ├── install-hooks.sh                   # 幂等把 hooks 注册进 settings.json(进 git,搬机器跑这个)
 ├── output-styles/
@@ -235,13 +240,14 @@ Task 完成时 `/bcc-finish` 自动把计数器归零。
 ├── agents/
 │   ├── reviewer.md                    # 对抗性 reviewer,无 Edit,只读取证
 │   └── judge.md                       # 独立裁决者,Read + Grep
-├── hooks/                             # 5 个事件 hook + 1 个共享库
+├── hooks/                             # 6 个事件 hook + 1 个共享库
 │   ├── _common.sh                     # 共享工具函数(jq 检测/state 原子读写)
 │   ├── session-start.sh               # SessionStart
 │   ├── precompact.sh                  # PreCompact(往 Task 文件写恢复指引)
 │   ├── posttooluse-guard.sh           # PostToolUse(文件编辑计数,Bash 只重置连败)
 │   ├── posttoolusefailure.sh          # PostToolUseFailure(连败计数,3 连败切 /bcc-debug)
-│   └── stop-progress-gate.sh          # Stop(Task Log 更新检查)
+│   ├── stop-progress-gate.sh          # Stop(Task Log 更新检查)
+│   └── userpromptsubmit-router.sh     # UserPromptSubmit(每轮注入工作流路标,引导走 skill)
 ├── rules/                             # 3 条确定性策略
 │   ├── honest-communication.md        # 四层中文矫正
 │   ├── git-safety.md                  # 破坏性 git 操作围栏
@@ -277,7 +283,7 @@ jq --version || brew install jq  # macOS
 # jq --version || sudo apt install jq  # Linux
 
 # 4. 注册 hooks(settings.json 被 .gitignore,搬机器/重装必须重跑这步)
-bash ~/.claude/install-hooks.sh   # 幂等:把 5 个 hook 写进 settings.json,命令路径自动用 $HOME
+bash ~/.claude/install-hooks.sh   # 幂等:把 6 个 hook 写进 settings.json,命令路径自动用 $HOME
 # MCP / providers / API keys 仍参考下方模板手工补进 settings.json
 
 # 5. 重启 Claude Code 让 hooks 生效
@@ -289,7 +295,7 @@ claude
 # 首次使用可跑 /bcc-init 一键初始化项目结构
 ```
 
-`settings.json` 模板(5 个 hook 全注册):
+`settings.json` 模板(6 个 hook 全注册):
 ```json
 {
   "permissions": { "defaultMode": "default" },
@@ -301,6 +307,9 @@ claude
     ],
     "SessionStart": [
       { "matcher": "", "hooks": [{ "type": "command", "command": "/Users/<you>/.claude/hooks/session-start.sh" }] }
+    ],
+    "UserPromptSubmit": [
+      { "matcher": "", "hooks": [{ "type": "command", "command": "/Users/<you>/.claude/hooks/userpromptsubmit-router.sh" }] }
     ],
     "PostToolUse": [
       { "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash", "hooks": [{ "type": "command", "command": "/Users/<you>/.claude/hooks/posttooluse-guard.sh" }] }
@@ -342,8 +351,8 @@ A: Opus 4.7 知识面够宽,缺的不是知识是**视角**。
 `/bcc-brief` 里的 Activation Persona 动态注入就够了,不用维护一堆专家 agent。
 安全、性能这种横跨技术栈的维度才考虑加专职 agent——撞到痛点再说。
 
-**Q: 5 个 hook 分别干嘛?**
-A: 两类。**上下文连续性**(2 个):SessionStart 注入活跃 Task,PreCompact 压缩前把恢复指引写进 Task 文件(官方不支持 compact 事件注入上下文,落盘是唯一可靠路径)。**执行纪律**(3 个):PostToolUse 数文件编辑(Bash 不计),PostToolUseFailure 数连败(官方失败事件,不猜 exit code),Stop 卡住不更新 Task Log 就想收尾的行为。共享 `_common.sh`。
+**Q: 6 个 hook 分别干嘛?**
+A: 三类。**上下文连续性**(2 个):SessionStart 注入活跃 Task,PreCompact 压缩前把恢复指引写进 Task 文件(官方不支持 compact 事件注入上下文,落盘是唯一可靠路径)。**执行纪律**(3 个):PostToolUse 数文件编辑(Bash 不计),PostToolUseFailure 数连败(官方失败事件,不猜 exit code),Stop 卡住不更新 Task Log 就想收尾的行为。**工作流引导**(1 个):UserPromptSubmit 每轮注入工作流路标(活跃 task + 判据),引导主代理自动走对应 skill。共享 `_common.sh`。
 
 **Q: 主代理不会沦为调度员?**
 A: CLAUDE.md 里写死了:**主代理是首席工程师**,只把重复性/探索性/隔离性的活丢给 subagent,判断自己做。

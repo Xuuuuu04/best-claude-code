@@ -25,10 +25,10 @@ command -v jq >/dev/null && echo "✓ jq $(jq --version)" || echo "✗ jq 未安
 ### 2. Hook 文件完整性
 ```bash
 HOOKS_DIR="$HOME/.claude/hooks"
-# _common.sh 是被 source 的库，不需要 +x，只检存在；5 个事件 hook 才需可执行
+# _common.sh 是被 source 的库，不需要 +x，只检存在；6 个事件 hook 才需可执行
 [ -f "$HOOKS_DIR/_common.sh" ] && echo "✓ _common.sh (库，被 source)" || echo "✗ 缺失: _common.sh"
 
-EVENT_HOOKS=("precompact.sh" "session-start.sh" "posttooluse-guard.sh" "posttoolusefailure.sh" "stop-progress-gate.sh")
+EVENT_HOOKS=("precompact.sh" "session-start.sh" "posttooluse-guard.sh" "posttoolusefailure.sh" "stop-progress-gate.sh" "userpromptsubmit-router.sh")
 for H in "${EVENT_HOOKS[@]}"; do
   F="$HOOKS_DIR/$H"
   if [ ! -f "$F" ]; then
@@ -43,7 +43,7 @@ done
 
 ### 3. Settings.json hook 注册
 ```bash
-REQUIRED_EVENTS=("PreCompact" "SessionStart" "PostToolUse" "PostToolUseFailure" "Stop")
+REQUIRED_EVENTS=("PreCompact" "SessionStart" "PostToolUse" "PostToolUseFailure" "Stop" "UserPromptSubmit")
 REGISTERED=$(jq -r '.hooks | keys[]' ~/.claude/settings.json 2>/dev/null)
 
 for E in "${REQUIRED_EVENTS[@]}"; do
@@ -121,11 +121,11 @@ BCC Harness 健康检查
 ====================
 基础依赖:     ✓ jq 1.7.1
 Hook 文件:    ✓ 6/6
-Hook 注册:    ✓ 5/5
-注册一致性:   ✓ 5/5
+Hook 注册:    ✓ 6/6
+注册一致性:   ✓ 6/6
 Skills:       ✓ 9/9
 Rules:        ✓ 3/3
-版本:         v2.3.0
+版本:         v2.4.0
 
 总计: 全部通过 / 有 N 项问题
 ```

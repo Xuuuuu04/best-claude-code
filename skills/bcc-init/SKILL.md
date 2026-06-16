@@ -191,7 +191,7 @@ BCC 初始化完成
   - .cursorrules（建议迁移后删除）
 
 全局 Harness 状态：
-  ✓ 5 个 hook 事件已注册
+  ✓ 6 个 hook 事件已注册
   ✓ 9 个 skills 可用
   ✓ 3 条 rules 生效
 
