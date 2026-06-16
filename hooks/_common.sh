@@ -24,7 +24,8 @@ _require_tasks_dir() {
 }
 
 _find_active_tasks() {
-  ACTIVE_FILES=$(grep -l 'status: in_progress' "$CWD/.claude/tasks/"*.md 2>/dev/null || true)
+  # 行首锚定:只认 frontmatter 里顶格的 status,避免正文引用 "status: in_progress" 字面串被误判
+  ACTIVE_FILES=$(grep -lE '^status: in_progress' "$CWD/.claude/tasks/"*.md 2>/dev/null || true)
   if [ -n "$ACTIVE_FILES" ]; then
     ACTIVE_COUNT=$(echo "$ACTIVE_FILES" | wc -l | tr -d ' ')
   else

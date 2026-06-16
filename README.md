@@ -1,7 +1,7 @@
 # best-claude-code
 
 > 极简 Claude Code 用户级配置,基于 **Harness Engineering** 思路。
-> **9 Skills · 5 Hooks · 2 Agents · 3 Rules** · **Task-Centric** 架构 · v2.3.0
+> **9 Skills · 5 Hooks · 2 Agents · 3 Rules** · **Task-Centric** 架构 · v2.3.1
 
 ---
 
@@ -13,7 +13,7 @@
 - 子代理通信**走文件系统不走消息流**,token 省 10-40 倍
 - 对抗性 review **保证收敛**(Writer/Reviewer/Judge 三角 + Acceptance Criteria + Round Cap)
 - 专业能力**靠 brief 里的 Activation Persona 动态激活**,不用养一堆专家 agent
-- PostToolUse(+Failure) / Stop hook **卡住执行纪律**,不更新 Task 不让收尾,连续失败自动切调试流程
+- Stop hook **硬拦收尾**(改了一堆没更新 Task 不让停),PostToolUse / PostToolUseFailure **软提示**(连败提示走 `/bcc-debug`、无活跃 task 还在改代码提示先开 task)——纪律里既有强制也有提醒,各司其职
 
 思路来自 Anthropic 的
 [Effective Harnesses for Long-Running Agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
@@ -195,12 +195,13 @@ Bash 限只读命令(git diff / 跑测试取证);Write 只有一个合法用途:
 PostToolUse hook(成功) ──→ Edit/Write/MultiEdit/NotebookEdit → edits_since_task_update++
                             编辑的是 Task 文件本身 → 计数归零(连败计数一并清零)
                             Bash 成功不计数(只读命令占多数),只把连败计数归零
+                            无活跃 task 但编辑到第 3 次 → 注入"先 /bcc-start"软提示(补 Stop gate 盲区)
 
 PostToolUseFailure hook(matcher: Bash) ──→ consecutive_bash_failures++
-                                            3 连败 → 注入 /bcc-debug 提示
+                                            3 连败 → 注入 /bcc-debug 软提示
 
-Stop hook ──→ 模型想收尾时检查
-              └─ 6+ 次文件编辑未更新 Task Log → 阻止,注入提醒
+Stop hook ──→ 模型想收尾时检查(唯一的硬拦)
+              └─ 6+ 次文件编辑未更新 Task Log → decision:block 阻止,注入提醒
 ```
 
 失败信号来自官方 PostToolUseFailure 事件,不用 exit-code/正则去猜。
@@ -216,8 +217,9 @@ Task 完成时 `/bcc-finish` 自动把计数器归零。
 ~/.claude/
 ├── CLAUDE.md                          # 跨项目通用约定
 ├── README.md                          # 本文件
-├── VERSION                            # 语义化版本号(当前 2.3.0)
+├── VERSION                            # 语义化版本号(当前 2.3.1)
 ├── settings.json                      # hooks 注册 + MCP + providers(被 .gitignore)
+├── install-hooks.sh                   # 幂等把 hooks 注册进 settings.json(进 git,搬机器跑这个)
 ├── output-styles/
 │   └── teacher.md                     # 教师风格对话
 ├── skills/                            # 9 个,统一 /bcc- 前缀
@@ -274,8 +276,9 @@ chmod +x ~/.claude/hooks/*.sh
 jq --version || brew install jq  # macOS
 # jq --version || sudo apt install jq  # Linux
 
-# 4. 创建 settings.json(被 .gitignore,需手工创建)
-# 参考下方模板,填入你的路径和 API keys
+# 4. 注册 hooks(settings.json 被 .gitignore,搬机器/重装必须重跑这步)
+bash ~/.claude/install-hooks.sh   # 幂等:把 5 个 hook 写进 settings.json,命令路径自动用 $HOME
+# MCP / providers / API keys 仍参考下方模板手工补进 settings.json
 
 # 5. 重启 Claude Code 让 hooks 生效
 
