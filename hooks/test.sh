@@ -57,6 +57,11 @@ stdin_json() { # cwd toolname filepath  (后两个可空)
     '{cwd:$c, session_id:$s} + (if $t=="" then {} else {tool_name:$t} end) + (if $f=="" then {} else {tool_input:{file_path:$f}} end)'
 }
 
+pretool_json() { # toolname key value — 造 PreToolUse stdin
+  jq -n --arg t "$1" --arg k "$2" --arg v "$3" \
+    '{tool_name:$t, tool_input:{($k):$v}}'
+}
+
 ok()   { PASS=$((PASS+1)); echo "  ✓ $1"; }
 bad()  { FAIL=$((FAIL+1)); echo "  ✗ $1"; [ -n "${2:-}" ] && echo "      $2"; }
 
@@ -145,6 +150,41 @@ assert_empty "review通过 → 放行"              "$(run_hook stop-progress-ga
 # 无 Spec 的 task 不检查 review
 set_state "$EMPTY" 0 0
 assert_empty "无Spec → 不检查review"          "$(run_hook stop-progress-gate.sh "$(stdin_json "$EMPTY" "" "")")"
+
+echo "=== Stop v3.1: Review block 防死循环 ==="
+# 连续 review block 3 次后应降级为警告放行
+rm -f "$ACTIVE/.claude/tasks/outputs/review-"*.json
+set_state "$ACTIVE" 0 0
+# 不在轮次间调 set_state,否则 review_blocks 字段被清掉
+run_hook stop-progress-gate.sh "$(stdin_json "$ACTIVE" "" "")" >/dev/null   # block 1
+run_hook stop-progress-gate.sh "$(stdin_json "$ACTIVE" "" "")" >/dev/null   # block 2
+OUT3=$(run_hook stop-progress-gate.sh "$(stdin_json "$ACTIVE" "" "")")       # 第3次 review_blocks>=3 → 降级
+assert_contains "review block 第3次 → 降级放行" "$OUT3" "放行"
+# 恢复:放一个 pass:true 的 review JSON,重新初始化 state
+echo '{"pass":true,"round":1,"weighted_score":8.0,"blocking_dimensions":[]}' > "$ACTIVE/.claude/tasks/outputs/review-test-r1.json"
+set_state "$ACTIVE" 0 0
+
+echo "=== PreToolUse: 危险 git 操作 ==="
+assert_contains "git push --force → deny"     "$(run_hook pretooluse-guard.sh "$(pretool_json Bash command "git push --force origin main")")" "deny"
+assert_contains "git push -f → deny"          "$(run_hook pretooluse-guard.sh "$(pretool_json Bash command "git push -f")")" "deny"
+assert_empty    "git push (正常) → 放行"       "$(run_hook pretooluse-guard.sh "$(pretool_json Bash command "git push origin main")")"
+assert_empty    "git push --force-with-lease → 放行" "$(run_hook pretooluse-guard.sh "$(pretool_json Bash command "git push --force-with-lease")")"
+assert_contains "git reset --hard → deny"     "$(run_hook pretooluse-guard.sh "$(pretool_json Bash command "git reset --hard HEAD~1")")" "deny"
+assert_contains "git clean -fd → deny"        "$(run_hook pretooluse-guard.sh "$(pretool_json Bash command "git clean -fd")")" "deny"
+assert_contains "git branch -D → deny"        "$(run_hook pretooluse-guard.sh "$(pretool_json Bash command "git branch -D feature")")" "deny"
+assert_empty    "git branch -d → 放行"        "$(run_hook pretooluse-guard.sh "$(pretool_json Bash command "git branch -d feature")")"
+assert_contains "--no-verify → deny"          "$(run_hook pretooluse-guard.sh "$(pretool_json Bash command "git commit --no-verify -m test")")" "deny"
+assert_contains "git checkout -- . → deny"    "$(run_hook pretooluse-guard.sh "$(pretool_json Bash command "git checkout -- .")")" "deny"
+assert_contains "git restore . → deny"        "$(run_hook pretooluse-guard.sh "$(pretool_json Bash command "git restore .")")" "deny"
+
+echo "=== PreToolUse: 敏感文件 ==="
+assert_contains ".env → deny"                 "$(run_hook pretooluse-guard.sh "$(pretool_json Read file_path "/app/.env")")" "deny"
+assert_contains ".env.local → deny"           "$(run_hook pretooluse-guard.sh "$(pretool_json Edit file_path "/app/.env.local")")" "deny"
+assert_empty    ".env.example → 放行"         "$(run_hook pretooluse-guard.sh "$(pretool_json Read file_path "/app/.env.example")")"
+assert_contains "credentials.json → deny"     "$(run_hook pretooluse-guard.sh "$(pretool_json Read file_path "/home/user/credentials.json")")" "deny"
+assert_contains ".ssh → deny"                 "$(run_hook pretooluse-guard.sh "$(pretool_json Read file_path "/home/user/.ssh/id_rsa")")" "deny"
+assert_contains ".aws → deny"                 "$(run_hook pretooluse-guard.sh "$(pretool_json Read file_path "/home/user/.aws/credentials")")" "deny"
+assert_empty    "普通文件 → 放行"              "$(run_hook pretooluse-guard.sh "$(pretool_json Read file_path "/app/src/index.ts")")"
 
 echo "=== UserPromptSubmit v3.0: Review 状态注入 ==="
 # ACTIVE 的 Task 此时有 Spec 段 + pass:true 的 review JSON（由前面 Stop v3.0 测试段设置）

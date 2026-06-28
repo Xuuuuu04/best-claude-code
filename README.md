@@ -1,7 +1,7 @@
 # best-claude-code
 
 > 极简 Claude Code 用户级配置,基于 **Harness Engineering** 思路。
-> **11 Skills · 6 Hooks · 2 Agents · 3 Rules** · **Task-Centric** 架构 · v3.0.1
+> **11 Skills · 7 Hooks · 2 Agents · 3 Rules** · **Task-Centric** 架构 · v3.1.0
 
 ---
 
@@ -115,7 +115,12 @@
 
 > v3.0 移除了 judge agent。量化评分 + actionable_summary 让收敛更快,实际从未被调用过。≥3 轮不通过时暂停,和用户讨论调整 Spec 或换方案。
 
-### Hooks(6 个事件 hook + 1 个共享库,位于 `hooks/*.sh`)
+### Hooks(7 个事件 hook + 1 个共享库,位于 `hooks/*.sh`)
+
+**安全围栏(1 个,v3.1 新增)**
+| Hook | 事件 | 作用 |
+|---|---|---|
+| `pretooluse-guard.sh` | PreToolUse | 确定性拦截危险操作:`git push --force`/`reset --hard`/`clean -f`/`branch -D`/`--no-verify`,读写 `.env`/`credentials.json`/`.ssh`/`.aws` 等敏感文件。`permissionDecision: deny` 硬拦截,模型绕不过 |
 
 **上下文连续性(2 个)**
 | Hook | 事件 | 作用 |
@@ -128,7 +133,7 @@
 |---|---|---|
 | `posttooluse-guard.sh` | PostToolUse | 文件编辑(Edit/Write 类)成功时累计计数;编辑的是 Task 文件则归零。Bash 成功不计数、只重置连败计数 |
 | `posttoolusefailure.sh` | PostToolUseFailure(matcher: Bash) | 命令失败累加连败计数,3 连败注入 `/bcc-debug` |
-| `stop-progress-gate.sh` | Stop | 三级拦截:6+ 编辑未更新 Task Log / 有 Spec 但没 review / review 未通过 |
+| `stop-progress-gate.sh` | Stop | 三级拦截:6+ 编辑未更新 Task Log / 有 Spec 但没 review / review 未通过;review 拦截 3 次后降级为警告防死循环 |
 
 **工作流引导(1 个)**
 | Hook | 事件 | 作用 |
@@ -141,7 +146,7 @@
 | `_common.sh` | jq 检测、state 原子读写(`_load/_save_hook_state`)、review 状态读取(`_task_has_spec/_latest_review_json/_read_review_result`) |
 
 **回归测试**
-`hooks/test.sh` — 造 stdin、跑 6 个 hook、断言输出/state(26 个用例,覆盖 #1 无-task 提示 / #3 outputs 不归零 / #4 frontmatter 锚定 等)。改 hook 后跑 `bash hooks/test.sh`,全过 exit 0。
+`hooks/test.sh` — 造 stdin、跑 7 个 hook、断言输出/state(63 个用例,覆盖 PreToolUse 安全拦截 / review 防死循环 / frontmatter 锚定 等)。改 hook 后跑 `bash hooks/test.sh`,全过 exit 0。
 
 ### Rules(3 条,位于 `rules/*.md`)
 | Rule | 作用 |
@@ -264,15 +269,16 @@ Task 完成时 `/bcc-finish` 自动把计数器归零。
 ├── agents/
 │   ├── developer.md                   # v3.0 新增:执行者,从 dev brief 改代码跑测试
 │   └── reviewer.md                    # 对抗性 reviewer,多维度量化评分(0-10)
-├── hooks/                             # 6 个事件 hook + 1 个共享库
+├── hooks/                             # 7 个事件 hook + 1 个共享库
 │   ├── _common.sh                     # 共享工具函数(jq/state/review 状态读取)
+│   ├── pretooluse-guard.sh            # PreToolUse(v3.1:确定性拦截危险 git/rm/敏感文件)
 │   ├── session-start.sh               # SessionStart
 │   ├── precompact.sh                  # PreCompact(往 Task 文件写恢复指引)
 │   ├── posttooluse-guard.sh           # PostToolUse(文件编辑计数,Bash 只重置连败)
 │   ├── posttoolusefailure.sh          # PostToolUseFailure(连败计数,3 连败切 /bcc-debug)
-│   ├── stop-progress-gate.sh          # Stop(三级拦截:编辑计数 + review 状态)
+│   ├── stop-progress-gate.sh          # Stop(三级拦截 + review block 防死循环)
 │   ├── userpromptsubmit-router.sh     # UserPromptSubmit(路标 + review 轮次分数)
-│   └── test.sh                        # 6 hook 回归测试
+│   └── test.sh                        # 7 hook 回归测试(63 用例)
 ├── rules/                             # 3 条确定性策略
 │   ├── honest-communication.md        # 四层中文矫正
 │   ├── git-safety.md                  # 破坏性 git 操作围栏
@@ -308,7 +314,7 @@ jq --version || brew install jq  # macOS
 # jq --version || sudo apt install jq  # Linux
 
 # 4. 注册 hooks(settings.json 被 .gitignore,搬机器/重装必须重跑这步)
-bash ~/.claude/install-hooks.sh   # 幂等:把 6 个 hook 写进 settings.json,命令路径自动用 $HOME
+bash ~/.claude/install-hooks.sh   # 幂等:把 7 个 hook 写进 settings.json,命令路径自动用 $HOME
 # MCP / providers / API keys 仍参考下方模板手工补进 settings.json
 
 # 5. 重启 Claude Code 让 hooks 生效

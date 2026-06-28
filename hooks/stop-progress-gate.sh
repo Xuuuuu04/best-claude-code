@@ -33,7 +33,7 @@ if [ -f "$STATE_FILE" ]; then
   if [ "$EDITS" -ge "$THRESHOLD" ]; then
     # 重置计数（避免无限循环：拦一次就够了）
     TMP_STATE=$(mktemp "${STATE_FILE}.XXXXXX" 2>/dev/null || echo "${STATE_FILE}.tmp")
-    jq -n '{edits_since_task_update: 0, consecutive_bash_failures: 0}' > "$TMP_STATE" && mv "$TMP_STATE" "$STATE_FILE"
+    jq '{edits_since_task_update: 0, consecutive_bash_failures: 0, review_blocks: (.review_blocks // 0)}' "$STATE_FILE" > "$TMP_STATE" && mv "$TMP_STATE" "$STATE_FILE"
 
     MSG="你已经做了 ${EDITS} 次操作但没有更新 Task 文件的 Execution Log。
 
@@ -48,27 +48,47 @@ fi
 
 # --- 检查 2: Review 状态(v3.0 新增) ---
 if [ -n "$LATEST_TASK" ] && _task_has_spec "$LATEST_TASK"; then
+  # 防死循环:连续 review block 超 3 次则降级为警告放行
+  RB=0
+  [ -f "$STATE_FILE" ] && RB=$(jq -r '.review_blocks // 0' "$STATE_FILE" 2>/dev/null)
+
   REVIEW_JSON=$(_latest_review_json)
+  REVIEW_ISSUE=""
 
   if [ -z "$REVIEW_JSON" ]; then
-    # 有 Spec 但没有任何 review JSON
-    MSG="Task ${TASK_NAME} 有 Spec 段(含 Review Dimensions)但还没有经过 review。
-
-请先跑 /bcc-review 进行量化评分,review 通过后再 finish。"
-
-    jq -n --arg msg "$MSG" '{decision: "block", reason: $msg}'
-    exit 0
+    REVIEW_ISSUE="Task ${TASK_NAME} 有 Spec 段但还没有经过 review。请先跑 /bcc-review。"
+  else
+    _read_review_result "$REVIEW_JSON"
+    if [ "$REVIEW_PASS" != "true" ]; then
+      REVIEW_ISSUE="Task ${TASK_NAME} 最新 review 未通过 (Round ${REVIEW_ROUND}, weighted: ${REVIEW_WEIGHTED}, blocking: [${REVIEW_BLOCKING}])。请修复后再跑 /bcc-review。"
+    fi
   fi
 
-  # 有 review JSON,检查是否通过
-  _read_review_result "$REVIEW_JSON"
-  if [ "$REVIEW_PASS" != "true" ]; then
-    MSG="Task ${TASK_NAME} 最新 review 未通过 (Round ${REVIEW_ROUND}, weighted: ${REVIEW_WEIGHTED}, blocking: [${REVIEW_BLOCKING}])。
+  if [ -n "$REVIEW_ISSUE" ]; then
+    RB=$((RB + 1))
+    # 写回 review_blocks 计数
+    if [ -f "$STATE_FILE" ]; then
+      TMP_RB=$(mktemp "${STATE_FILE}.XXXXXX" 2>/dev/null || echo "${STATE_FILE}.tmp")
+      jq --argjson rb "$RB" '.review_blocks = $rb' "$STATE_FILE" > "$TMP_RB" && mv "$TMP_RB" "$STATE_FILE"
+    fi
 
-请根据 review 的 actionable_summary 修复问题,再跑一轮 /bcc-review,通过后再 finish。"
+    if [ "$RB" -ge 3 ]; then
+      # 3 次后降级:放行但注入警告,重置计数
+      TMP_RB=$(mktemp "${STATE_FILE}.XXXXXX" 2>/dev/null || echo "${STATE_FILE}.tmp")
+      jq '.review_blocks = 0' "$STATE_FILE" > "$TMP_RB" && mv "$TMP_RB" "$STATE_FILE"
+      jq -n --arg msg "[⚠ review 拦截已连续 ${RB} 次,本次放行] ${REVIEW_ISSUE}" \
+        '{hookSpecificOutput: {hookEventName: "Stop", additionalContext: $msg}}'
+      exit 0
+    fi
 
-    jq -n --arg msg "$MSG" '{decision: "block", reason: $msg}'
+    jq -n --arg msg "$REVIEW_ISSUE" '{decision: "block", reason: $msg}'
     exit 0
+  else
+    # review 问题已解决,重置计数
+    if [ -f "$STATE_FILE" ] && [ "$(jq -r '.review_blocks // 0' "$STATE_FILE" 2>/dev/null)" != "0" ]; then
+      TMP_RB=$(mktemp "${STATE_FILE}.XXXXXX" 2>/dev/null || echo "${STATE_FILE}.tmp")
+      jq '.review_blocks = 0' "$STATE_FILE" > "$TMP_RB" && mv "$TMP_RB" "$STATE_FILE"
+    fi
   fi
 fi
 
