@@ -22,7 +22,7 @@
 2. 主代理 Plan → 写 development brief → developer subagent 执行(或 fast path 自己改)
 3. 开发完成 → `/bcc-review` → reviewer 多维度量化评分 → 追加 Review History 到 Task
 4. review 通过 → `/bcc-finish` 写 Completion(含最终 Review Score) + HANDOVER
-5. review 未通过 → 写新 dev brief 修复 → 再轮 review(≥3 轮不收敛 → judge)
+5. review 未通过 → 写新 dev brief 修复 → 再轮 review(≥3 轮仍不通过 → 暂停,和用户讨论)
 6. 跨会话恢复:session-start hook 自动注入活跃 Task + review 状态
 
 判断"新 task vs 当前 task 继续"的标准:**这条新输入能否独立成一个 commit?** 能→新 task;不能→追加当前 task 的 Prompt 段。
@@ -35,7 +35,7 @@
 | 正常开发任务 | 写 development brief → 拆 developer subagent → 读结果 → `/bcc-review` |
 | 探索读取大量文件 | 拆内置 Explore subagent |
 | 代码改动后(有 Spec 的 Task) | 走 `/bcc-review` 量化评分,通过后才能 finish |
-| review 不收敛(≥3 轮) | 召唤 judge agent 裁决 |
+| review ≥3 轮仍不通过 | 暂停,和用户讨论是否调整 Spec 或换方案 |
 | 任何 subagent 调用 | 先想清 brief 内容(persona/criteria/output schema)并落成 brief 放 outputs/ |
 
 **开发模式**: 主代理是协调者+设计者,不亲自写大量代码。读代码定位范围 → 预提取到 development brief → developer subagent 执行 → 主代理读结果 → 调 reviewer 评分。每轮 developer 是独立 subagent,干净上下文,主代理只看 JSON 结果。

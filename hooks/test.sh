@@ -125,6 +125,40 @@ assert_empty "有task + EDITS<6 → 放行"       "$(run_hook stop-progress-gate
 set_state "$EMPTY" 9 0
 assert_empty "无活跃 task → 放行"            "$(run_hook stop-progress-gate.sh "$(stdin_json "$EMPTY" "" "")")"
 
+echo "=== Stop v3.0: Review 状态检查 ==="
+# 给活跃 task 加 Spec 段
+echo '## Spec' >> "$ACTIVE/.claude/tasks/Task-active.md"
+set_state "$ACTIVE" 0 0
+assert_contains "有Spec无review → block"     "$(run_hook stop-progress-gate.sh "$(stdin_json "$ACTIVE" "" "")")" "review"
+
+# 放一个 pass:false 的 review JSON
+echo '{"pass":false,"round":1,"weighted_score":5.2,"blocking_dimensions":["test_coverage"]}' > "$ACTIVE/.claude/tasks/outputs/review-test-r1.json"
+set_state "$ACTIVE" 0 0
+assert_contains "review未通过 → block"        "$(run_hook stop-progress-gate.sh "$(stdin_json "$ACTIVE" "" "")")" "block"
+assert_contains "block含weighted分数"         "$(run_hook stop-progress-gate.sh "$(stdin_json "$ACTIVE" "" "")")" "5.2"
+
+# 改成 pass:true
+echo '{"pass":true,"round":2,"weighted_score":7.8,"blocking_dimensions":[]}' > "$ACTIVE/.claude/tasks/outputs/review-test-r1.json"
+set_state "$ACTIVE" 0 0
+assert_empty "review通过 → 放行"              "$(run_hook stop-progress-gate.sh "$(stdin_json "$ACTIVE" "" "")")"
+
+# 无 Spec 的 task 不检查 review
+set_state "$EMPTY" 0 0
+assert_empty "无Spec → 不检查review"          "$(run_hook stop-progress-gate.sh "$(stdin_json "$EMPTY" "" "")")"
+
+echo "=== UserPromptSubmit v3.0: Review 状态注入 ==="
+# ACTIVE 的 Task 此时有 Spec 段 + pass:true 的 review JSON（由前面 Stop v3.0 测试段设置）
+assert_contains "有Spec+review通过 → 注入PASSED"  "$(run_hook userpromptsubmit-router.sh "$(stdin_json "$ACTIVE" "" "")")" "PASSED"
+
+# 改成 pass:false 看看注入内容
+echo '{"pass":false,"round":3,"weighted_score":4.5,"blocking_dimensions":["security","correctness"]}' > "$ACTIVE/.claude/tasks/outputs/review-test-r1.json"
+assert_contains "有Spec+review未通过 → 注入blocking" "$(run_hook userpromptsubmit-router.sh "$(stdin_json "$ACTIVE" "" "")")" "blocking"
+assert_contains "注入含轮次"                        "$(run_hook userpromptsubmit-router.sh "$(stdin_json "$ACTIVE" "" "")")" "Round 3"
+
+# 删掉 review JSON,测 "未开始" 分支
+rm -f "$ACTIVE/.claude/tasks/outputs/review-"*.json
+assert_contains "有Spec无review → 注入未开始"       "$(run_hook userpromptsubmit-router.sh "$(stdin_json "$ACTIVE" "" "")")" "未开始"
+
 echo "=== PreCompact ==="
 run_hook precompact.sh "$(stdin_json "$ACTIVE" "" "")" >/dev/null
 N1=$(grep -c 'PreCompact' "$ACTIVE/.claude/tasks/Task-active.md")
@@ -144,6 +178,21 @@ assert_eq "_task_title 无标题 → fallback 生效"  "$(_task_title "$NOTITLE"
 WITHTITLE=$(mktemp); printf '# 有标题\n' > "$WITHTITLE"
 assert_eq "_task_title 有标题 → 取标题"      "$(_task_title "$WITHTITLE")" "有标题"
 rm -f "$NOTITLE" "$WITHTITLE"
+
+echo "=== _common helpers v3.0: review ==="
+SPEC_FILE=$(mktemp); printf -- '---\nstatus: in_progress\n---\n# Test\n## Spec\nsome spec\n' > "$SPEC_FILE"
+NOSPEC_FILE=$(mktemp); printf -- '---\nstatus: in_progress\n---\n# Test\n## Plan\nno spec here\n' > "$NOSPEC_FILE"
+_task_has_spec "$SPEC_FILE" && ok "_task_has_spec 有Spec → true" || bad "_task_has_spec 有Spec → true"
+_task_has_spec "$NOSPEC_FILE" && bad "_task_has_spec 无Spec → false" || ok "_task_has_spec 无Spec → false"
+rm -f "$SPEC_FILE" "$NOSPEC_FILE"
+
+REVIEW_FILE=$(mktemp); echo '{"pass":true,"round":2,"weighted_score":8.1,"blocking_dimensions":[]}' > "$REVIEW_FILE"
+_read_review_result "$REVIEW_FILE"
+assert_eq "_read_review_result pass"       "$REVIEW_PASS" "true"
+assert_eq "_read_review_result round"      "$REVIEW_ROUND" "2"
+assert_eq "_read_review_result weighted"   "$REVIEW_WEIGHTED" "8.1"
+assert_eq "_read_review_result blocking空" "$REVIEW_BLOCKING" ""
+rm -f "$REVIEW_FILE"
 
 echo ""
 echo "=================================="

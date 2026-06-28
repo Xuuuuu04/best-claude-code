@@ -96,7 +96,16 @@ PYEOF
 done
 ```
 
-### 6. Rules 存在性
+### 6. Agents 完整性
+```bash
+AGENTS_DIR="$HOME/.claude/agents"
+REQUIRED_AGENTS=("developer.md" "reviewer.md")
+for A in "${REQUIRED_AGENTS[@]}"; do
+  [ -f "$AGENTS_DIR/$A" ] && echo "✓ $A" || echo "✗ $A 缺失"
+done
+```
+
+### 7. Rules 存在性
 ```bash
 REQUIRED_RULES=("git-safety.md" "sensitive-files.md" "honest-communication.md")
 for R in "${REQUIRED_RULES[@]}"; do
@@ -104,7 +113,7 @@ for R in "${REQUIRED_RULES[@]}"; do
 done
 ```
 
-### 7. 版本检查
+### 8. 版本检查
 ```bash
 VERSION_FILE="$HOME/.claude/VERSION"
 if [ -f "$VERSION_FILE" ]; then
@@ -123,16 +132,17 @@ BCC Harness 健康检查
 Hook 文件:    ✓ 6/6
 Hook 注册:    ✓ 6/6
 注册一致性:   ✓ 6/6
-Skills:       ✓ 9/9
+Skills:       ✓ 11/11
+Agents:       ✓ 2/2
 Rules:        ✓ 3/3
-版本:         v2.4.1
+版本:         v3.0.1
 
-总计: 全部通过 / 有 N 项问题
+总计: 全部通过 / 有 N 项问题（8 项检查）
 ```
 
 如果有 ✗，在最后列出修复建议。
 
-> 本检查是**静态的**(hook 注册了没/可执行没)。hook **行为**是否正确(造 stdin 跑对输出)另跑 `bash ~/.claude/hooks/test.sh`(26 个用例)。
+> 本检查是**静态的**(hook 注册了没/可执行没)。hook **行为**是否正确(造 stdin 跑对输出)另跑 `bash ~/.claude/hooks/test.sh`(44 个用例)。
 
 ## --fix 模式
 

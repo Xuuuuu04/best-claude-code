@@ -34,7 +34,7 @@ argument-hint: "[task-id（可选，默认当前活跃 task）]"
 看 `outputs/` 下已有多少个 `review-{slug}-r{N}.json`:
 - 没有 → 这是 Round 1
 - 有 r1 → 这是 Round 2,brief 里要带上 r1 的路径让 reviewer 算 delta
-- 有 r1+r2 → 这是 Round 3,如果上一轮 pass 还是 false,考虑是否该叫 judge
+- 有 r1+r2 → 这是 Round 3,如果上一轮 pass 还是 false,考虑是否该暂停和用户讨论
 
 ### 3. 收集改动范围
 
@@ -139,7 +139,7 @@ Review Round {N} 未通过 (weighted: {score}, blocking: [{dims}])
 
 如果 Round ≥ 3 且仍 pass: false:
 ```
-Review 已 {N} 轮未收敛。建议召唤 judge 裁决。
+Review 已 {N} 轮未通过。建议暂停,和用户讨论:调整 Spec 降低阈值?还是换方案?
 ```
 
 ## 反例

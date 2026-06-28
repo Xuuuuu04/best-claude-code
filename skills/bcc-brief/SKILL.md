@@ -14,7 +14,6 @@ effort: high
 **拆 subagent 前,先把 brief 内容想清楚**(Activation Persona / Known Facts / Files / Acceptance Criteria / Output schema)——这是省 token、防 subagent 乱探索的关键。适用:
 - 内置 Explore 做大量探索
 - reviewer agent 做 review
-- judge agent 做裁决
 - 项目级或 plugin 提供的任何自定义 subagent
 
 唯一例外:prompt 本身只有 1-2 句具体指令(例"读 src/foo.ts:50,告诉我函数参数有哪些")—— 这种轻量 query 不需要 brief。
@@ -45,11 +44,11 @@ brief 和 subagent 的输出**都放这里**。不用单独的 `bcc-briefs/` 目
 # Brief: <一句话目标,英文>
 
 **Task**: <task id>
-**For**: <subagent 类型,例 Explore / reviewer / judge / playwright>
+**For**: <subagent 类型,例 Explore / developer / reviewer / playwright>
 **Created**: <时间戳>
 
 ## Activation Persona(必填,3-5 行)
-⚠️ 仅影响 Explore / general-purpose 类 subagent。reviewer / judge 有固定 persona（见 agents/reviewer.md、agents/judge.md），不受此处影响。
+⚠️ 仅影响 Explore / general-purpose / developer 类 subagent。reviewer 有固定 persona（见 agents/reviewer.md），不受此处影响。
 
 You ARE a <具体角色,带技术栈或视角>.
 You are paranoid about <2-3 个本领域最容易翻车的点>.
@@ -108,7 +107,6 @@ Read the briefing file at <brief 文件绝对路径>, then execute. Write your o
 子代理类型选对:
 - 大量探索 → `Explore` (内置)
 - code review → `reviewer` (本仓库自定义)
-- 裁决 → `judge` (本仓库自定义)
 - 一般执行 / 实现代码 → `general-purpose` (内置)
 
 模型选择（省成本加速度）:
@@ -187,7 +185,7 @@ Developer 返回 `DONE` 后:
 3. 调 `/bcc-review` 发起量化评分
 4. 如果 review pass → `/bcc-finish`
 5. 如果 review fail → 写新的 dev brief（只含 reviewer 指出的修复项）→ 再一轮
-6. ≥ 3 轮不收敛 → 叫 judge
+6. ≥ 3 轮仍不通过 → 暂停,和用户讨论调整 Spec 或换方案
 
 **简单任务 fast path**：改动 ≤ 2 文件且 ≤ 30 行时，主代理可以直接改不拆 developer subagent，改完仍走 `/bcc-review`。
 
@@ -252,7 +250,7 @@ Persona 反例:泛泛写 "an expert"、paranoid 段空洞、超 5 行、和 Miss
 - ❌ Files You Need 写"src/auth/" —— 让 subagent 自己探索,等于没省 token
 - ❌ Output Format 写"输出你的发现" —— 没 schema,主代理还得二次解析
 - ❌ Acceptance Criteria 写"满足要求" —— 不可验证
-- ❌ 同一个 task 反复发同样的 brief —— review 不收敛时召唤 judge,不是再发一次 brief
+- ❌ 同一个 task 反复发同样的 brief —— review 不收敛时和用户讨论调整 Spec,不是再发一次 brief
 
 ## token 效率
 
