@@ -67,7 +67,6 @@ _task_has_spec() {
 
 # 获取最新 review JSON 路径(按文件名排序取最后一个)
 _latest_review_json() {
-  local slug="$1"
   ls -1 "$CWD/.claude/tasks/outputs/review-"*".json" 2>/dev/null | sort | tail -1
 }
 
