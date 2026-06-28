@@ -35,9 +35,25 @@ argument-hint: "[task-id（可选，默认当前活跃 task）]"
   - 还是该改成 `status: paused` 等后续?
   - 还是该 `status: abandoned`?
 
-### 2.5 重大改动?收尾前对照清单决定要不要 reviewer
+### 2.5 Review 状态检查(量化评分验证)
 
-对照下面判据,命中任一 **且本 task 还没召唤过 reviewer** → 先拆 reviewer 对抗审查(从改动/brief 读起,输出 JSON 到 `outputs/`),按结果修完再回来 finish。**别自己 review 自己。**
+**如果 Task 有 Spec 段(含 Review Dimensions 表):**
+
+1. 检查 `outputs/` 下是否有对应的 `review-*.json`
+   - 没有 → **阻止 finish**,提示"Task 有 Spec 但未经 review,先跑 `/bcc-review`"
+   - 有 → 读最新一份 review JSON
+
+2. 检查最新 review 的 `pass` 字段
+   - `pass: true` → 通过,继续 finish
+   - `pass: false` → **阻止 finish**,提示"最新 review 未通过(weighted: X, blocking: [Y]),先修再 finish"
+
+3. 在 Completion 段记录最终 review 分数
+
+**如果 Task 没有 Spec 段**(纯文档/配置/小改动):跳过 review 检查,直接 finish。
+
+### 2.6 重大改动?收尾前对照清单决定要不要 reviewer
+
+即使 review 已通过(或没有 Spec),对照下面判据,命中任一 **且本 task 还没召唤过 reviewer** → 先跑 `/bcc-review`(从改动/brief 读起,输出 JSON 到 `outputs/`),按结果修完再回来 finish。**别自己 review 自己。**
 
 - 改了 hook / 共享库 / 核心控制流
 - 删除或重构了组件
@@ -62,6 +78,11 @@ argument-hint: "[task-id（可选，默认当前活跃 task）]"
 - lint: pass
 - 新增单测: 3 个用例全通过
 - 手动验证: <如有,例:登录后等 30 分钟仍可用>
+
+### Review Score (如有 Spec)
+- Final round: 2, weighted: 7.85
+- correctness: 8 | security: 9 | performance: 7 | maintainability: 7 | test_coverage: 7
+- All dimensions above threshold: yes
 
 ### 验收对照
 - [x] 登录后 24h 持续可用 —— 单测覆盖到 expiry-1s 边界

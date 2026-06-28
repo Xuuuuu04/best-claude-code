@@ -1,5 +1,5 @@
 #!/bin/bash
-# UserPromptSubmit hook: 每轮用户发言时注入"工作流路标 + 活跃 task 状态"。
+# UserPromptSubmit hook: 每轮用户发言时注入"工作流路标 + 活跃 task 状态 + review 轮次分数"。
 # 目的:用户不手动打 /bcc-,靠这个每轮 refresh 引导主代理自动走对应 skill。
 # 设计:hook 不替模型分类"是不是新诉求"(bash 关键词必误触发);只给客观状态 + 判据,
 #       分类留给模型。对抗长对话里 CLAUDE.md 被挤远、注意力衰减。
@@ -13,7 +13,29 @@ if [ "$ACTIVE_COUNT" -gt 0 ]; then
   TASK_LINES=""
   while IFS= read -r FILE; do
     [ -n "$FILE" ] || continue
-    TASK_LINES="${TASK_LINES}  - $(_task_id "$FILE")($(_task_title "$FILE"))
+    TID=$(_task_id "$FILE")
+    TITLE=$(_task_title "$FILE")
+    TASK_LINE="  - ${TID}(${TITLE})"
+
+    # v3.0: 如果 Task 有 Spec,注入 review 状态
+    if _task_has_spec "$FILE"; then
+      REVIEW_JSON=$(_latest_review_json)
+      if [ -n "$REVIEW_JSON" ] && [ -f "$REVIEW_JSON" ]; then
+        _read_review_result "$REVIEW_JSON"
+        if [ "$REVIEW_PASS" = "true" ]; then
+          TASK_LINE="${TASK_LINE}
+    Review: Round ${REVIEW_ROUND} PASSED (weighted: ${REVIEW_WEIGHTED})"
+        else
+          TASK_LINE="${TASK_LINE}
+    Review: Round ${REVIEW_ROUND}, weighted: ${REVIEW_WEIGHTED}, blocking: [${REVIEW_BLOCKING}]"
+        fi
+      else
+        TASK_LINE="${TASK_LINE}
+    Review: 未开始(有 Spec,需要 /bcc-review)"
+      fi
+    fi
+
+    TASK_LINES="${TASK_LINES}${TASK_LINE}
 "
   done <<< "$ACTIVE_FILES"
   CONTEXT="[工作流路标] 进行中的 Task:

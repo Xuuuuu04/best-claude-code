@@ -18,10 +18,12 @@
 
 详细 schema 见 `/bcc-start` skill。常用流程:
 
-1. 用户发新诉求 → 主代理调用 `/bcc-start` → 增强意图、一句话确认、写文件
-2. 工作时主代理在该 Task 文件追加 Execution Log + Decisions
-3. 完成时 `/bcc-finish` 写 Completion + HANDOVER 段
-4. 跨会话恢复:session-start hook 自动注入活跃 Task
+1. 用户发新诉求 → 主代理调用 `/bcc-start` → 增强意图、写 Spec(Requirements + Review Dimensions)、一句话确认、写文件
+2. 主代理 Plan → 写 development brief → developer subagent 执行(或 fast path 自己改)
+3. 开发完成 → `/bcc-review` → reviewer 多维度量化评分 → 追加 Review History 到 Task
+4. review 通过 → `/bcc-finish` 写 Completion(含最终 Review Score) + HANDOVER
+5. review 未通过 → 写新 dev brief 修复 → 再轮 review(≥3 轮不收敛 → judge)
+6. 跨会话恢复:session-start hook 自动注入活跃 Task + review 状态
 
 判断"新 task vs 当前 task 继续"的标准:**这条新输入能否独立成一个 commit?** 能→新 task;不能→追加当前 task 的 Prompt 段。
 
@@ -29,20 +31,23 @@
 
 | 情况 | 怎么做 |
 |---|---|
-| 简单编辑、单次问答 | 主代理直接做,不拆 subagent |
+| 简单编辑(≤2 文件 ≤30 行)、单次问答 | 主代理直接做(fast path),改完仍走 `/bcc-review` |
+| 正常开发任务 | 写 development brief → 拆 developer subagent → 读结果 → `/bcc-review` |
 | 探索读取大量文件 | 拆内置 Explore subagent |
-| 重大改动后(判据见下) | 收尾前拆 reviewer 对抗审查,别自己 review 自己 |
+| 代码改动后(有 Spec 的 Task) | 走 `/bcc-review` 量化评分,通过后才能 finish |
 | review 不收敛(≥3 轮) | 召唤 judge agent 裁决 |
-| 任何 subagent 调用 | 先想清 brief 内容(persona/criteria/output schema)并落成 brief 放 outputs/,绝不让 subagent 自己探索全部上下文 |
+| 任何 subagent 调用 | 先想清 brief 内容(persona/criteria/output schema)并落成 brief 放 outputs/ |
 
-**何时算"重大改动" → 收尾前必拆 reviewer(宁可漏不可滥):**
+**开发模式**: 主代理是协调者+设计者,不亲自写大量代码。读代码定位范围 → 预提取到 development brief → developer subagent 执行 → 主代理读结果 → 调 reviewer 评分。每轮 developer 是独立 subagent,干净上下文,主代理只看 JSON 结果。
+
+**何时算"重大改动" → review 不可跳过(宁可漏不可滥):**
 - 改了 hook / 共享库 / 核心控制流
 - 删除或重构组件
 - 跨 ≥3 文件的一致性改动(enum / contract / 计数)
 - 自己改完"感觉干净"但没第二双眼验过的重大改动
-- 日常小改(单文件小修、改文案、纯文档)**不触发**
+- 日常小改(单文件小修、改文案、纯文档)且 Task 无 Spec → 可跳过 review
 
-> 主代理是首席工程师,不是文员。深度参与判断,只把"重复性/探索性/隔离性"的活外包。
+> 主代理是首席工程师,不是文员也不是码农。设计+协调+决策自己做,实现和审查外包给 subagent。
 
 ## 开发纪律(代码项目)
 

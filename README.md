@@ -1,7 +1,7 @@
 # best-claude-code
 
 > 极简 Claude Code 用户级配置,基于 **Harness Engineering** 思路。
-> **9 Skills · 6 Hooks · 2 Agents · 3 Rules** · **Task-Centric** 架构 · v2.4.1
+> **10 Skills · 6 Hooks · 3 Agents · 3 Rules** · **Task-Centric** 架构 · v3.0.0
 
 ---
 
@@ -26,7 +26,7 @@
 
 | # | 原则 | 落实在哪 |
 |---|---|---|
-| 1 | **Earn every component** | 19 个组件,每个对应一件"模型自己做不到的事";没用的砍掉 |
+| 1 | **Earn every component** | 22 个组件,每个对应一件"模型自己做不到的事";没用的砍掉 |
 | 2 | **Configuration over capability** | 不等模型变好,用 harness 把当前模型(包括弱模型 GLM/Kimi)托起来 |
 | 3 | **Failures become rules** | 纠正过的事变成 skill/hook/rule,不再靠口头说 |
 | 4 | **Success is silent, failures are verbose** | 没事不吭声,出问题才喊 |
@@ -45,20 +45,22 @@
     ▼               ▼               ▼               ▼               ▼
 ┌────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌────────┐
 │ Skills │    │  Agents  │    │  Hooks   │    │  Rules   │    │ MCP    │
-│ (9 个) │    │  (2 个)  │    │  (6 个)  │    │  (3 条)  │    │Servers │
+│(10 个) │    │  (3 个)  │    │  (6 个)  │    │  (3 条)  │    │Servers │
 ├────────┤    ├──────────┤    ├──────────┤    ├──────────┤    ├────────┤
-│bcc-    │    │ reviewer │    │ Session  │    │ honest-  │    │github  │
+│bcc-    │    │developer │    │ Session  │    │ honest-  │    │github  │
 │ start  │    │          │    │  Start   │    │ communi- │    │repomix │
-│ finish │    │  judge   │    │PreCompact│    │  cation  │    │seq-    │
-│ brief  │    └──────────┘    │ PostTool │    │ git-     │    │thinking│
-│ preflight         │         │  Use+Fail│    │  safety  │    └────────┘
-│ cross-sync   Brief│         │ Stop     │    │ sensitive│
-│ debug  │    Pattern         └─────┬────┘    │  -files  │
-│ tdd    │    文件系统               │         └──────────┘
-│ init   │    通信总线               │
+│ finish │    │ reviewer │    │PreCompact│    │  cation  │    │seq-    │
+│ review │    │          │    │ PostTool │    │ git-     │    │thinking│
+│ brief  │    │  judge   │    │  Use+Fail│    │  safety  │    └────────┘
+│ preflight   └──────────┘    │ Stop     │    │ sensitive│
+│ cross-sync        │         └─────┬────┘    │  -files  │
+│ debug  │    Brief Pattern         │         └──────────┘
+│ tdd    │    + Dev Brief           │
+│ init   │    文件系统通信总线       │
 │ check  │         │                │
 └────────┘    ┌────▼────────────────▼────┐
-              │      Task File           │ ◄── 持久化记忆
+              │  Task File + Spec        │ ◄── 持久化记忆
+              │  + Review History         │     量化评分追踪
               │  <project>/.claude/tasks/ │     跨会话不丢
               └──────────────────────────┘
 ```
@@ -67,20 +69,25 @@
 
 ## 组件清单
 
-### Skills(9 个,位于 `skills/bcc-<name>/SKILL.md`,统一 `/bcc-` 前缀）
+### Skills(10 个,位于 `skills/bcc-<name>/SKILL.md`,统一 `/bcc-` 前缀）
 
 **Task 生命周期(2 个)**
 | Skill | 何时调用 | 作用 |
 |---|---|---|
-| `/bcc-start` | 用户新独立诉求 | 增强意图 + 轻量确认 + 创建 Task 文件 |
-| `/bcc-finish` | 任务完成 | 写 Completion + 强制 HANDOVER + status: done + 重置 hook state |
+| `/bcc-start` | 用户新独立诉求 | 增强意图 + 写 Spec(Requirements + Review Dimensions) + 轻量确认 + 创建 Task 文件 |
+| `/bcc-finish` | 任务完成 | 验证 review 分数达标 + 写 Completion(含 Review Score) + 强制 HANDOVER + status: done |
 
 跨会话恢复不需要单独 skill:session-start hook 自动注入 in_progress Task 列表,模型直接 Read 对应文件即可恢复。
 
 **子代理协调(1 个)**
 | Skill | 何时调用 | 作用 |
 |---|---|---|
-| `/bcc-brief` | 调度 subagent 前 | 写 task-specific briefing(含 Activation Persona)给子代理读 |
+| `/bcc-brief` | 调度 subagent 前 | 写 briefing(含 Activation Persona / Development Brief 模板)给子代理读 |
+
+**审查(1 个,v3.0 新增)**
+| Skill | 何时调用 | 作用 |
+|---|---|---|
+| `/bcc-review` | 开发完成后 | 自动生成 review brief → 调度 reviewer → 读评分 → 追加 Review History 到 Task |
 
 **开发纪律(3 个)**
 | Skill | 何时调用 | 作用 |
@@ -100,11 +107,12 @@
 |---|---|---|
 | `/bcc-check` | 怀疑 harness 有问题时 | 健康检查:jq/hooks 可执行/settings 注册一致性/skills frontmatter(严格 YAML)/rules/版本 |
 
-### Agents(2 个,位于 `agents/<name>.md`)
-| Agent | 召唤时机 | 角色 |
-|---|---|---|
-| `reviewer` | 重大代码改动后 | 对抗性 reviewer,无 Edit;Bash 限只读取证,Write 只许往 outputs/ 落 review JSON |
-| `judge` | review 不收敛(≥3 轮) | 独立裁决者,只比对 acceptance criteria,输出 accept/reject/continue |
+### Agents(3 个,位于 `agents/<name>.md`)
+| Agent | 召唤时机 | 角色 | 工具限制 |
+|---|---|---|---|
+| `developer` | 正常开发任务 | 执行者,从 development brief 读任务,改代码跑测试,输出结构化 JSON | 完整开发权限(Read/Edit/Write/Bash/Grep/Glob) |
+| `reviewer` | 开发完成后(`/bcc-review`) | 对抗性 reviewer,多维度量化评分(0-10),输出评分 JSON | 无 Edit;Bash 限只读;Write 只许 outputs/ |
+| `judge` | review 不收敛(≥3 轮) | 独立裁决者,只比对 acceptance criteria | Read + Grep |
 
 ### Hooks(6 个事件 hook + 1 个共享库,位于 `hooks/*.sh`)
 
@@ -119,17 +127,17 @@
 |---|---|---|
 | `posttooluse-guard.sh` | PostToolUse | 文件编辑(Edit/Write 类)成功时累计计数;编辑的是 Task 文件则归零。Bash 成功不计数、只重置连败计数 |
 | `posttoolusefailure.sh` | PostToolUseFailure(matcher: Bash) | 命令失败累加连败计数,3 连败注入 `/bcc-debug` |
-| `stop-progress-gate.sh` | Stop | 6+ 次文件编辑未更新 Task Execution Log 时阻止收尾 |
+| `stop-progress-gate.sh` | Stop | 三级拦截:6+ 编辑未更新 Task Log / 有 Spec 但没 review / review 未通过 |
 
 **工作流引导(1 个)**
 | Hook | 事件 | 作用 |
 |---|---|---|
-| `userpromptsubmit-router.sh` | UserPromptSubmit | 每轮用户发言注入"工作流路标 + 活跃 task 状态",引导主代理自动走对应 skill(用户不手动打 /);不替模型分类,只给状态 + 判据,对抗长对话注意力衰减 |
+| `userpromptsubmit-router.sh` | UserPromptSubmit | 每轮注入"工作流路标 + 活跃 task 状态 + review 轮次和分数",引导主代理走对应 skill;不替模型分类,只给状态 + 判据 |
 
 **共享库(1 个)**
 | 文件 | 作用 |
 |---|---|
-| `_common.sh` | jq 检测、state 原子读写(`_load/_save_hook_state`) |
+| `_common.sh` | jq 检测、state 原子读写(`_load/_save_hook_state`)、review 状态读取(`_task_has_spec/_latest_review_json/_read_review_result`) |
 
 **回归测试**
 `hooks/test.sh` — 造 stdin、跑 6 个 hook、断言输出/state(26 个用例,覆盖 #1 无-task 提示 / #3 outputs 不归零 / #4 frontmatter 锚定 等)。改 hook 后跑 `bash hooks/test.sh`,全过 exit 0。
@@ -155,9 +163,9 @@
 判断"新 task vs 当前 task 继续"的标准:**这条新输入能否独立成一个 commit?**
 能 → 新 task;不能 → 追加当前 task 的 Prompt 段。
 
-Task 文件用 YAML frontmatter + Markdown body,包含 8 个段:
-`Prompt`(append-only) / `Intent` / `Plan` / `Execution Log` /
-`Subagent Calls` / `Decisions`(append-only) / `Completion` / 嵌入式 `HANDOVER`。
+Task 文件用 YAML frontmatter + Markdown body,包含 10 个段:
+`Prompt`(append-only) / `Intent` / `Spec`(Requirements + Review Dimensions) / `Plan` / `Execution Log` /
+`Subagent Calls` / `Decisions`(append-only) / `Review History`(量化评分追踪) / `Completion`(含 Review Score) / 嵌入式 `HANDOVER`。
 
 完整 schema 见 `skills/bcc-start/SKILL.md`。
 
@@ -183,19 +191,30 @@ Activation Persona 只对 Explore / general-purpose 类 subagent 生效;reviewer
 | 用 brief 精准定位 | 200-500(brief) + 30-50(prompt) |
 | **杠杆** | **10-40 倍** |
 
-### 3. Writer/Reviewer/Judge 三角(对抗性 review 保证收敛)
+### 3. Developer/Reviewer/Judge 三角(量化 review + 对抗性收敛)
 
 ```
-Writer(主代理) ──→ Reviewer agent ──→ 主代理决定下一步
-                       │
-        ≥ 3 轮不收敛   ▼
-                  Judge agent ──→ accept | reject | continue_one_more_round
-                                  (后者每个 task 最多用 1 次)
+主代理(协调者)
+    │ 写 Development Brief
+    ▼
+Developer subagent ──→ dev-result JSON
+    │                      │
+    │ 读结果,调 /bcc-review │
+    ▼                      ▼
+Reviewer agent ──→ 多维度评分 JSON (5 维度 0-10 + weighted score)
+    │                      │
+    │ pass: true → finish  │ pass: false → 新 dev brief 修复
+    │                      │
+    │       ≥ 3 轮不收敛   ▼
+    └─────────→ Judge agent ──→ accept | reject | continue_one_more_round
 ```
 
-reviewer 没有 Edit——**不让改代码,逼它好好想**。
-能 Edit 的话 reviewer 会"顺手改一下",角色就串了。
-Bash 限只读命令(git diff / 跑测试取证);Write 只有一个合法用途:把 review JSON 写到 outputs/。
+**三个 agent 的权限设计是对称的:**
+- developer 有完整开发权限,但不做设计判断(brief 约束行为)
+- reviewer 没有 Edit——**不让改代码,逼它好好想**;输出量化评分不是二元 approve/reject
+- judge 只有 Read + Grep——比 reviewer 还少,只看 criteria 不看代码细节
+
+reviewer 的评分 JSON 包含: 每维度 score + reasoning + delta(与上轮对比) + actionable_summary(告诉 developer 下一步做什么)。主代理每轮把评分追加到 Task 的 Review History 段,跨 compact/跨会话不丢。
 
 ### 4. 执行纪律闭环
 
@@ -207,8 +226,10 @@ PostToolUse hook(成功) ──→ Edit/Write/MultiEdit/NotebookEdit → edits_s
 PostToolUseFailure hook(matcher: Bash) ──→ consecutive_bash_failures++
                                             3 连败 → 注入 /bcc-debug 软提示
 
-Stop hook ──→ 模型想收尾时检查(唯一的硬拦)
-              └─ 6+ 次文件编辑未更新 Task Log → decision:block 阻止,注入提醒
+Stop hook ──→ 模型想收尾时三级检查(v3.0 增强)
+              ├─ 6+ 次文件编辑未更新 Task Log → block
+              ├─ Task 有 Spec 但没有 review JSON → block("先跑 /bcc-review")
+              └─ 最新 review pass: false → block("weighted X, blocking [Y],先修")
 ```
 
 失败信号来自官方 PostToolUseFailure 事件,不用 exit-code/正则去猜。
@@ -224,15 +245,16 @@ Task 完成时 `/bcc-finish` 自动把计数器归零。
 ~/.claude/
 ├── CLAUDE.md                          # 跨项目通用约定
 ├── README.md                          # 本文件
-├── VERSION                            # 语义化版本号(当前 2.4.1)
+├── VERSION                            # 语义化版本号(当前 3.0.0)
 ├── settings.json                      # hooks 注册 + MCP + providers(被 .gitignore)
 ├── install-hooks.sh                   # 幂等把 hooks 注册进 settings.json(进 git,搬机器跑这个)
 ├── output-styles/
 │   └── teacher.md                     # 教师风格对话
-├── skills/                            # 9 个,统一 /bcc- 前缀
-│   ├── bcc-start/SKILL.md
-│   ├── bcc-finish/SKILL.md
-│   ├── bcc-brief/SKILL.md             # 含 Activation Persona 写作骨架 + 示例
+├── skills/                            # 10 个,统一 /bcc- 前缀
+│   ├── bcc-start/SKILL.md             # Task 入口,含 Spec 段模板
+│   ├── bcc-finish/SKILL.md            # Task 收尾,验证 review 分数
+│   ├── bcc-review/SKILL.md            # v3.0 新增:自动 review brief + 调度 + Review History
+│   ├── bcc-brief/SKILL.md             # 含 Development Brief 模板 + Activation Persona
 │   ├── bcc-tdd/SKILL.md
 │   ├── bcc-debug/SKILL.md
 │   ├── bcc-preflight/SKILL.md
@@ -240,17 +262,18 @@ Task 完成时 `/bcc-finish` 自动把计数器归零。
 │   ├── bcc-init/SKILL.md
 │   └── bcc-check/SKILL.md
 ├── agents/
-│   ├── reviewer.md                    # 对抗性 reviewer,无 Edit,只读取证
+│   ├── developer.md                   # v3.0 新增:执行者,从 dev brief 改代码跑测试
+│   ├── reviewer.md                    # 对抗性 reviewer,多维度量化评分(0-10)
 │   └── judge.md                       # 独立裁决者,Read + Grep
 ├── hooks/                             # 6 个事件 hook + 1 个共享库
-│   ├── _common.sh                     # 共享工具函数(jq 检测/state 原子读写)
+│   ├── _common.sh                     # 共享工具函数(jq/state/review 状态读取)
 │   ├── session-start.sh               # SessionStart
 │   ├── precompact.sh                  # PreCompact(往 Task 文件写恢复指引)
 │   ├── posttooluse-guard.sh           # PostToolUse(文件编辑计数,Bash 只重置连败)
 │   ├── posttoolusefailure.sh          # PostToolUseFailure(连败计数,3 连败切 /bcc-debug)
-│   ├── stop-progress-gate.sh          # Stop(Task Log 更新检查)
-│   ├── userpromptsubmit-router.sh     # UserPromptSubmit(每轮注入工作流路标,引导走 skill)
-│   └── test.sh                        # 6 hook 回归测试(造 stdin 断言输出/state)
+│   ├── stop-progress-gate.sh          # Stop(三级拦截:编辑计数 + review 状态)
+│   ├── userpromptsubmit-router.sh     # UserPromptSubmit(路标 + review 轮次分数)
+│   └── test.sh                        # 6 hook 回归测试
 ├── rules/                             # 3 条确定性策略
 │   ├── honest-communication.md        # 四层中文矫正
 │   ├── git-safety.md                  # 破坏性 git 操作围栏
@@ -349,23 +372,24 @@ claude
 **Q: 为什么 Task 文件放项目级,不放用户级?**
 A: 可以跟项目 git 走(是否提交由各项目 .gitignore 决定)、自然归档、项目结束 task 历史一起走。跨项目搜索其实很少发生。
 
-**Q: 为什么不预设"前端专家""后端专家"agent?**
-A: Opus 4.7 知识面够宽,缺的不是知识是**视角**。
-`/bcc-brief` 里的 Activation Persona 动态注入就够了,不用维护一堆专家 agent。
-安全、性能这种横跨技术栈的维度才考虑加专职 agent——撞到痛点再说。
+**Q: 为什么加了 developer agent 而不是继续主代理写代码?**
+A: 主代理写代码时,每轮迭代的 diff/讨论都堆在上下文里,多轮 review 后 token 消耗暴涨。developer subagent 每轮是独立的干净上下文,主代理只看 JSON 结果。简单任务(≤2 文件 ≤30 行)主代理仍直接改(fast path)。
+
+**Q: 为什么 review 要量化评分?**
+A: 二元 approve/reject 太模糊——reviewer 说"不通过"但不说差多少、差在哪、修什么能过。量化评分(5 维度 0-10 + 权重 + 阈值)让 developer 一眼知道:哪个维度不达标、分数差多少、修什么能拉分。delta_from_previous 防止改 A 破 B。
 
 **Q: 6 个 hook 分别干嘛?**
-A: 三类。**上下文连续性**(2 个):SessionStart 注入活跃 Task,PreCompact 压缩前把恢复指引写进 Task 文件(官方不支持 compact 事件注入上下文,落盘是唯一可靠路径)。**执行纪律**(3 个):PostToolUse 数文件编辑(Bash 不计),PostToolUseFailure 数连败(官方失败事件,不猜 exit code),Stop 卡住不更新 Task Log 就想收尾的行为。**工作流引导**(1 个):UserPromptSubmit 每轮注入工作流路标(活跃 task + 判据),引导主代理自动走对应 skill。共享 `_common.sh`。
+A: 三类。**上下文连续性**(2 个):SessionStart 注入活跃 Task + review 状态,PreCompact 压缩前落盘恢复指引。**执行纪律**(3 个):PostToolUse 数编辑(Bash 不计),PostToolUseFailure 数连败(3 连败提示 debug),Stop 三级拦截(编辑计数 + review 缺失 + review 未通过)。**工作流引导**(1 个):UserPromptSubmit 每轮注入路标(活跃 task + review 轮次分数)。共享 `_common.sh`。
 
 **Q: 主代理不会沦为调度员?**
-A: CLAUDE.md 里写死了:**主代理是首席工程师**,只把重复性/探索性/隔离性的活丢给 subagent,判断自己做。
+A: CLAUDE.md 里写死了:**主代理是首席工程师,不是码农也不是文员**。设计 + 协调 + 决策自己做,实现和审查外包给 subagent。
 
 **Q: 为什么 subagent 输出一律 JSON?**
 A: 弱模型也能填 schema,主代理不用二次理解,可以程序化校验。自由文本意味着多一轮 token + 误读风险。
 
 **Q: 比 Legion 砍了 95%,能力会丢吗?**
 A: Legion 265 个组件里,大部分是弥补"模型当时不够强"。Opus 4.7 之后那些变成死重。
-真正不可替代的——跨会话记忆、子代理通信、review 收敛、执行纪律——就是这 19 个。
+真正不可替代的——跨会话记忆、子代理通信、量化 review 收敛、执行纪律——就是这 22 个。
 
 **Q: Rules 和 CLAUDE.md 什么关系?**
 A: CLAUDE.md 是摘要(1-2 行/条,每次会话都加载),Rules 是展开版(对照表、案例)。不重复,互补。

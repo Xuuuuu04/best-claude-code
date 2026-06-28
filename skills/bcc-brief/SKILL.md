@@ -122,27 +122,74 @@ Read the briefing file at <brief 文件绝对路径>, then execute. Write your o
 > 单厂商场景下这其实合理：subagent 用同一家同一模型即可。要省成本用轻量档，靠会话级手动 /model，
 > 别指望 brief 里写 model 别名生效。（2026-05 查证，CC 机制若变需复核）
 
-### 4b. 实现类 brief 的两阶段 Review（吸收自 Superpowers SDD）
+### 4b. Development Brief（给 Developer subagent 的专用模板）
 
-当 brief 的 For 字段是 `implementer`（实现代码任务）时，实现者完成后追加两轮独立 review：
+当 brief 的 For 字段是 `developer` 时，使用以下增强模板。核心区别：**包含预提取的 Code Context**，让 developer subagent 直接干活不用探索。
 
-**第一轮：Spec 合规 Review**
-- 调度 reviewer subagent，对比 brief 的 Acceptance Criteria 和实际代码
-- 重点检查：有没有漏做的？有没有多做的？有没有理解偏差？
-- **不信任实现者的自述**——独立读代码验证
+```markdown
+# Brief: <一句话目标>
 
-**第二轮：代码质量 Review**
-- 只有 Spec 合规通过后才做
-- 检查：命名、可读性、测试质量、文件职责是否清晰
-- 调度方式：写新 brief（For: reviewer），或直接用内置 reviewer agent
+**Task**: <task id>
+**For**: developer
+**Created**: <时间戳>
 
-**实现者状态协议**——实现类 subagent 的 output JSON 的 status 字段扩展：
-- `DONE` — 正常完成，进入 review
-- `DONE_WITH_CONCERNS` — 完成但有疑虑（主代理先读 concerns 再决定是否 review）
-- `NEEDS_CONTEXT` — 缺信息，主代理补充后重新 dispatch
-- `BLOCKED` — 做不了。主代理判断：补上下文？换更强模型？拆小任务？升级给用户？
+## Activation Persona
+You ARE a focused developer. You implement exactly what this brief specifies.
+You do NOT make design decisions or expand scope.
 
-**绝不忽略 BLOCKED/NEEDS_CONTEXT。** 如果实现者说卡住了，一定有东西要改。
+## Mission
+<1-2 句话明确任务>
+
+## Code Context (主代理预提取——developer 直接用，不需要自己 Read)
+### <file path 1>
+\`\`\`<lang>
+<完整文件内容或关键片段，标注行号>
+\`\`\`
+
+### <file path 2>
+\`\`\`<lang>
+<完整文件内容或关键片段>
+\`\`\`
+
+## Requirements (从 Task Spec 复制)
+- FR-1: <requirement>
+- FR-2: <requirement>
+- NFR-1: <requirement>
+
+## Specific Changes Required
+1. <具体改动 1，精确到函数/行>
+2. <具体改动 2>
+3. <对应的测试>
+
+## Constraints
+- <不改 API 签名>
+- <不动 .env>
+
+## Output Format
+写入 `outputs/dev-result-<slug>.json`，schema 见 agents/developer.md。
+```
+
+**Code Context 是省 token 的关键**：主代理读一次代码，把内容贴进 brief 文件。Developer subagent 收到 brief 就能直接改，不用自己 `Read` 20 个文件去定位。
+
+**Developer 状态协议**——developer subagent 的 output JSON status 字段：
+- `DONE` — 正常完成，主代理调 `/bcc-review` 进入 review
+- `DONE_WITH_CONCERNS` — 完成但有疑虑（主代理先读 concerns 再决定）
+- `NEEDS_CONTEXT` — brief 的 Code Context 不够，主代理补充后重新 dispatch
+- `BLOCKED` — 做不了。主代理判断：补上下文？换更强模型？拆小任务？问用户？
+
+**绝不忽略 BLOCKED/NEEDS_CONTEXT。** 如果 developer 说卡住了，一定有东西要改。
+
+### 4c. Review 流程（Developer 完成后）
+
+Developer 返回 `DONE` 后:
+1. 读 `outputs/dev-result-<slug>.json`
+2. 检查 `tests_run.failed == 0`（测试挂了直接让 developer 修，不进 review）
+3. 调 `/bcc-review` 发起量化评分
+4. 如果 review pass → `/bcc-finish`
+5. 如果 review fail → 写新的 dev brief（只含 reviewer 指出的修复项）→ 再一轮
+6. ≥ 3 轮不收敛 → 叫 judge
+
+**简单任务 fast path**：改动 ≤ 2 文件且 ≤ 30 行时，主代理可以直接改不拆 developer subagent，改完仍走 `/bcc-review`。
 
 ### 5. (可选) 在 Task 文件记一笔
 

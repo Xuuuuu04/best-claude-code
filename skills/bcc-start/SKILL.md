@@ -95,6 +95,22 @@ tags: [<根据诉求加 1-3 个>]
   - [ ] <可验证标准 2>
 - 约束:<必须遵守的边界>
 
+## Spec
+
+### Requirements
+- [ ] FR-1: <功能需求 1,可验证>
+- [ ] FR-2: <功能需求 2,可验证>
+- [ ] NFR-1: <非功能需求,如性能/安全约束>
+
+### Review Dimensions
+| Dimension       | Weight | Threshold | Description          |
+|-----------------|--------|-----------|----------------------|
+| correctness     | 30%    | ≥ 7       | 逻辑正确,边缘情况处理 |
+| security        | 20%    | ≥ 7       | 无注入/泄露/越权      |
+| performance     | 15%    | ≥ 6       | 无 N+1/阻塞/内存泄露  |
+| maintainability | 20%    | ≥ 6       | 命名/结构/可读性      |
+| test_coverage   | 15%    | ≥ 6       | 覆盖失败路径不只 happy |
+
 ## Plan
 1. <步骤 1>
 2. <步骤 2>
@@ -109,6 +125,9 @@ tags: [<根据诉求加 1-3 个>]
 ## Decisions
 <还没有时为空>
 
+## Review History
+<由主代理在每轮 review 后追加,格式见下>
+
 ## Completion
 <尚未完成时为空,/bcc-finish 时填>
 ```
@@ -121,6 +140,34 @@ tags: [<根据诉求加 1-3 个>]
 - `project` = 从 `pwd` 推断(项目根目录名),或读项目 CLAUDE.md 的 `## 项目身份` 段
 - `tags` = 推断 1-3 个,例:`[bug-fix, auth]`、`[feature, ui]`、`[refactor]`、`[docs]`
 - Plan 段如果用户诉求很简单(<3 步),写 1-3 步就好,不要硬凑
+
+### Spec 填充指南
+
+- **Requirements**: 从 Intent 的验收项展开,编号 FR-1/FR-2(功能)、NFR-1(非功能)。每条必须可验证——"跑 X 命令结果是 Y"比"代码质量好"有用 100 倍
+- **Review Dimensions**: 默认用上面模板的 5 维度 + 权重。可按任务性质调整:
+  - 纯重构: maintainability 权重提到 35%,security 降到 10%
+  - 安全相关: security 权重提到 35%,performance 降到 10%
+  - 新功能: 默认权重即可
+  - 纯文档/配置: 不写 Spec 段(跳过 review 评分流程)
+- **Threshold**: 默认 correctness/security ≥ 7,其余 ≥ 6。安全敏感任务可全部提到 ≥ 8
+
+### Review History 格式(由主代理在每轮 review 后追加)
+
+```markdown
+## Review History
+
+### Round 1 (14:30)
+- Weighted: 5.2 | correctness: 6 security: 8 performance: 7 maintainability: 5 test_coverage: 3
+- Blocking: correctness, maintainability, test_coverage
+- Action: 重构 refreshToken 拆函数 + 加 3 个测试
+
+### Round 2 (15:10)
+- Weighted: 7.15 | correctness: 8(+2) security: 9(+1) performance: 7(=) maintainability: 6(+1) test_coverage: 5(+2)
+- Blocking: test_coverage
+- Action: 加网络中断测试
+```
+
+主代理每轮 review 完成后读 review JSON,提取分数追加到这里。这段写在 Task 文件里,跨 compact/跨会话不丢。
 
 ## 反例(别这样做)
 

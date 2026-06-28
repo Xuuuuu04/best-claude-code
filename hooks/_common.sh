@@ -57,3 +57,26 @@ _save_hook_state() {
   jq -n --argjson e "$EDITS" --argjson f "$FAILURES" \
     '{edits_since_task_update: $e, consecutive_bash_failures: $f}' > "$tmp" && mv "$tmp" "$STATE_FILE"
 }
+
+# --- Review 状态读取(v3.0 新增) ---
+
+# 检查 Task 是否有 Spec 段(有 Spec 才需要量化 review)
+_task_has_spec() {
+  grep -q '^## Spec' "$1" 2>/dev/null
+}
+
+# 获取最新 review JSON 路径(按文件名排序取最后一个)
+_latest_review_json() {
+  local slug="$1"
+  ls -1 "$CWD/.claude/tasks/outputs/review-"*".json" 2>/dev/null | sort | tail -1
+}
+
+# 从 review JSON 读 pass/weighted_score/blocking_dimensions
+_read_review_result() {
+  local json_file="$1"
+  [ -f "$json_file" ] || return 1
+  REVIEW_PASS=$(jq -r '.pass // false' "$json_file")
+  REVIEW_WEIGHTED=$(jq -r '.weighted_score // 0' "$json_file")
+  REVIEW_BLOCKING=$(jq -r '(.blocking_dimensions // []) | join(", ")' "$json_file")
+  REVIEW_ROUND=$(jq -r '.round // 0' "$json_file")
+}
